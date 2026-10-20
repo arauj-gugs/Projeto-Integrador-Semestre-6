@@ -50,7 +50,7 @@ Regras em **Settings → Branches → Branch protection rules** para `main`:
 
 - **Pull Request obrigatório:** push direto bloqueado para todos, inclusive administradores.
 - **Mínimo de 1 aprovação:** com cerca de 12 integrantes, 1 aprovação garante um segundo par de olhos sem travar o fluxo; 2 aprovações em todo PR criariam fila de review na semana das três features.
-- **Aprovação extra para contrato congelado:** PR que altera `docs/contratos/` ou o modelo de dados depois de 26/10 precisa de aprovação de alguém de **outra frente** e do arquiteto. Aplicado por `CODEOWNERS` nesses caminhos quando a pasta existir.
+- **Aprovação extra para contrato congelado:** PR que altera `docs/contratos/`, `packages/contratos/` ou o modelo de dados (`apps/api/src/db/`) depois de 26/10 precisa de aprovação de alguém de **outra frente** e do arquiteto. O [`CODEOWNERS`](../.github/CODEOWNERS) lista o arquiteto e Bruno Avelino (frente Borda) nesses caminhos, e o GitHub bloqueia o merge sem a aprovação de **um** deles. O GitHub não consegue exigir os dois ao mesmo tempo num repositório de usuário (times só existem em organizações), então a segunda aprovação é regra de processo, conferida no checklist do PR. Quando o autor é o arquiteto, a aprovação de código vem obrigatoriamente do Bruno, que já é de outra frente.
 - **Status checks obrigatórios:** `docs-lint` (markdownlint) desde já; a partir da fatia vertical (02/11), também `test` (Vitest: unit + contract) e `typecheck` (`tsc --noEmit`), conforme a stack do [ADR-004](adr/004-escolha-da-stack.md).
 - **Histórico linear:** apenas squash merge, para manter o log de `main` legível.
 - **Sem force push e sem exclusão de `main`.**
@@ -123,4 +123,23 @@ Mesmos itens do [template de PR](../.github/pull_request_template.md):
 
 ## Evidência de proteção da `main`
 
-> Pendente: colar aqui o print (ou o texto) das regras ativas em Settings → Branches depois de aplicá-las.
+Aplicada em 2026-10-20 por Gustavo Vieira (gerente), via API do GitHub. Resposta da aplicação (`PUT .../branches/main/protection`), filtrada com `--jq` para os campos relevantes:
+
+```json
+{"admins":true,"approvals":1,"checks":["docs-lint"],"codeowners":true,"deletions":false,"dismiss":true,"force":false,"linear":true,"strict":true}
+```
+
+| Regra | Valor |
+|---|---|
+| Pull request obrigatório, inclusive para administradores | sim (`enforce_admins`) |
+| Aprovações mínimas | 1 |
+| Aprovação de code owner (`CODEOWNERS`) | obrigatória |
+| Novo commit invalida aprovações anteriores | sim |
+| Status checks obrigatórios | `docs-lint` |
+| Branch atualizada com `main` antes do merge | sim (`strict`) |
+| Histórico linear | sim |
+| Force push em `main` | bloqueado |
+| Exclusão de `main` | bloqueada |
+| Tipos de merge permitidos no repositório | só squash, com exclusão automática da branch |
+
+`test` e `typecheck` entram na lista de checks obrigatórios quando o workflow de testes existir (issue #66, até 02/11). Um check obrigatório que nunca roda bloquearia todos os PRs.
