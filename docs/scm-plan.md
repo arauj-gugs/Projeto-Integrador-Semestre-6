@@ -123,7 +123,7 @@ Mesmos itens do [template de PR](../.github/pull_request_template.md):
 | Revisar PRs | **Todos.** Preferência por revisor de outro squad, para circular conhecimento antes da arguição sorteada |
 | Mergear em `main` após aprovação | O **autor do PR** |
 | Aprovar mudança em contrato congelado | Arquiteto (Gustavo Vieira) + 1 integrante de outra frente: Jenifer Gomes (Canais) ou Philipe Gonçalves (Borda), já que o arquiteto também está no Squad 2 |
-| Manter o CI rodando | Bruno Avelino (frente Borda) — proposta; quem vê o CI quebrado em `main` abre issue na hora |
+| Manter o CI rodando | Luís Gabriel (Squad 1, frente Domínio); quem vê o CI quebrado em `main` abre issue na hora |
 | Configurar proteção de branch e acessos | Gerente de projeto (Gustavo Vieira) |
 
 > PR sem review há mais de 2 dias úteis: o autor menciona a equipe no canal da empresa e registra o bloqueio na ata de segunda.
