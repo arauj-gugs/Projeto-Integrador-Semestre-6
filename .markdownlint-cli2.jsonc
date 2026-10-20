@@ -1,0 +1,10 @@
+{
+  "config": {
+    "default": true,
+    // Tabelas e linhas longas são comuns nos documentos de requisitos.
+    "MD013": false,
+    // Ênfase usada como rótulo (ex.: **Pré-condições**) é intencional.
+    "MD036": false,
+    "MD024": { "siblings_only": true }
+  }
+}
