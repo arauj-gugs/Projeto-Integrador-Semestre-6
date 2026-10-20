@@ -18,7 +18,7 @@ A empresa se organiza em **três frentes** (exigência do caderno, seção 3) e 
 | Arquiteto | — | Gustavo Vieira |
 | Squad 1 — Fila (F3) | Domínio | Luís Gabriel |
 | Squad 2 — Estimativa (F1) | Domínio | Gustavo Vieira, Gabriel Ciloé, Kevilly Vitória, Guilherme Pires |
-| Squad 3 — Tutor (F2) | Canais | `<nomes> [TBD]` |
+| Squad 3 — Tutor (F2) | Canais | Jenifer Gomes |
 | Squad 4 — Campo e hardware | Borda | Philipe Gonçalves, Bruno Avelino |
 
 Coordenação: Prof. Eduardo Mendes Oliveira. O professor atua como cliente único.

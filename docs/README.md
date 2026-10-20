@@ -10,8 +10,8 @@ Empresa `<A/B>` do 6º período de Engenharia de Computação (UNASP-EC, 2026/2)
 | Arquiteto | Gustavo Vieira |
 | Squad 1 — Fila (F3), frente Domínio | Luís Gabriel |
 | Squad 2 — Estimativa (F1), frente Domínio | Gustavo Vieira, Gabriel Ciloé, Kevilly Vitória, Guilherme Pires |
-| Squad 3 — Tutor (F2), frente Canais | `<nomes> [TBD]` |
-| Squad 4 — Campo e hardware, frente Borda | Bruno Avelino |
+| Squad 3 — Tutor (F2), frente Canais | Jenifer Gomes |
+| Squad 4 — Campo e hardware, frente Borda | Philipe Gonçalves, Bruno Avelino |
 
 ## Tema
 
