@@ -50,7 +50,16 @@ Regras em **Settings → Branches → Branch protection rules** para `main`:
 
 - **Pull Request obrigatório:** push direto bloqueado para todos, inclusive administradores.
 - **Mínimo de 1 aprovação:** com cerca de 12 integrantes, 1 aprovação garante um segundo par de olhos sem travar o fluxo; 2 aprovações em todo PR criariam fila de review na semana das três features.
-- **Aprovação extra para contrato congelado:** PR que altera `docs/contratos/`, `packages/contratos/` ou o modelo de dados (`apps/api/src/db/`) depois de 26/10 precisa de aprovação de alguém de **outra frente** e do arquiteto. O [`CODEOWNERS`](../.github/CODEOWNERS) lista o arquiteto e Bruno Avelino (frente Borda) nesses caminhos, e o GitHub bloqueia o merge sem a aprovação de **um** deles. O GitHub não consegue exigir os dois ao mesmo tempo num repositório de usuário (times só existem em organizações), então a segunda aprovação é regra de processo, conferida no checklist do PR. Quando o autor é o arquiteto, a aprovação de código vem obrigatoriamente do Bruno, que já é de outra frente.
+- **Aprovação extra para contrato congelado:** PR que altera `docs/contratos/`, `packages/contratos/` ou o modelo de dados (`apps/api/src/db/`) depois de 26/10 precisa de aprovação de alguém de **outra frente** e do arquiteto. O [`CODEOWNERS`](../.github/CODEOWNERS) define os donos por caminho, e o GitHub bloqueia o merge sem a aprovação de **um** deles:
+
+  | Caminho | Donos |
+  |---|---|
+  | `docs/contratos/`, `packages/contratos/` | Arquiteto, Jenifer Gomes (Canais), Philipe Gonçalves (Borda) |
+  | `packages/contratos/fixtures/borda/` | Arquiteto, Philipe Gonçalves (Borda) |
+  | `apps/api/src/db/` | Arquiteto, Jenifer Gomes (Canais), Philipe Gonçalves (Borda) |
+
+  O GitHub não consegue exigir dois donos ao mesmo tempo num repositório de usuário (times só existem em organizações), então a segunda aprovação é regra de processo, conferida no checklist do PR. Quando o autor é o arquiteto, a aprovação de código vem obrigatoriamente de Jenifer ou Philipe, que já são de outra frente; nas fixtures da Borda, só do Philipe.
+
 - **Status checks obrigatórios:** `docs-lint` (markdownlint) desde já; a partir da fatia vertical (02/11), também `test` (Vitest: unit + contract) e `typecheck` (`tsc --noEmit`), conforme a stack do [ADR-004](adr/004-escolha-da-stack.md).
 - **Histórico linear:** apenas squash merge, para manter o log de `main` legível.
 - **Sem force push e sem exclusão de `main`.**
@@ -113,7 +122,7 @@ Mesmos itens do [template de PR](../.github/pull_request_template.md):
 |---|---|
 | Revisar PRs | **Todos.** Preferência por revisor de outro squad, para circular conhecimento antes da arguição sorteada |
 | Mergear em `main` após aprovação | O **autor do PR** |
-| Aprovar mudança em contrato congelado | Arquiteto (Gustavo Vieira) + 1 integrante de frente diferente da Domínio (Canais ou Borda), já que o arquiteto também está no Squad 2 |
+| Aprovar mudança em contrato congelado | Arquiteto (Gustavo Vieira) + 1 integrante de outra frente: Jenifer Gomes (Canais) ou Philipe Gonçalves (Borda), já que o arquiteto também está no Squad 2 |
 | Manter o CI rodando | Bruno Avelino (frente Borda) — proposta; quem vê o CI quebrado em `main` abre issue na hora |
 | Configurar proteção de branch e acessos | Gerente de projeto (Gustavo Vieira) |
 

@@ -1,5 +1,6 @@
-# Contratos congelados em 26/10 e modelo de dados: arquiteto e um integrante de fora da frente Domínio.
-# Regras em docs/scm-plan.md, seção 1.2.
-/docs/contratos/        @arauj-gugs @brunoavelinoalves-bit
-/packages/contratos/    @arauj-gugs @brunoavelinoalves-bit
-/apps/api/src/db/       @arauj-gugs @brunoavelinoalves-bit
+# Contratos congelados em 26/10 e modelo de dados: arquiteto e integrantes de fora da frente Domínio.
+# Vale a última regra que casa com o arquivo. Regras em docs/scm-plan.md, seção 1.2.
+/docs/contratos/                     @arauj-gugs @jeni101 @epilihP
+/packages/contratos/                 @arauj-gugs @jeni101 @epilihP
+/packages/contratos/fixtures/borda/  @arauj-gugs @epilihP
+/apps/api/src/db/                    @arauj-gugs @jeni101 @epilihP
