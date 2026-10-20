@@ -182,7 +182,8 @@ npm run test:e2e                  # roteiro de demonstração (Playwright)
 | Documento | Conteúdo |
 |---|---|
 | [docs/README.md](docs/README.md) | Portfólio: equipe, tema, escopo, links |
-| [docs/process.md](docs/process.md) | Ciclo semanal, DoR, DoD, PR e review |
+| [docs/process.md](docs/process.md) | Ciclo semanal, quadro kanban, DoR, DoD, PR e review |
+| [Quadro kanban (GitHub Project)](https://github.com/users/arauj-gugs/projects/7) | Tarefas de cada squad por marco, de S3 até a entrega final |
 | [docs/metrics.md](docs/metrics.md) | Métricas de saúde do processo |
 | [docs/requirements/stakeholders.md](docs/requirements/stakeholders.md) | Mapa de stakeholders |
 | [docs/requirements/backlog.md](docs/requirements/backlog.md) | Backlog v0.1 (MoSCoW, NFR, restrições) |

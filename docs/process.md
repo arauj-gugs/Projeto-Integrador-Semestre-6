@@ -7,6 +7,18 @@
 - **Decisão relevante:** vira ADR em `docs/adr/NNN-titulo.md`, commitado na data da decisão (ADR de véspera não conta).
 - **Uso de IA:** registrado no [Registro de IA](registro-ia.md) no mesmo PR em que o resultado entra.
 
+## Quadro kanban
+
+As tarefas de cada squad são issues no [GitHub Project "Fila Virtual — Kanban"](https://github.com/users/arauj-gugs/projects/7), com uma coluna por estado:
+
+- **Backlog:** ainda não atende a Definition of Ready.
+- **Pronto (DoR):** atende a Definition of Ready.
+- **Em andamento:** alguém se atribuiu e está trabalhando.
+- **Em revisão (PR):** PR aberto aguardando revisão.
+- **Concluído:** atende a Definition of Done.
+
+Cada issue tem o label do squad (`squad:1-fila`, `squad:2-estimativa`, `squad:3-tutor`, `squad:4-campo-hw`, `gestao` ou `empresa`), a prioridade MoSCoW e o milestone do marco de segunda-feira em que precisa estar pronta. Issues que tocam contrato congelado levam o label `contrato`. Na segunda-feira, o quadro filtrado pelo milestone da semana é a base do status exposto na ata.
+
 ## Definition of Ready (item pode começar)
 
 1. Tem ID de requisito ou UC ([SRS](requirements/srs.md), [casos de uso](requirements/casos-de-uso.md)).
