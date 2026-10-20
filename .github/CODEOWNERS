@@ -1,0 +1,5 @@
+# Contratos congelados em 26/10 e modelo de dados: arquiteto e um integrante de fora da frente Domínio.
+# Regras em docs/scm-plan.md, seção 1.2.
+/docs/contratos/        @arauj-gugs @brunoavelinoalves-bit
+/packages/contratos/    @arauj-gugs @brunoavelinoalves-bit
+/apps/api/src/db/       @arauj-gugs @brunoavelinoalves-bit
