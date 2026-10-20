@@ -1,0 +1,23 @@
+# Dependências e builds
+node_modules/
+dist/
+.vite/
+
+# Variáveis de ambiente (DATABASE_URL e segredos)
+.env
+.env.*
+!.env.example
+
+# Testes
+coverage/
+playwright-report/
+test-results/
+
+# Hospedagem
+.vercel/
+
+# Logs e sistema
+*.log
+!docs/test-strategy/evidencias/*.log
+.DS_Store
+Thumbs.db
