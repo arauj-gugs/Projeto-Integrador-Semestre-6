@@ -143,12 +143,12 @@ tambem e da empresa inteira.
 | Arquiteto | Gustavo Vieira |
 | Squad 1 — Fila | Luís Gabriel |
 | Squad 2 — Estimativa | Gustavo Vieira, Gabriel Ciloé, Kevilly Vitória, Guilherme Pires |
-| Squad 3 — Tutor | `<nomes> [TBD]` |
-| Squad 4 — Campo e hardware | Bruno Avelino |
+| Squad 3 — Tutor | Jenifer Gomes |
+| Squad 4 — Campo e hardware | Philipe Gonçalves, Bruno Avelino |
 
-Pendencia mais urgente: o Squad 3 esta sem integrantes. F2 e feature
-obrigatoria e a frente Canais concentra as telas do roteiro de demonstracao,
-entao a composicao precisa ser fechada antes do marco de 26/10.
+Pendencia mais urgente: o Squad 3 tem uma integrante para 13 tarefas do
+quadro, incluindo todas as telas do roteiro de demonstracao. F2 e feature
+obrigatoria, entao o squad precisa de reforco antes do marco de 26/10.
 
 ## Consequencias aceitas
 
