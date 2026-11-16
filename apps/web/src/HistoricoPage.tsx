@@ -4,9 +4,10 @@ type HistoricoItem = {
   id: string;
   codigo: string;
   tipo: string;
-  previsto_p50: number;
-  previsto_p90: number;
-  realizado_minutos: number;
+  espera_prevista_p50: number;
+  espera_prevista_p90: number;
+  espera_realizada_minutos: number;
+  duracao_minutos: number;
   erro_minutos: number;
   erro_absoluto_minutos: number;
   suspeita: boolean;
@@ -15,8 +16,8 @@ type HistoricoItem = {
 
 type Indicador = {
   tipo: string;
-  previsto_medio: number;
-  realizado_medio: number;
+  espera_prevista_media: number;
+  espera_realizada_media: number;
   n: number;
 };
 
@@ -67,8 +68,8 @@ export function HistoricoPage() {
   const maxBarra = Math.max(
     1,
     ...(dados?.indicadores ?? []).flatMap((i) => [
-      i.previsto_medio,
-      i.realizado_medio,
+      i.espera_prevista_media,
+      i.espera_realizada_media,
     ]),
   );
 
@@ -104,7 +105,7 @@ export function HistoricoPage() {
       {dados && (
         <>
           <p className="mae">
-            Erro médio absoluto do dia:{" "}
+            Erro médio absoluto da espera (início real − início previsto):{" "}
             <strong>
               {dados.erro_medio_absoluto.geral === null
                 ? "—"
@@ -121,11 +122,12 @@ export function HistoricoPage() {
                 <tr>
                   <th>Código</th>
                   <th>Tipo</th>
-                  <th>Previsto p50</th>
-                  <th>Previsto p90</th>
-                  <th>Realizado</th>
+                  <th>Espera prevista p50</th>
+                  <th>Espera prevista p90</th>
+                  <th>Espera realizada</th>
                   <th>Erro</th>
                   <th>|Erro|</th>
+                  <th>Duração</th>
                 </tr>
               </thead>
               <tbody>
@@ -133,18 +135,19 @@ export function HistoricoPage() {
                   <tr key={a.id}>
                     <td>{a.codigo}</td>
                     <td>{a.tipo}</td>
-                    <td>{a.previsto_p50} min</td>
-                    <td>{a.previsto_p90} min</td>
-                    <td>{a.realizado_minutos} min</td>
+                    <td>{a.espera_prevista_p50} min</td>
+                    <td>{a.espera_prevista_p90} min</td>
+                    <td>{a.espera_realizada_minutos} min</td>
                     <td>{a.erro_minutos} min</td>
                     <td>{a.erro_absoluto_minutos} min</td>
+                    <td>{a.duracao_minutos} min</td>
                   </tr>
                 ))}
               </tbody>
             </table>
           )}
 
-          <h2>Previsto versus realizado por tipo</h2>
+          <h2>Espera prevista versus espera realizada por tipo</h2>
           <div className="barras" role="img" aria-label="Gráfico de barras">
             {(dados.indicadores ?? []).map((ind) => (
               <div key={ind.tipo} className="barra-grupo">
@@ -152,26 +155,26 @@ export function HistoricoPage() {
                   {ind.tipo} (n={ind.n})
                 </div>
                 <div className="barra-linha">
-                  <span>previsto</span>
+                  <span>prevista</span>
                   <div
                     className="barra barra--previsto"
                     style={{
-                      width: `${(ind.previsto_medio / maxBarra) * 100}%`,
+                      width: `${(ind.espera_prevista_media / maxBarra) * 100}%`,
                     }}
-                    title={`${ind.previsto_medio} min`}
+                    title={`${ind.espera_prevista_media} min`}
                   />
-                  <em>{ind.previsto_medio} min</em>
+                  <em>{ind.espera_prevista_media} min</em>
                 </div>
                 <div className="barra-linha">
-                  <span>realizado</span>
+                  <span>realizada</span>
                   <div
                     className="barra barra--realizado"
                     style={{
-                      width: `${(ind.realizado_medio / maxBarra) * 100}%`,
+                      width: `${(ind.espera_realizada_media / maxBarra) * 100}%`,
                     }}
-                    title={`${ind.realizado_medio} min`}
+                    title={`${ind.espera_realizada_media} min`}
                   />
-                  <em>{ind.realizado_medio} min</em>
+                  <em>{ind.espera_realizada_media} min</em>
                 </div>
               </div>
             ))}

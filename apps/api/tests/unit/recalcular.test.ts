@@ -27,13 +27,13 @@ consulta,2026-10-02T11:00:00.000Z,2026-10-02T11:22:00.000Z,direta
 consulta,2026-10-02T14:00:00.000Z,2026-10-02T14:35:00.000Z,direta
 `;
 
-describe("recalcular ao encerrar (#38)", () => {
+describe("recalcular ao encerrar", () => {
   beforeEach(() => {
     resetStore();
     importarSerie(CSV);
   });
 
-  it("incorpora duração e recalcula estimativas de quem ainda espera", () => {
+  it("incorpora duração e atualiza espera_atual de quem ainda espera", () => {
     const a1 = criarAtendimento({
       especie: "cao",
       porte: "medio",
@@ -52,7 +52,8 @@ describe("recalcular ao encerrar (#38)", () => {
       inicio_real: new Date("2026-11-15T12:00:00.000Z"),
     });
 
-    const p50Antes = obterAtendimento(a2.id)?.previsto_p50;
+    const ingressoAntes = obterAtendimento(a2.id)?.previsto_ingresso_p50;
+    expect(ingressoAntes).toBeGreaterThan(0);
 
     const { recalculados } = encerrarAtendimento(
       a1.id,
@@ -66,9 +67,38 @@ describe("recalcular ao encerrar (#38)", () => {
     expect(recalculados.some((r) => r.id === a2.id)).toBe(true);
 
     const depois = obterAtendimento(a2.id)!;
-    expect(depois.previsto_p50).not.toBeNull();
-    // Com a fila vazia à frente, a espera cai para 0.
-    expect(depois.previsto_p50).toBe(0);
-    expect(depois.previsto_p50).not.toBe(p50Antes);
+    // Previsto do ingresso permanece (RF-07).
+    expect(depois.previsto_ingresso_p50).toBe(ingressoAntes);
+    expect(depois.inicio_previsto).toEqual(a2.inicio_previsto);
+    // Espera atual cai para 0 com a fila vazia à frente.
+    expect(depois.espera_atual_p50).toBe(0);
+  });
+
+  it("não apaga previsto_ingresso ao encerrar quem está na frente", () => {
+    const a1 = criarAtendimento({
+      especie: "cao",
+      porte: "medio",
+      tipo_atendimento: "vacina",
+    }).atendimento;
+    const a2 = criarAtendimento({
+      especie: "gato",
+      porte: "pequeno",
+      tipo_atendimento: "consulta",
+    }).atendimento;
+
+    const p50Ingresso = a2.previsto_ingresso_p50;
+    const p90Ingresso = a2.previsto_ingresso_p90;
+    const inicioPrevisto = a2.inicio_previsto?.getTime();
+
+    encerrarAtendimento(
+      a1.id,
+      new Date(a1.criado_em.getTime()),
+      new Date(a1.criado_em.getTime() + 12 * 60_000),
+    );
+
+    const depois = obterAtendimento(a2.id)!;
+    expect(depois.previsto_ingresso_p50).toBe(p50Ingresso);
+    expect(depois.previsto_ingresso_p90).toBe(p90Ingresso);
+    expect(depois.inicio_previsto?.getTime()).toBe(inicioPrevisto);
   });
 });

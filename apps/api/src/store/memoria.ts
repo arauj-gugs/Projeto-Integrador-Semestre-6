@@ -17,13 +17,22 @@ export type AtendimentoMemoria = {
   reativo: boolean;
   suspeita_infectocontagiosa: boolean;
   estado: EstadoAtendimento;
-  previsto_p50: number | null;
-  previsto_p90: number | null;
+  /** Espera p50 gravada no ingresso — imutável (RF-07 / UC-05). */
+  previsto_ingresso_p50: number | null;
+  /** Espera p90 gravada no ingresso — imutável. */
+  previsto_ingresso_p90: number | null;
   estimativa_degradada: boolean;
+  /** Início previsto no ingresso (criado_em + p50) — imutável. */
   inicio_previsto: Date | null;
+  /** Espera atual recalculada para as telas; não entra no erro histórico. */
+  espera_atual_p50: number | null;
+  espera_atual_p90: number | null;
   inicio_real: Date | null;
   fim_real: Date | null;
+  /** Duração do procedimento (fim − início real). */
   realizado_minutos: number | null;
+  /** Espera realizada: início real − criado_em. */
+  espera_realizada_minutos: number | null;
   erro_minutos: number | null;
   erro_absoluto_minutos: number | null;
   suspeita: boolean;

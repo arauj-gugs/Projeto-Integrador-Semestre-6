@@ -1,7 +1,7 @@
 import { TIPOS_ATENDIMENTO, type TipoAtendimento } from "./constantes.js";
 import type { SeriePorTipo } from "./faixa.js";
 
-export type OrigemAmostra = "direta" | "retrospectiva";
+export type OrigemAmostra = "direta" | "retrospectiva" | "entrevista";
 
 export type AmostraCampo = {
   tipo: TipoAtendimento;
@@ -127,7 +127,11 @@ export function importarSerieCsv(csv: string): ResultadoImportacao {
 
     const origemNorm = origemRaw.trim().toLowerCase();
     const origem: OrigemAmostra =
-      origemNorm === "retrospectiva" ? "retrospectiva" : "direta";
+      origemNorm === "retrospectiva"
+        ? "retrospectiva"
+        : origemNorm === "entrevista"
+          ? "entrevista"
+          : "direta";
 
     const amostra: AmostraCampo = {
       tipo,

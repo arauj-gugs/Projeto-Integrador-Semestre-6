@@ -3,6 +3,7 @@ import {
   calcularErroAtendimento,
   erroMedioAbsoluto,
   incorporarDuracao,
+  minutosEntre,
 } from "../estimativa/erro.js";
 import { estimarParaIngresso, type CasoNaFila } from "../estimativa/faixa.js";
 import { importarSerieCsv } from "../estimativa/importar-serie.js";
@@ -58,11 +59,11 @@ export function criarAtendimento(input: {
   const aFrente = aFrenteComoCasos(undefined, agora);
   const faixa = estimarParaIngresso(input.tipo_atendimento, aFrente, serie);
 
-  const previsto_p50 = faixa.disponivel ? faixa.p50 : null;
-  const previsto_p90 = faixa.disponivel ? faixa.p90 : null;
+  const previsto_ingresso_p50 = faixa.disponivel ? faixa.p50 : null;
+  const previsto_ingresso_p90 = faixa.disponivel ? faixa.p90 : null;
   const inicio_previsto =
-    previsto_p50 !== null
-      ? new Date(agora.getTime() + previsto_p50 * 60_000)
+    previsto_ingresso_p50 !== null
+      ? new Date(agora.getTime() + previsto_ingresso_p50 * 60_000)
       : null;
 
   const atendimento: AtendimentoMemoria = {
@@ -74,15 +75,18 @@ export function criarAtendimento(input: {
     reativo: input.reativo ?? false,
     suspeita_infectocontagiosa: input.suspeita_infectocontagiosa ?? false,
     estado: "aguardando",
-    previsto_p50,
-    previsto_p90,
+    previsto_ingresso_p50,
+    previsto_ingresso_p90,
     estimativa_degradada: faixa.disponivel
       ? faixa.estimativa_degradada
       : true,
     inicio_previsto,
+    espera_atual_p50: previsto_ingresso_p50,
+    espera_atual_p90: previsto_ingresso_p90,
     inicio_real: null,
     fim_real: null,
     realizado_minutos: null,
+    espera_realizada_minutos: null,
     erro_minutos: null,
     erro_absoluto_minutos: null,
     suspeita: false,
@@ -135,13 +139,14 @@ export function encerrarAtendimento(
   const inicioPrevisto =
     atual.inicio_previsto ??
     new Date(
-      atual.criado_em.getTime() + (atual.previsto_p50 ?? 0) * 60_000,
+      atual.criado_em.getTime() +
+        (atual.previsto_ingresso_p50 ?? 0) * 60_000,
     );
 
   const resultado = calcularErroAtendimento(
     {
       tipo,
-      previsto_p50: atual.previsto_p50 ?? 0,
+      previsto_p50: atual.previsto_ingresso_p50 ?? 0,
       inicio_previsto: inicioPrevisto,
       inicio_real: inicioReal,
       fim_real: fimReal,
@@ -173,6 +178,11 @@ export function encerrarAtendimento(
     });
   }
 
+  const espera_realizada_minutos = Math.max(
+    0,
+    minutosEntre(atual.criado_em, inicioReal),
+  );
+
   const encerrado: AtendimentoMemoria = {
     ...atual,
     tipo,
@@ -180,6 +190,7 @@ export function encerrarAtendimento(
     inicio_real: inicioReal,
     fim_real: fimReal,
     realizado_minutos: resultado.duracao_real_minutos,
+    espera_realizada_minutos,
     erro_minutos: resultado.erro_minutos,
     erro_absoluto_minutos: resultado.erro_absoluto_minutos,
     suspeita: resultado.suspeita,
@@ -190,6 +201,7 @@ export function encerrarAtendimento(
   return { atendimento: encerrado, recalculados };
 }
 
+/** Recalcula só espera_atual_*; não mexe no previsto do ingresso. */
 export function recalcularFila(agora = new Date()) {
   const serie = serieAtual();
   const abertos = listarAguardandoOuEmCurso().sort(
@@ -216,25 +228,19 @@ export function recalcularFila(agora = new Date()) {
     });
 
     const faixa = estimarParaIngresso(atual.tipo, frente, serie);
-    const previsto_p50 = faixa.disponivel ? faixa.p50 : null;
-    const previsto_p90 = faixa.disponivel ? faixa.p90 : null;
+    const espera_atual_p50 = faixa.disponivel ? faixa.p50 : null;
+    const espera_atual_p90 = faixa.disponivel ? faixa.p90 : null;
     const atualizado: AtendimentoMemoria = {
       ...atual,
-      previsto_p50,
-      previsto_p90,
-      estimativa_degradada: faixa.disponivel
-        ? faixa.estimativa_degradada
-        : true,
-      inicio_previsto:
-        previsto_p50 !== null
-          ? new Date(agora.getTime() + previsto_p50 * 60_000)
-          : null,
+      espera_atual_p50,
+      espera_atual_p90,
+      // previsto_ingresso_* e inicio_previsto permanecem intactos
     };
     salvarAtendimento(atualizado);
     resultado.push({
       id: atual.id,
-      p50: previsto_p50,
-      p90: previsto_p90,
+      p50: espera_atual_p50,
+      p90: espera_atual_p90,
     });
   }
 
@@ -263,20 +269,23 @@ export function historicoDoDia(filtro?: {
 
   const porTipo = new Map<
     string,
-    { previsto: number[]; realizado: number[] }
+    { espera_prevista: number[]; espera_realizada: number[] }
   >();
   for (const a of encerrados) {
-    const bucket = porTipo.get(a.tipo) ?? { previsto: [], realizado: [] };
-    bucket.previsto.push(a.previsto_p50 ?? 0);
-    bucket.realizado.push(a.realizado_minutos ?? 0);
+    const bucket = porTipo.get(a.tipo) ?? {
+      espera_prevista: [],
+      espera_realizada: [],
+    };
+    bucket.espera_prevista.push(a.previsto_ingresso_p50 ?? 0);
+    bucket.espera_realizada.push(a.espera_realizada_minutos ?? 0);
     porTipo.set(a.tipo, bucket);
   }
 
   const indicadores = [...porTipo.entries()].map(([tipo, vals]) => ({
     tipo,
-    previsto_medio: media(vals.previsto),
-    realizado_medio: media(vals.realizado),
-    n: vals.previsto.length,
+    espera_prevista_media: media(vals.espera_prevista),
+    espera_realizada_media: media(vals.espera_realizada),
+    n: vals.espera_prevista.length,
   }));
 
   return {
@@ -285,9 +294,10 @@ export function historicoDoDia(filtro?: {
       id: a.id,
       codigo: a.codigo,
       tipo: a.tipo,
-      previsto_p50: a.previsto_p50 ?? 0,
-      previsto_p90: a.previsto_p90 ?? 0,
-      realizado_minutos: a.realizado_minutos ?? 0,
+      espera_prevista_p50: a.previsto_ingresso_p50 ?? 0,
+      espera_prevista_p90: a.previsto_ingresso_p90 ?? 0,
+      espera_realizada_minutos: a.espera_realizada_minutos ?? 0,
+      duracao_minutos: a.realizado_minutos ?? 0,
       erro_minutos: a.erro_minutos ?? 0,
       erro_absoluto_minutos: a.erro_absoluto_minutos ?? 0,
       suspeita: a.suspeita,

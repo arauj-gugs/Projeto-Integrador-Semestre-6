@@ -41,9 +41,10 @@ export const HistoricoItemSchema = z.object({
   id: z.string(),
   codigo: z.string(),
   tipo: TipoAtendimentoSchema,
-  previsto_p50: z.number(),
-  previsto_p90: z.number(),
-  realizado_minutos: z.number(),
+  espera_prevista_p50: z.number(),
+  espera_prevista_p90: z.number(),
+  espera_realizada_minutos: z.number(),
+  duracao_minutos: z.number(),
   erro_minutos: z.number(),
   erro_absoluto_minutos: z.number(),
   suspeita: z.boolean(),
@@ -61,8 +62,8 @@ export const HistoricoDiaSchema = z.object({
     .array(
       z.object({
         tipo: z.string(),
-        previsto_medio: z.number(),
-        realizado_medio: z.number(),
+        espera_prevista_media: z.number(),
+        espera_realizada_media: z.number(),
         n: z.number().int(),
       }),
     )

@@ -49,4 +49,21 @@ describe("importarSerieCsv (RF-11)", () => {
       motivo: "motivo ausente",
     });
   });
+
+  it("importa a série da entrevista com origem=entrevista e tipos SRS", () => {
+    const csv = readFileSync(
+      join(__dirname, "../fixtures/serie-entrevista.csv"),
+      "utf8",
+    );
+    const resultado = importarSerieCsv(csv);
+    expect(resultado.rejeitadas).toEqual([]);
+    expect(resultado.serie.vacina).toEqual([10, 15]);
+    expect(resultado.serie.consulta).toEqual([20]);
+    expect(resultado.serie.exame).toEqual([
+      15, 20, 60, 15, 10, 15, 30, 40, 50, 60, 90, 120, 180,
+    ]);
+    expect(
+      resultado.aceitas.every((a) => a.origem === "entrevista"),
+    ).toBe(true);
+  });
 });
