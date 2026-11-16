@@ -161,6 +161,11 @@ fieldset legend {
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
+  position: sticky;
+  top: 0;
+  align-self: start;
+  height: 100vh;
+  overflow-y: auto;
 }
 
 .clinic__brand {
@@ -213,6 +218,11 @@ fieldset legend {
   }
 
   .clinic__nav {
+    position: sticky;
+    top: 0;
+    z-index: 20;
+    height: auto;
+    overflow-y: visible;
     flex-direction: row;
     flex-wrap: wrap;
     align-items: center;
@@ -522,28 +532,87 @@ fieldset legend {
   background: rgba(255, 255, 255, 0.15);
 }
 
-.fila-col__form {
-  display: grid;
-  gap: 0.45rem;
-  margin-bottom: 0.75rem;
-  padding-bottom: 0.75rem;
-  border-bottom: 1px solid var(--superficie-2);
-  font-size: 0.85rem;
+.fila-dialog {
+  width: min(24rem, calc(100vw - 2rem));
+  margin: auto;
+  padding: 0;
+  border: 0;
+  border-radius: var(--raio);
+  background: var(--superficie);
+  color: var(--tinta);
+  box-shadow: 0 1.25rem 3rem rgba(28, 25, 23, 0.35);
 }
 
-.fila-col__form-modo {
+.fila-dialog::backdrop {
+  background: rgba(28, 25, 23, 0.55);
+}
+
+.fila-dialog__cabeca {
   display: flex;
-  gap: 0.35rem;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.85rem 1rem;
+  color: #fff;
 }
 
-.fila-col__form label {
+.fila-dialog--cao .fila-dialog__cabeca {
+  background: var(--fila-cao);
+}
+
+.fila-dialog--gato .fila-dialog__cabeca {
+  background: var(--fila-gato);
+}
+
+.fila-dialog--silvestre .fila-dialog__cabeca {
+  background: var(--fila-silvestre);
+}
+
+.fila-dialog--isolamento .fila-dialog__cabeca {
+  background: var(--fila-isolamento);
+}
+
+.fila-dialog__cabeca h3 {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+.fila-dialog__fechar {
+  width: 1.75rem;
+  height: 1.75rem;
+  padding: 0;
+  border: 1px solid rgba(255, 255, 255, 0.45);
+  background: transparent;
+  color: #fff;
+  font-size: 1.25rem;
+  line-height: 1;
+}
+
+.fila-dialog__fechar:hover {
+  background: rgba(255, 255, 255, 0.15);
+}
+
+.fila-dialog__corpo {
   display: grid;
-  gap: 0.2rem;
+  gap: 0.85rem;
+  padding: 1.1rem 1.15rem 1.25rem;
 }
 
-.fila-col__form select,
-.fila-col__form input[type="number"] {
-  font: inherit;
+.fila-dialog__modo {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.5rem;
+}
+
+.fila-dialog__modo button {
+  width: 100%;
+}
+
+.fila-dialog__submit {
+  width: 100%;
+  margin-top: 0.25rem;
 }
 
 .fila-col--cao .fila-col__cabeca {
@@ -608,6 +677,7 @@ fieldset legend {
 }
 
 .em-curso {
+  position: relative;
   background: var(--tinta);
   color: var(--papel);
   padding: 1.25rem 1.4rem;
@@ -615,7 +685,7 @@ fieldset legend {
 
 .em-curso__topo {
   display: flex;
-  align-items: baseline;
+  align-items: center;
   justify-content: space-between;
   gap: 0.75rem;
 }
@@ -626,30 +696,65 @@ fieldset legend {
   opacity: 0.7;
 }
 
+.em-curso__topo-direita {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+}
+
 .em-curso__slots {
   font-size: 0.9rem;
   opacity: 0.85;
+}
+
+.em-curso__gear {
+  width: 1.75rem;
+  height: 1.75rem;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid rgba(255, 253, 248, 0.35);
+  background: transparent;
+  color: var(--papel);
+  opacity: 0.85;
+}
+
+.em-curso__gear:hover,
+.em-curso__gear[aria-expanded="true"] {
+  opacity: 1;
+  background: rgba(255, 253, 248, 0.1);
+}
+
+.em-curso__popover {
+  position: absolute;
+  top: calc(100% + 0.4rem);
+  right: 0;
+  z-index: 5;
+  min-width: 8.5rem;
+  padding: 0.75rem 0.85rem;
+  background: var(--superficie);
+  color: var(--tinta);
+  box-shadow: 0 0.75rem 1.5rem rgba(28, 25, 23, 0.28);
+}
+
+.em-curso__popover label {
+  margin: 0;
+  font-size: 0.85rem;
+}
+
+.em-curso__popover input {
+  width: 100%;
+  margin-top: 0.25rem;
 }
 
 .em-curso__cap {
   display: flex;
   flex-wrap: wrap;
   gap: 0.65rem;
-  align-items: end;
+  align-items: center;
   margin: 0.65rem 0 0.85rem;
-}
-
-.em-curso__cap label {
-  display: grid;
-  gap: 0.2rem;
-  font-size: 0.8rem;
-  opacity: 0.9;
-}
-
-.em-curso__cap input {
-  width: 4rem;
-  font: inherit;
-  padding: 0.25rem 0.4rem;
 }
 
 .em-curso__lista {
