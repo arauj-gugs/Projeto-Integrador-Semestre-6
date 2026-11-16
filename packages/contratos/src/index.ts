@@ -1,5 +1,6 @@
 /**
- * Contrato Domínio ↔ Canais (issues #25 e #43, ADR-000).
+ * Contrato Domínio ↔ Canais (issues #25 e #43, ADR-000)
+ * e Borda → Domínio (issue #64, UC-06).
  *
  * Paths:
  * - POST /atendimentos
@@ -9,6 +10,8 @@
  * - POST /atendimentos/{id}/localizacao
  * - GET /fila/stream
  * - GET /historico
+ *
+ * Fixtures da Borda: packages/contratos/fixtures/borda/
  */
 
 export * from "./enums.js";
@@ -20,3 +23,4 @@ export * from "./emergencia.js";
 export * from "./encerramento.js";
 export * from "./localizacao.js";
 export * from "./atendimento.js";
+export * from "./borda.js";

@@ -151,4 +151,4 @@ Aplicada em 2026-10-20 por Gustavo Vieira (gerente), via API do GitHub. Resposta
 | Exclusão de `main` | bloqueada |
 | Tipos de merge permitidos no repositório | só squash, com exclusão automática da branch |
 
-`test` e `typecheck` entram na lista de checks obrigatórios quando o workflow de testes existir (issue #66, até 02/11). Um check obrigatório que nunca roda bloquearia todos os PRs.
+O workflow [`ci.yml`](../.github/workflows/ci.yml) (issue #66) define os jobs `test` e `typecheck`. Eles passam a ser checks obrigatórios na proteção da `main` **depois** que esse workflow estiver em `main` (um check obrigatório que nunca roda bloquearia todos os PRs). Até lá, o único check obrigatório continua sendo `docs-lint`.
