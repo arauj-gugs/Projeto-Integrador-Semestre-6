@@ -14,7 +14,7 @@ const repoRoot = join(__dirname, "../../../..");
 const SERIE_EXEMPLO: SeriePorTipo = {
   vacina: [10, 12, 8, 15, 11, 9, 14, 13],
   consulta: [20, 25, 30, 22, 35],
-  exame: [40, 45],
+  ultrassom: [40, 45],
 };
 
 function lerOraculo(): Map<

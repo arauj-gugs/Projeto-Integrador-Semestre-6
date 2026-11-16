@@ -1,12 +1,17 @@
 import { z } from "zod";
-import { EstimativaDisponivelSchema, TipoAtendimentoSchema } from "./estimativa.js";
+import { porteSchema, tipoAtendimentoSchema } from "./enums.js";
+import {
+  EstimativaDisponivelSchema,
+  TipoAtendimentoSchema,
+} from "./estimativa.js";
 
 export const EspecieSchema = z.enum(["cao", "gato", "silvestre"]);
+/** Escala fechada usada na tela de histórico da F1; ingresso aceita porte livre. */
 export const PorteSchema = z.enum(["pequeno", "medio", "grande"]);
 
 export const IngressoAtendimentoSchema = z.object({
   especie: EspecieSchema,
-  porte: PorteSchema,
+  porte: porteSchema,
   tipo_atendimento: TipoAtendimentoSchema,
   reativo: z.boolean().default(false),
   suspeita_infectocontagiosa: z.boolean().default(false),
@@ -17,15 +22,12 @@ export const AtendimentoCriadoSchema = z.object({
   codigo: z.string(),
   tipo_atendimento: TipoAtendimentoSchema,
   especie: EspecieSchema,
-  porte: PorteSchema,
+  porte: z.string(),
   fila: z.string(),
   estimativa: EstimativaDisponivelSchema.or(
     z.object({
       disponivel: z.literal(false),
       motivo: z.literal("serie_vazia"),
-      p50: z.null(),
-      p90: z.null(),
-      estimativa_degradada: z.boolean(),
     }),
   ),
   link_tutor: z.string(),
@@ -40,7 +42,7 @@ export const EncerrarAtendimentoSchema = z.object({
 export const HistoricoItemSchema = z.object({
   id: z.string(),
   codigo: z.string(),
-  tipo: TipoAtendimentoSchema,
+  tipo: tipoAtendimentoSchema,
   espera_prevista_p50: z.number(),
   espera_prevista_p90: z.number(),
   espera_realizada_minutos: z.number(),

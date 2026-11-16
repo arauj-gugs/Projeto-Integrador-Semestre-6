@@ -31,7 +31,17 @@ type HistoricoDia = {
   indicadores?: Indicador[];
 };
 
-const TIPOS = ["", "consulta", "vacina", "retorno", "exame", "emergencia"];
+const TIPOS = [
+  "",
+  "consulta",
+  "vacina",
+  "ultrassom",
+  "raio-x",
+  "coleta",
+  "castracao",
+  "cirurgia",
+  "emergencia",
+];
 
 export function HistoricoPage() {
   const hoje = new Date().toISOString().slice(0, 10);

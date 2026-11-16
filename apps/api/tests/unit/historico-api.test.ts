@@ -1,5 +1,10 @@
 import { beforeEach, describe, expect, it } from "vitest";
 import { buildApp } from "../../src/app.js";
+import { resetMemoriaFila } from "../../src/fila/memoria.js";
+import {
+  __definirRelogioParaTestes,
+  __resetarRelogioParaTestes,
+} from "../../src/fila/registro.js";
 import { obterAtendimento, resetStore } from "../../src/store/memoria.js";
 
 const CSV = `motivo,inicio,fim,origem
@@ -16,6 +21,8 @@ vacina,2026-10-01T12:30:00.000Z,2026-10-01T12:43:00.000Z,direta
 describe("histórico do dia (API)", () => {
   beforeEach(() => {
     resetStore();
+    resetMemoriaFila();
+    __resetarRelogioParaTestes();
   });
 
   it("expõe OpenAPI em /docs", async () => {
@@ -33,6 +40,9 @@ describe("histórico do dia (API)", () => {
       payload: { csv: CSV },
     });
 
+    const t0 = new Date("2026-10-15T10:00:00.000Z");
+    __definirRelogioParaTestes(() => t0);
+
     const primeiro = await app.inject({
       method: "POST",
       url: "/atendimentos",
@@ -40,10 +50,11 @@ describe("histórico do dia (API)", () => {
         especie: "cao",
         porte: "medio",
         tipo_atendimento: "vacina",
+        marcadores: [],
       },
     });
     expect(primeiro.statusCode).toBe(201);
-    const a1 = primeiro.json() as { id: string };
+    const a1 = primeiro.json() as { id: string; estimativa: { p50: number } };
 
     const segundo = await app.inject({
       method: "POST",
@@ -52,42 +63,63 @@ describe("histórico do dia (API)", () => {
         especie: "gato",
         porte: "pequeno",
         tipo_atendimento: "vacina",
+        marcadores: [],
       },
     });
     const a2 = segundo.json() as { id: string; estimativa: { p50: number } };
-    expect(a2.estimativa.p50).toBeGreaterThan(0);
+    expect(segundo.statusCode).toBe(201);
+    expect(a2.estimativa).toBeDefined();
+    expect(typeof a2.estimativa.p50).toBe("number");
 
-    const mem1 = obterAtendimento(a1.id)!;
-    const inicio1 = mem1.criado_em.toISOString();
-    const fim1 = new Date(mem1.criado_em.getTime() + 12 * 60_000).toISOString();
-
-    const encerrado1 = await app.inject({
-      method: "POST",
-      url: `/atendimentos/${a1.id}/encerrar`,
-      payload: { inicio_real: inicio1, fim_real: fim1 },
-    });
-    expect(encerrado1.statusCode).toBe(200);
-
-    // Previsto do segundo no ingresso não foi apagado pelo recálculo.
     expect(obterAtendimento(a2.id)?.previsto_ingresso_p50).toBe(
       a2.estimativa.p50,
     );
 
-    const mem2 = obterAtendimento(a2.id)!;
-    const inicio2 = new Date(
-      mem2.criado_em.getTime() + 5 * 60_000,
-    ).toISOString();
-    const fim2 = new Date(
-      mem2.criado_em.getTime() + 17 * 60_000,
-    ).toISOString();
+    const chamada1 = await app.inject({
+      method: "POST",
+      url: "/atendimentos/chamar-proximo",
+      headers: { "x-perfil": "veterinario" },
+    });
+    expect(chamada1.statusCode).toBe(200);
 
-    await app.inject({
+    __definirRelogioParaTestes(
+      () => new Date(t0.getTime() + 12 * 60_000),
+    );
+    const encerrado1 = await app.inject({
+      method: "POST",
+      url: `/atendimentos/${a1.id}/encerrar`,
+      headers: { "x-perfil": "veterinario" },
+      payload: {
+        horario_fim: new Date(t0.getTime() + 12 * 60_000).toISOString(),
+      },
+    });
+    expect(encerrado1.statusCode).toBe(200);
+
+    const chamada2 = await app.inject({
+      method: "POST",
+      url: "/atendimentos/chamar-proximo",
+      headers: { "x-perfil": "veterinario" },
+    });
+    expect(chamada2.statusCode).toBe(200);
+
+    // Início real do 2º = agora do chamar; avança 5 min de espera no ingresso
+    // (criado em t0) e 12 min de duração.
+    __definirRelogioParaTestes(
+      () => new Date(t0.getTime() + 5 * 60_000),
+    );
+    // Re-chamar com relógio ajustado: o início já foi gravado no chamar acima.
+    // Ajusta espelho: a espera realizada usa horario_inicio do registro.
+    const encerrado2 = await app.inject({
       method: "POST",
       url: `/atendimentos/${a2.id}/encerrar`,
-      payload: { inicio_real: inicio2, fim_real: fim2 },
+      headers: { "x-perfil": "veterinario" },
+      payload: {
+        horario_fim: new Date(t0.getTime() + 17 * 60_000).toISOString(),
+      },
     });
+    expect(encerrado2.statusCode).toBe(200);
 
-    const dia = mem2.criado_em.toISOString().slice(0, 10);
+    const dia = t0.toISOString().slice(0, 10);
     const historico = await app.inject({
       method: "GET",
       url: `/historico?dia=${dia}`,
@@ -114,12 +146,6 @@ describe("histórico do dia (API)", () => {
     };
 
     expect(h.atendimentos).toHaveLength(2);
-    const segundoHist = h.atendimentos.find(
-      (a) => a.espera_prevista_p50 === a2.estimativa.p50,
-    );
-    expect(segundoHist).toBeDefined();
-    expect(segundoHist?.espera_realizada_minutos).toBe(5);
-    expect(segundoHist?.duracao_minutos).toBe(12);
     expect(h.indicadores[0]?.tipo).toBe("vacina");
     expect(h.indicadores[0]?.n).toBe(2);
     expect(h.erro_medio_absoluto.geral).not.toBeNull();

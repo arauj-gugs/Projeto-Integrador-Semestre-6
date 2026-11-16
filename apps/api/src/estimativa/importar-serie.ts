@@ -35,9 +35,16 @@ function normalizarTipo(raw: string): TipoAtendimento | null {
   const mapa: Record<string, TipoAtendimento> = {
     consulta: "consulta",
     vacina: "vacina",
-    retorno: "retorno",
-    exame: "exame",
+    ultrassom: "ultrassom",
+    "raio-x": "raio-x",
+    raiox: "raio-x",
+    coleta: "coleta",
+    castracao: "castracao",
+    cirurgia: "cirurgia",
     emergencia: "emergencia",
+    // aliases da fatia F1 anterior → tipos RF-01
+    retorno: "consulta",
+    exame: "ultrassom",
   };
   const tipo = mapa[chave];
   return tipo && TIPOS_SET.has(tipo) ? tipo : null;
