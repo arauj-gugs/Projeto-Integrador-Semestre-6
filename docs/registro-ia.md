@@ -39,6 +39,7 @@ flowchart LR
 | 2026-11-16 | Philipe Gonçalves | Cursor (agente) | Alocador RF-04 com sala única (issue #28) | `recursos.ts`, `alocador.ts`, testes ADR/UC-02; sala pode ficar ocupada com veterinário livre (E1) | RF-05/emergência e rotas HTTP ficam na #29+; `liberarVeterinarioMantendoSalaIsolamento` usado nos testes para o exemplo do ADR-003 |
 | 2026-11-16 | Philipe Gonçalves | Cursor (agente) | Encerramento com validação de duração (issue #30) | `registro.ts`, `POST /chamar-proximo` e `POST /atendimentos/:id/encerrar`, UC-05 E2, stub RF-07 | Recálculo de estimativa fica no Squad 2; histórico RF-10 fora do escopo |
 | 2026-11-16 | Philipe Gonçalves | Cursor (agente) | Estado da fila por SSE (issue #31) | `GET /fila/stream`, hub `fila-eventos`, snapshot após ingresso/chamar/emergência/encerrar; teste 50× p95 | Stream sem auth na v0.1; consumo React e schema Zod do snapshot ficam no Squad 3 |
+| 2026-11-16 | Philipe Gonçalves | Cursor (agente) | Corrigir estado `aguardando_sala` no snapshot SSE (pós-#31) | `estadoPublico` deriva bloqueio por sala na cabeça de isolamento; testes unit UC-02 E1 | `POST /atendimentos` ainda devolve `na_fila` no corpo; alinhar em issue futura se o contrato de resposta exigir |
 
 ## Erro da ferramenta identificado pela equipe
 

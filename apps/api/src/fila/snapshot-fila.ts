@@ -1,7 +1,11 @@
 import type { EstadoFila, Especie, Risco } from "@fila-virtual/contratos";
-import { listarCabecasFilas } from "./motor.js";
+import { listarCabecasFilas, type CasoNaFila } from "./motor.js";
 import { agoraIso, obterRegistro } from "./registro.js";
-import { obterAtendimentoAtual, obterEstadoRecursos } from "./recursos.js";
+import {
+  exigeSalaIsolamento,
+  obterAtendimentoAtual,
+  obterEstadoRecursos,
+} from "./recursos.js";
 
 export type CabecaSnapshot = {
   chave: string;
@@ -20,16 +24,17 @@ export type SnapshotFila = {
   em_atendimento: { id: string; codigo: string } | null;
 };
 
-function estadoPublico(
-  id: string,
-  padrao: EstadoFila = "na_fila",
-): EstadoFila {
-  const registro = obterRegistro(id);
-  if (!registro) {
-    return padrao;
-  }
-  if (registro.estado === "em_atendimento") {
+function estadoPublico(caso: CasoNaFila): EstadoFila {
+  const registro = obterRegistro(caso.id);
+  if (registro?.estado === "em_atendimento") {
     return "em_atendimento";
+  }
+  const recursos = obterEstadoRecursos();
+  if (
+    exigeSalaIsolamento(caso.risco) &&
+    recursos.salaIsolamento !== "livre"
+  ) {
+    return "aguardando_sala";
   }
   return "na_fila";
 }
@@ -49,7 +54,7 @@ export function montarSnapshotFila(versao: number): SnapshotFila {
     codigo: caso.codigo,
     especie: caso.especie,
     risco: caso.risco,
-    estado: estadoPublico(caso.id),
+    estado: estadoPublico(caso),
     emergencia: caso.emergencia,
   }));
 
