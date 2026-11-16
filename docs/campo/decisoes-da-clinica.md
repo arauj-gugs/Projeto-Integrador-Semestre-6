@@ -9,7 +9,7 @@
 | Desempate RF-03 (agendado → chegada → p50) | Pequenos: ordem de chegada; grandes e cirurgia: agendamento | RF-03: FIFO por chegada na fila walk-in de pequenos; grandes/cirurgia fora do escopo walk-in nesta versão |
 | Sala de isolamento única + veterinário compartilhado (ADR-003) | Separação por comportamento e senso comum; detalhe de salas ainda aberto | Manter alocador; aceitar ADR-003 (#24) depois de confirmar salas nas janelas |
 | Emergência só pelo veterinário (RF-05, RF-12) | Usam ABCDUTRAL; distinguem emergência e urgência clinicamente | Manter: sistema não tria; só aplica precedência após classificação do vet |
-| Série de campo calibra a F1 (C-09) | Sem histórico de duração no SimpleVet; só horário de chegada | Priorizar janelas de observação; não depender de export do ERP |
+| Série de campo calibra a F1 (C-09) | Sem histórico de duração no SimpleVet; só horário de chegada | [protocolo-coleta.md](protocolo-coleta.md) + janelas (#58–#61); CSV em `campo/` (#65) |
 | Sem app / link no navegador (W-03) | Recepção no computador; WhatsApp para internados | Manter web; RF-16: WhatsApp como candidato a segundo canal |
 | Totem / painel (RF-18, RF-19) Could | Não têm totem nem fila visível hoje | Manter Could/v2; esquema de hardware continua entrega de S4 |
 | Integração ERP / pagamento / agendamento (W-04) | SimpleVet cobre cadastro, caixa, agendamento | Manter W-04; Fila Virtual não integra SimpleVet no MVP |

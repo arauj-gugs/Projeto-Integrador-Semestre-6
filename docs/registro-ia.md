@@ -41,6 +41,7 @@ flowchart LR
 | 2026-11-16 | Philipe Gonçalves | Cursor (agente) | Estado da fila por SSE (issue #31) | `GET /fila/stream`, hub `fila-eventos`, snapshot após ingresso/chamar/emergência/encerrar; teste 50× p95 | Stream sem auth na v0.1; consumo React e schema Zod do snapshot ficam no Squad 3 |
 | 2026-11-16 | Philipe Gonçalves | Cursor (agente) | Corrigir estado `aguardando_sala` no snapshot SSE (pós-#31) | `estadoPublico` deriva bloqueio por sala na cabeça de isolamento; testes unit UC-02 E1 | `POST /atendimentos` ainda devolve `na_fila` no corpo; alinhar em issue futura se o contrato de resposta exigir |
 | 2026-11-16 | Philipe Gonçalves | Cursor (agente) | Issue #55 — registrar status R2 (autorização por visita, reserva pendente) sem inventar termo ou nome de clínica | `docs/campo/autorizacao-clinica.md`, links em entrevista, decisões, RFC R2 e docs/README | Mantido status honesto 1-A/2-B; modelo de termo para uso fora do Git; #55 permanece aberta até formalizar e nomear reserva |
+| 2026-11-16 | Philipe Gonçalves | Cursor (agente) | Issue #56 — protocolo de coleta, ficha anexo D, pasta `campo/` e CSV exemplo com coluna `fonte` | `protocolo-coleta.md`, `ficha-observacao.md`, `campo/README.md`, `exemplo-serie-anexo-d.csv` | Revisão humana das janelas reais continua em #58–#61; Squad 2 alinha import RF-11 às colunas extras |
 
 ## Erro da ferramenta identificado pela equipe
 

@@ -35,7 +35,7 @@ Stack: Node.js 24 + Fastify + Zod, React + Vite, PostgreSQL ([ADR-004](adr/004-e
 - [Processo](process.md)
 - [Métricas](metrics.md)
 - [Requisitos](requirements/)
-- [Campo — entrevista, decisões e autorização (R2)](campo/) — ver [autorização e clínica reserva](campo/autorizacao-clinica.md)
+- [Campo — entrevista, decisões e autorização (R2)](campo/) — [autorização](campo/autorizacao-clinica.md) · [protocolo e ficha anexo D](campo/protocolo-coleta.md)
 - [RFC de arquitetura](rfc/rfc-001-arquitetura-mvp.md)
 - [Plano de SCM](scm-plan.md)
 - [Estratégia de testes](test-strategy.md)

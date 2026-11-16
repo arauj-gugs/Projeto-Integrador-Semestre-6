@@ -71,3 +71,5 @@ Enviar pela coordenação ou pelo gerente; guardar o original **fora** do reposi
 2. Atualizar a seção “Após formalização” neste arquivo com data e meio (sem PII).
 3. Identificar a clínica reserva com apelido anonimizado e preencher a tabela da reserva.
 4. Fechar a issue #55 no GitHub quando os dois critérios de aceitação estiverem satisfeitos.
+
+Após a formalização, iniciar janelas de observação conforme o [protocolo de coleta](protocolo-coleta.md) e a [ficha anexo D](ficha-observacao.md) (issue #56).

@@ -39,7 +39,7 @@ Picos citados: começo do ano, maio, fluxo pós-feriado; segundo semestre mais p
 
 - Existe registro de **quando o animal chegou**.
 - **Não existe** histórico de duração de atendimento no sistema atual.
-- Consequência para a F1: a calibração p50–p90 depende das janelas de observação da equipe (C-09), não de exportação do SimpleVet.
+- Consequência para a F1: a calibração p50–p90 depende das janelas de observação da equipe (C-09), não de exportação do SimpleVet. Protocolo e ficha: [protocolo-coleta.md](protocolo-coleta.md), [ficha-observacao.md](ficha-observacao.md).
 
 ---
 
