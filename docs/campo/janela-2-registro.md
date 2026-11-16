@@ -62,6 +62,8 @@ Ordem recomendada: **janela 1 → janela 2** (não é exigência do protocolo, f
 5. Atualizar **este** registro e conferir distinção na tabela da janela 1.
 6. Commit com `campo(janela-2): ...` e `Closes #59`.
 
+A [janela 3](janela-3-registro.md) (#60) exige dia e horário **distintos** também desta janela e da janela 1 — fixar data/hora das duas primeiras antes de agendar a terceira.
+
 ---
 
 ## Notas operacionais (após a janela)

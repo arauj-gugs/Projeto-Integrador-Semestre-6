@@ -38,6 +38,7 @@ O importador RF-11 (Squad 2) deve aceitar pelo menos `motivo`, `inicio` e `fim`;
 |---|---|---|---|
 | 1 | [janela-1-registro.md](../docs/campo/janela-1-registro.md) | _(pendente coleta)_ | #58 |
 | 2 | [janela-2-registro.md](../docs/campo/janela-2-registro.md) | _(pendente coleta)_ | #59 |
+| 3 | [janela-3-registro.md](../docs/campo/janela-3-registro.md) | _(pendente coleta)_ | #60 |
 
 ## Arquivos
 
