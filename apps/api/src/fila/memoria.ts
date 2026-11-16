@@ -7,6 +7,7 @@ import type {
 } from "@fila-virtual/contratos";
 import { resetAlocador } from "./alocador.js";
 import { AtendimentoNaoEncontrado } from "./erros-dominio.js";
+import { publicarMudancaFila, resetHubFila } from "./fila-eventos.js";
 import {
   definirEmergencia,
   ingressar,
@@ -43,6 +44,8 @@ export function criarAtendimento(dados: IngressoRequest): IngressoResponse {
   });
   const token = randomBytes(32).toString("hex");
 
+  publicarMudancaFila();
+
   return {
     id,
     codigo,
@@ -66,6 +69,8 @@ export function classificarEmergenciaDoAtendimento(
   }
 
   const { caso, posicao } = definirEmergencia(id, emergencia);
+
+  publicarMudancaFila();
 
   return {
     id: caso.id,
@@ -93,6 +98,7 @@ export function encerrarAtendimento(
 /** Usado nos testes para isolar estado entre casos. */
 export function resetMemoriaFila(): void {
   sequenciaCodigo = 0;
+  resetHubFila();
   resetRegistros();
   resetAlocador();
   resetMotor();

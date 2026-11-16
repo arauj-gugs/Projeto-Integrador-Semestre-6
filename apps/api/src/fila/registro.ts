@@ -10,6 +10,7 @@ import {
   HorarioFimInvalido,
   NenhumCasoElegivel,
 } from "./erros-dominio.js";
+import { publicarMudancaFila } from "./fila-eventos.js";
 import { notificarEstimativaDuracaoReal } from "./estimativa-stub.js";
 import { obterAtendimentoAtual } from "./recursos.js";
 
@@ -80,6 +81,8 @@ export function chamarProximoAtendimento(): { id: string; codigo: string } {
   registro.estado = "em_atendimento";
   registro.horario_inicio_atendimento = agoraIso();
 
+  publicarMudancaFila();
+
   return { id: registro.id, codigo: registro.codigo };
 }
 
@@ -122,6 +125,8 @@ export function encerrarAtendimento(
   registro.estado = "encerrado";
 
   notificarEstimativaDuracaoReal(registro);
+
+  publicarMudancaFila();
 
   return {
     id,
