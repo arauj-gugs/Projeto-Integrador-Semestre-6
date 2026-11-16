@@ -42,6 +42,7 @@ flowchart LR
 | 2026-11-16 | Philipe Gonçalves | Cursor (agente) | Corrigir estado `aguardando_sala` no snapshot SSE (pós-#31) | `estadoPublico` deriva bloqueio por sala na cabeça de isolamento; testes unit UC-02 E1 | `POST /atendimentos` ainda devolve `na_fila` no corpo; alinhar em issue futura se o contrato de resposta exigir |
 | 2026-11-16 | Philipe Gonçalves | Cursor (agente) | Issue #55 — registrar status R2 (autorização por visita, reserva pendente) sem inventar termo ou nome de clínica | `docs/campo/autorizacao-clinica.md`, links em entrevista, decisões, RFC R2 e docs/README | Mantido status honesto 1-A/2-B; modelo de termo para uso fora do Git; #55 permanece aberta até formalizar e nomear reserva |
 | 2026-11-16 | Philipe Gonçalves | Cursor (agente) | Issue #56 — protocolo de coleta, ficha anexo D, pasta `campo/` e CSV exemplo com coluna `fonte` | `protocolo-coleta.md`, `ficha-observacao.md`, `campo/README.md`, `exemplo-serie-anexo-d.csv` | Revisão humana das janelas reais continua em #58–#61; Squad 2 alinha import RF-11 às colunas extras |
+| 2026-11-16 | Philipe Gonçalves | Cursor (agente) | Issue #58 — janela 1: registro pendente sem CSV inventado (estado B; C-09) | `janela-1-registro.md`, índice em `campo/README` e links | Equipe sem série cronometrada no repo; entrevista out/2026 não conta como janela; #58 aberta até visita de 1 h |
 
 ## Erro da ferramenta identificado pela equipe
 

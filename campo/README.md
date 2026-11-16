@@ -32,6 +32,12 @@ Exemplo: `janela-1-2026-11-20.csv` (branch `campo/janela-1-2026-11-20` quando ap
 
 O importador RF-11 (Squad 2) deve aceitar pelo menos `motivo`, `inicio` e `fim`; colunas extras podem ser ignoradas na importação ou validadas pelo contrato acordado com o Squad 2 — não remover colunas do arquivo de produção sem atualizar este README.
 
+## Janelas entregues
+
+| Janela | Registro | CSV | Issue |
+|---|---|---|---|
+| 1 | [janela-1-registro.md](../docs/campo/janela-1-registro.md) | _(pendente coleta)_ | #58 |
+
 ## Arquivos
 
 | Arquivo | Uso |
