@@ -14,6 +14,7 @@
     "dev:web": "npm run dev -w apps/web",
     "test": "npm run test -w apps/api",
     "typecheck": "npm run typecheck -w packages/contratos && npm run typecheck -w apps/api && npm run typecheck -w apps/web",
-    "db:migrate": "npm run db:migrate -w apps/api"
+    "db:migrate": "npm run db:migrate -w apps/api",
+    "demo:local": "npm run demo:local -w apps/api"
   }
 }
