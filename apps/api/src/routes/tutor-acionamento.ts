@@ -39,8 +39,8 @@ export async function registerTutorAcionamento(
         return reply.status(422).send(erros422DeZod(parsed.error));
       }
       try {
-        const body = registrarLocalizacao(request.params.id, parsed.data);
-        publicarMudancaFila();
+        const body = await registrarLocalizacao(request.params.id, parsed.data);
+        await publicarMudancaFila();
         return reply.status(200).send(localizacaoResponseSchema.parse(body));
       } catch (err) {
         if (err instanceof LocalizacaoErro) {
@@ -79,8 +79,8 @@ export async function registerTutorAcionamento(
           mensagem: "atendimento nao encontrado",
         });
       }
-      revogarLocalizacao(request.params.id);
-      publicarMudancaFila();
+      await revogarLocalizacao(request.params.id);
+      await publicarMudancaFila();
       return { ok: true, criterio: "tempo_fixo" };
     },
   );
@@ -95,8 +95,8 @@ export async function registerTutorAcionamento(
           mensagem: "atendimento nao encontrado",
         });
       }
-      confirmarDeslocamento(request.params.id);
-      publicarMudancaFila();
+      await confirmarDeslocamento(request.params.id);
+      await publicarMudancaFila();
       const atualizado = obterEstadoAcionamento(request.params.id);
       return {
         ok: true,
@@ -116,8 +116,8 @@ export async function registerTutorAcionamento(
         });
       }
       estado.sem_link = true;
-      salvarEstadoAcionamento(estado);
-      publicarMudancaFila();
+      await salvarEstadoAcionamento(estado);
+      await publicarMudancaFila();
       return { ok: true };
     },
   );
@@ -134,7 +134,7 @@ export async function registerTutorAcionamento(
       }
       if (!estado.link_aberto) {
         estado.link_aberto = true;
-        salvarEstadoAcionamento(estado);
+        await salvarEstadoAcionamento(estado);
       }
       const registro = obterRegistro(estado.atendimento_id);
       if (!registro || registro.estado === "encerrado") {
@@ -143,7 +143,7 @@ export async function registerTutorAcionamento(
           mensagem: "Este link não é mais válido. Procure a recepção.",
         });
       }
-      const espelho = obterAtendimento(estado.atendimento_id);
+      const espelho = await obterAtendimento(estado.atendimento_id);
       const posicao = posicaoPublica(estado.atendimento_id);
       const p50 = espelho?.espera_atual_p50 ?? registro.estimativa_prevista.p50;
       const p90 = espelho?.espera_atual_p90 ?? registro.estimativa_prevista.p90;
@@ -206,7 +206,7 @@ export async function registerTutorAcionamento(
       );
       const body = request.body as { agora?: string } | undefined;
       const agora = body?.agora ? new Date(body.agora) : undefined;
-      const apagadas = expurgarFaixasAntigas(agora);
+      const apagadas = await expurgarFaixasAntigas(agora);
       return { apagadas };
     },
   );

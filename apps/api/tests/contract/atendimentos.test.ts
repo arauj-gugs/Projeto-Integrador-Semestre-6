@@ -5,7 +5,6 @@ import {
 } from "@fila-virtual/contratos";
 import { buildApp } from "../../src/app.js";
 import { resetMemoriaFila } from "../../src/fila/memoria.js";
-import { resetStore } from "../../src/store/memoria.js";
 
 const ingressoValido = {
   especie: "gato",
@@ -15,9 +14,8 @@ const ingressoValido = {
 } as const;
 
 describe("POST /atendimentos (contrato UC-01, RF-01)", () => {
-  beforeEach(() => {
-    resetMemoriaFila();
-    resetStore();
+  beforeEach(async () => {
+    await resetMemoriaFila();
   });
 
   it("retorna 201 e corpo validado pelo schema Zod", async () => {

@@ -19,7 +19,9 @@ export type EsperaAtualFn = (atendimentoId: string) => number | null;
  * Avalia acionamento para todos os atendimentos ativos (RF-08 / RF-09).
  * `esperaP50` vem da estimativa atual do atendimento (espelho F1 ou registro).
  */
-export function avaliarAcionamentos(esperaP50: EsperaAtualFn): EstadoAcionamento[] {
+export async function avaliarAcionamentos(
+  esperaP50: EsperaAtualFn,
+): Promise<EstadoAcionamento[]> {
   const agora = agoraAcionamento();
   const disparados: EstadoAcionamento[] = [];
 
@@ -46,15 +48,15 @@ export function avaliarAcionamentos(esperaP50: EsperaAtualFn): EstadoAcionamento
       criterio: estado.criterio,
       aviso_enviado_em: agora,
     };
-    salvarEstadoAcionamento(estado);
+    await salvarEstadoAcionamento(estado);
     disparados.push(estado);
   }
 
-  processarSegundoCanal(agora);
+  await processarSegundoCanal(agora);
   return disparados;
 }
 
-function processarSegundoCanal(agora: Date): void {
+async function processarSegundoCanal(agora: Date): Promise<void> {
   for (const estado of listarEstadosAcionamento()) {
     if (!estado.acionamento || estado.confirmacao_em) continue;
     if (estado.segundo_canal_em) continue;
@@ -63,16 +65,18 @@ function processarSegundoCanal(agora: Date): void {
     if (decorrido < SEGUNDO_CANAL_APOS_MS) continue;
     estado.segundo_canal_em = agora;
     estado.alerta_recepcao = `Tutor ${estado.codigo} não confirmou aviso`;
-    salvarEstadoAcionamento(estado);
+    await salvarEstadoAcionamento(estado);
   }
 }
 
-export function confirmarDeslocamento(atendimentoId: string): void {
+export async function confirmarDeslocamento(
+  atendimentoId: string,
+): Promise<void> {
   const estado = obterEstadoAcionamento(atendimentoId);
   if (!estado) return;
   estado.confirmacao_em = agoraAcionamento();
   estado.alerta_recepcao = null;
-  salvarEstadoAcionamento(estado);
+  await salvarEstadoAcionamento(estado);
 }
 
 export function posicaoPublica(atendimentoId: string): number | null {

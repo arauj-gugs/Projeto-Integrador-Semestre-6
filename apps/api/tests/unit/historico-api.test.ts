@@ -5,7 +5,7 @@ import {
   __definirRelogioParaTestes,
   __resetarRelogioParaTestes,
 } from "../../src/fila/registro.js";
-import { obterAtendimento, resetStore } from "../../src/store/memoria.js";
+import { obterAtendimento } from "../../src/store/memoria.js";
 
 const CSV = `motivo,inicio,fim,origem
 vacina,2026-10-01T09:00:00.000Z,2026-10-01T09:10:00.000Z,direta
@@ -19,9 +19,8 @@ vacina,2026-10-01T12:30:00.000Z,2026-10-01T12:43:00.000Z,direta
 `;
 
 describe("histórico do dia (API)", () => {
-  beforeEach(() => {
-    resetStore();
-    resetMemoriaFila();
+  beforeEach(async () => {
+    await resetMemoriaFila();
     __resetarRelogioParaTestes();
   });
 
@@ -71,7 +70,7 @@ describe("histórico do dia (API)", () => {
     expect(a2.estimativa).toBeDefined();
     expect(typeof a2.estimativa.p50).toBe("number");
 
-    expect(obterAtendimento(a2.id)?.previsto_ingresso_p50).toBe(
+    expect((await obterAtendimento(a2.id))?.previsto_ingresso_p50).toBe(
       a2.estimativa.p50,
     );
 

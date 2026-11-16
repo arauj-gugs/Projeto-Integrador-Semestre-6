@@ -21,10 +21,10 @@ export class LocalizacaoErro extends Error {
 /**
  * Recebe localização ou recusa; nunca persiste latitude/longitude (RNF-01).
  */
-export function registrarLocalizacao(
+export async function registrarLocalizacao(
   atendimentoId: string,
   body: LocalizacaoRequest,
-): LocalizacaoResponse {
+): Promise<LocalizacaoResponse> {
   const estado = obterEstadoAcionamento(atendimentoId);
   if (!estado) {
     throw new LocalizacaoErro("nao_encontrado");
@@ -37,7 +37,6 @@ export function registrarLocalizacao(
     !body.recusou &&
     body.consentimento.concedido
   ) {
-    // já recusou antes — RF-09 passo 3: não pede de novo
     throw new LocalizacaoErro("ja_recusou");
   }
 
@@ -62,7 +61,7 @@ export function registrarLocalizacao(
     if (!estado.momentos.includes(body.momento)) {
       estado.momentos.push(body.momento);
     }
-    salvarEstadoAcionamento(estado);
+    await salvarEstadoAcionamento(estado);
     return {
       id: atendimentoId,
       criterio: "tempo_fixo",
@@ -72,12 +71,10 @@ export function registrarLocalizacao(
     };
   }
 
-  // Coordenada só neste escopo — convertida e descartada.
   const { faixa, deslocamento_minutos } = converterEmFaixa(
     body.latitude!,
     body.longitude!,
   );
-  // body.latitude / longitude não são gravados em estado.
 
   estado.criterio = "distancia";
   estado.faixa = faixa;
@@ -92,7 +89,7 @@ export function registrarLocalizacao(
   if (!estado.momentos.includes(body.momento)) {
     estado.momentos.push(body.momento);
   }
-  salvarEstadoAcionamento(estado);
+  await salvarEstadoAcionamento(estado);
 
   return {
     id: atendimentoId,
@@ -104,7 +101,7 @@ export function registrarLocalizacao(
 }
 
 /** Revogação no meio da espera (RF-09 passo 6 / UC-04 E2). */
-export function revogarLocalizacao(atendimentoId: string): void {
+export async function revogarLocalizacao(atendimentoId: string): Promise<void> {
   const estado = obterEstadoAcionamento(atendimentoId);
   if (!estado) return;
   estado.criterio = "tempo_fixo";
@@ -118,5 +115,5 @@ export function revogarLocalizacao(atendimentoId: string): void {
       em: agoraAcionamento(),
     };
   }
-  salvarEstadoAcionamento(estado);
+  await salvarEstadoAcionamento(estado);
 }

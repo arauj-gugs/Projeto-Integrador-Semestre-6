@@ -189,6 +189,27 @@ export function retirarCasoDaCabeca(chave: ChaveFila): CasoNaFila | undefined {
   return lista.shift();
 }
 
+/**
+ * Recoloca um caso já persistido na fila (boot / hidratação).
+ * Não gera nova sequência de chegada; usa os valores gravados.
+ */
+export function restaurarCasoNaFila(caso: CasoNaFila): void {
+  const chave = chaveFila(caso.especie, caso.risco);
+  const lista = filas.get(chave) ?? [];
+  lista.push({ ...caso, marcadores: [...caso.marcadores] });
+  ordenarFila(lista);
+  filas.set(chave, lista);
+  if (caso.chegada_em > sequenciaChegada) {
+    sequenciaChegada = caso.chegada_em;
+  }
+  if (
+    caso.emergencia_desde !== null &&
+    caso.emergencia_desde > sequenciaEmergencia
+  ) {
+    sequenciaEmergencia = caso.emergencia_desde;
+  }
+}
+
 export function resetMotor(): void {
   filas.clear();
   sequenciaChegada = 0;

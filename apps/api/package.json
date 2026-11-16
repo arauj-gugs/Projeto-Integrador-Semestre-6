@@ -9,7 +9,9 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "typecheck": "tsc --noEmit",
+    "db:generate": "drizzle-kit generate",
     "db:migrate": "drizzle-kit migrate",
+    "db:seed": "tsx scripts/seed-db.ts",
     "demo:local": "tsx scripts/seed-local.ts"
   },
   "dependencies": {

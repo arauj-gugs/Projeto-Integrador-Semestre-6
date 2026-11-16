@@ -156,12 +156,16 @@ Regras que valem para todos:
 
 > Os comandos abaixo valem a partir da fatia vertical (02/11), quando o código entra no repositório. Stack e versões: [ADR-004](docs/adr/004-escolha-da-stack.md).
 
-Pré-requisitos: Node.js 24 (LTS). Nesta fatia da F1 a API usa **store em memória** (o schema Drizzle já existe; Neon/`DATABASE_URL` entra quando a fatia de banco for ligada).
+Pré-requisitos: Node.js 24 (LTS) e Docker Desktop. A API grava no **PostgreSQL 17 local** (Docker). O Neon do ADR-004 continua sendo o banco publicado; nesta máquina o compose substitui a memória.
 
 ```bash
 git clone <url-do-repositorio>
 cd Projeto-Integrador-Semestre-6
 npm install                       # instala os workspaces apps/api, apps/web e packages/contratos
+docker compose up -d              # Postgres 17 em localhost:5432 / banco fila_virtual
+cp apps/api/.env.example apps/api/.env   # DATABASE_URL já aponta para o compose
+npm run db:migrate -w apps/api    # migrações Drizzle
+npm run db:seed -w apps/api       # prontuário fictício (tutores/animais/agenda)
 npm run dev:api                   # API em http://localhost:3000 (OpenAPI em /docs)
 npm run dev:web                   # telas em http://localhost:5173
 ```
@@ -173,17 +177,10 @@ npm run demo:local                # reset localhost + série demo + casos D1–D
 # checklist: docs/estimativa/demo-local.md
 ```
 
-Quando o Postgres estiver configurado:
+Testes (exigem o Postgres do compose no ar):
 
 ```bash
-cp apps/api/.env.example apps/api/.env   # preencher DATABASE_URL
-npm run db:migrate -w apps/api           # migrações do drizzle-kit
-```
-
-Testes:
-
-```bash
-npm test                          # unit (Vitest)
+npm test                          # unit + contract (Vitest)
 npm run typecheck                 # tsc nos workspaces
 ```
 

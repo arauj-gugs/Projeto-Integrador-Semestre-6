@@ -14,8 +14,8 @@ const ingressoValido = {
 } as const;
 
 describe("POST /atendimentos/:id/encerrar (contrato UC-05)", () => {
-  beforeEach(() => {
-    resetMemoriaFila();
+  beforeEach(async () => {
+    await resetMemoriaFila();
   });
 
   it("encerra apos chamar-proximo e libera recurso para nova chamada", async () => {

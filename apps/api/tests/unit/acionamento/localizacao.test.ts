@@ -5,8 +5,6 @@ import {
   listarEstadosAcionamento,
   snapshotEstadoSemCoordenada,
 } from "../../../src/acionamento/estado.js";
-import { resetStore } from "../../../src/store/memoria.js";
-
 const ingresso = {
   especie: "cao",
   porte: "pequeno",
@@ -15,9 +13,8 @@ const ingresso = {
 } as const;
 
 describe("POST /atendimentos/:id/localizacao (RF-08/RNF-01)", () => {
-  beforeEach(() => {
-    resetStore();
-    resetMemoriaFila();
+  beforeEach(async () => {
+    await resetMemoriaFila();
   });
 
   it("converte coordenada em faixa e não persiste lat/long", async () => {

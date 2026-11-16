@@ -1,3 +1,6 @@
+import { readFileSync, existsSync } from "node:fs";
+import { dirname, join } from "node:path";
+import { fileURLToPath } from "node:url";
 import swagger from "@fastify/swagger";
 import swaggerUi from "@fastify/swagger-ui";
 import Fastify from "fastify";
@@ -8,15 +11,34 @@ import {
   type ZodTypeProvider,
 } from "fastify-type-provider-zod";
 import { z } from "zod";
-import { TipoAtendimentoSchema } from "@fila-virtual/contratos";
+import { tipoAtendimentoSchema } from "@fila-virtual/contratos";
 import { historicoDoDia, importarSerie } from "./services/estimativa-servico.js";
-import { resetStore } from "./store/memoria.js";
-import { resetMemoriaFila } from "./fila/memoria.js";
+import { resetMemoriaFila, reiniciarEstadoDaFila } from "./fila/memoria.js";
 import { registerAtendimentos } from "./routes/atendimentos.js";
+import { registerCadastro } from "./routes/cadastro.js";
 import { registerFilaStream } from "./routes/fila-stream.js";
 import { registerTutorAcionamento } from "./routes/tutor-acionamento.js";
-import { resetAcionamento } from "./acionamento/estado.js";
 import { hostLocal } from "./http/host-local.js";
+
+/** Carrega apps/api/.env se existir (dev local). */
+function carregarEnvLocal(): void {
+  const dir = dirname(fileURLToPath(import.meta.url));
+  const envPath = join(dir, "../../.env");
+  if (!existsSync(envPath)) return;
+  for (const linha of readFileSync(envPath, "utf8").split(/\r?\n/)) {
+    const t = linha.trim();
+    if (!t || t.startsWith("#")) continue;
+    const i = t.indexOf("=");
+    if (i < 0) continue;
+    const chave = t.slice(0, i).trim();
+    const valor = t.slice(i + 1).trim();
+    if (!(chave in process.env)) {
+      process.env[chave] = valor;
+    }
+  }
+}
+
+carregarEnvLocal();
 
 export async function buildApp() {
   const app = Fastify({ logger: false }).withTypeProvider<ZodTypeProvider>();
@@ -40,17 +62,16 @@ export async function buildApp() {
 
   app.get("/health", async () => ({ status: "ok" }));
 
-  /** Limpa memória e zera códigos. Só em localhost (demo local). */
+  /** Limpa banco e zera códigos. Só em localhost (demo local). */
   app.post("/dev/reset", async (request, reply) => {
     if (!hostLocal(request.headers.host)) {
       return reply.status(404).send({ erro: "nao_encontrado" });
     }
-    resetStore();
-    resetMemoriaFila();
-    resetAcionamento();
+    await resetMemoriaFila();
     return { ok: true };
   });
 
+  await registerCadastro(app);
   await registerAtendimentos(app);
   await registerFilaStream(app);
   await registerTutorAcionamento(app);
@@ -67,7 +88,7 @@ export async function buildApp() {
       },
     },
     async (request) => {
-      const resultado = importarSerie(
+      const resultado = await importarSerie(
         request.body.csv,
         request.body.substituir,
       );
@@ -88,12 +109,14 @@ export async function buildApp() {
         tags: ["historico"],
         querystring: z.object({
           dia: z.string().optional(),
-          tipo: TipoAtendimentoSchema.optional(),
+          tipo: tipoAtendimentoSchema.optional(),
         }),
       },
     },
     async (request) => historicoDoDia(request.query),
   );
+
+  await reiniciarEstadoDaFila();
 
   return app;
 }

@@ -5,7 +5,6 @@ import {
   hostLocal,
   hostnameDoHostHeader,
 } from "../../src/http/host-local.js";
-import { resetStore } from "../../src/store/memoria.js";
 
 describe("hostLocal / hostnameDoHostHeader", () => {
   it("reconhece localhost e IPv4 com porta", () => {
@@ -29,9 +28,8 @@ describe("hostLocal / hostnameDoHostHeader", () => {
 });
 
 describe("POST /dev/reset com Host IPv6", () => {
-  beforeEach(() => {
-    resetStore();
-    resetMemoriaFila();
+  beforeEach(async () => {
+    await resetMemoriaFila();
   });
 
   it("aceita Host [::1]:3000", async () => {

@@ -53,7 +53,7 @@ export async function registerAtendimentos(app: FastifyInstance): Promise<void> 
       return reply.status(422).send(erros);
     }
 
-    const body = criarAtendimento(parsed.data);
+    const body = await criarAtendimento(parsed.data);
     return reply.status(201).send(body);
   });
 
@@ -64,7 +64,7 @@ export async function registerAtendimentos(app: FastifyInstance): Promise<void> 
     }
 
     try {
-      const body = chamarProximoAtendimento();
+      const body = await chamarProximoAtendimento();
       return reply.status(200).send(body);
     } catch (erro) {
       if (erro instanceof NenhumCasoElegivel) {
@@ -92,7 +92,7 @@ export async function registerAtendimentos(app: FastifyInstance): Promise<void> 
       }
 
       try {
-        const body = classificarEmergenciaDoAtendimento(
+        const body = await classificarEmergenciaDoAtendimento(
           request.params.id,
           parsed.data.emergencia,
         );
@@ -124,7 +124,7 @@ export async function registerAtendimentos(app: FastifyInstance): Promise<void> 
       }
 
       try {
-        const body = encerrarAtendimento(
+        const body = await encerrarAtendimento(
           request.params.id,
           parsed.data.horario_fim,
         );

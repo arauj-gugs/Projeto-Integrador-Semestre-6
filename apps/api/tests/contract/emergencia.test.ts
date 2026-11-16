@@ -15,8 +15,8 @@ const ingressoValido = {
 } as const;
 
 describe("POST /atendimentos/:id/emergencia (contrato UC-03, RF-05)", () => {
-  beforeEach(() => {
-    resetMemoriaFila();
+  beforeEach(async () => {
+    await resetMemoriaFila();
   });
 
   it("veterinario classifica emergencia e fila.posicao e 1", async () => {

@@ -1,4 +1,5 @@
 import type { ServerResponse } from "node:http";
+import { listarEstadosAcionamento } from "../acionamento/estado.js";
 import { avaliarAcionamentos } from "../acionamento/motor.js";
 import { obterAtendimento } from "../store/memoria.js";
 import { montarSnapshotFila, type SnapshotFila } from "./snapshot-fila.js";
@@ -32,13 +33,23 @@ export function desinscreverCliente(res: ServerResponse): void {
   clientes.delete(res);
 }
 
-export function publicarMudancaFila(): SnapshotFila {
+export async function publicarMudancaFila(): Promise<SnapshotFila> {
   versaoAtual += 1;
-  avaliarAcionamentos((id) => {
-    const espelho = obterAtendimento(id);
-    if (espelho?.espera_atual_p50 != null) return espelho.espera_atual_p50;
-    return obterRegistro(id)?.estimativa_prevista.p50 ?? null;
-  });
+
+  const esperaCache = new Map<string, number | null>();
+  for (const estado of listarEstadosAcionamento()) {
+    const id = estado.atendimento_id;
+    const espelho = await obterAtendimento(id);
+    esperaCache.set(
+      id,
+      espelho?.espera_atual_p50 ??
+        obterRegistro(id)?.estimativa_prevista.p50 ??
+        null,
+    );
+  }
+
+  await avaliarAcionamentos((id) => esperaCache.get(id) ?? null);
+
   const snapshot = montarSnapshotFila(versaoAtual);
   for (const cliente of clientes) {
     escreverEvento(cliente, snapshot);

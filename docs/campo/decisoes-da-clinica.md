@@ -12,6 +12,6 @@
 | Série de campo calibra a F1 (C-09) | Sem histórico de duração no SimpleVet; só horário de chegada | Priorizar janelas de observação; não depender de export do ERP |
 | Sem app / link no navegador (W-03) | Recepção no computador; WhatsApp para internados | Manter web; RF-16: WhatsApp como candidato a segundo canal |
 | Totem / painel (RF-18, RF-19) Could | Não têm totem nem fila visível hoje | Manter Could/v2; esquema de hardware continua entrega de S4 |
-| Integração ERP / pagamento / agendamento (W-04) | SimpleVet cobre cadastro, caixa, agendamento | Manter W-04; Fila Virtual não integra SimpleVet no MVP |
+| Integração ERP / pagamento / agendamento (W-04) | SimpleVet cobre cadastro, caixa, agendamento | Não há SimpleVet no projeto: o Postgres local simula o prontuário (tutor, animal, peso, termo, agenda de grandes/cirurgia) + fila. Caixa, cobrança, chamados e WhatsApp continuam fora |
 | Internet estável na clínica | Internet instável; PCs bons | Reforça polling + monitor de hibernação (RNF-10) |
-| LGPD: sem nome no Fila Virtual (RF-01) | Cadastro local tem nome, raça, etc. | Ingresso do MVP continua sem nome; dados clínicos ficam no ERP deles |
+| LGPD: sem nome no Fila Virtual (RF-01) | Cadastro local tem nome, raça, etc. | O `POST /atendimentos` congelado segue sem nome. Cadastro com nome fica nas rotas `/tutores` e `/animais` do prontuário simulado; coordenada continua fora do banco |

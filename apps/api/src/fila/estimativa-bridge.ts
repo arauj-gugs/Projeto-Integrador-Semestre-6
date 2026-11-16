@@ -11,26 +11,37 @@ import {
 import type { RegistroAtendimento } from "./registro.js";
 
 /** Espelha o ingresso da fila no store da F1 (histórico RF-10). */
-export function espelharIngressoNoHistorico(
+export async function espelharIngressoNoHistorico(
   id: string,
   codigo: string,
   linkToken: string,
   dados: IngressoRequest,
   estimativa: { p50: number; p90: number; estimativa_degradada: boolean },
   criadoEm: Date,
-): void {
+  extras?: {
+    animal_id?: string | null;
+    agendamento_id?: string | null;
+    origem?: AtendimentoMemoria["origem"];
+  },
+): Promise<void> {
   const inicio_previsto = new Date(
     criadoEm.getTime() + estimativa.p50 * 60_000,
   );
   const atendimento: AtendimentoMemoria = {
     id,
     codigo,
+    animal_id: extras?.animal_id ?? null,
+    agendamento_id: extras?.agendamento_id ?? null,
+    origem: extras?.origem ?? "chegada",
     especie: dados.especie,
     porte: dados.porte,
     tipo: dados.tipo_atendimento,
     reativo: dados.marcadores.includes("reativo"),
     suspeita_infectocontagiosa: dados.marcadores.includes("isolamento"),
+    marcador_cio: dados.marcadores.includes("cio"),
     estado: "aguardando",
+    emergencia: false,
+    emergencia_desde: null,
     previsto_ingresso_p50: estimativa.p50,
     previsto_ingresso_p90: estimativa.p90,
     estimativa_degradada: estimativa.estimativa_degradada,
@@ -47,17 +58,16 @@ export function espelharIngressoNoHistorico(
     link_token: linkToken,
     criado_em: criadoEm,
   };
-  salvarAtendimento(atendimento);
+  await salvarAtendimento(atendimento);
 }
 
-export function estimarNoIngresso(tipo: TipoAtendimento): {
+export async function estimarNoIngresso(tipo: TipoAtendimento): Promise<{
   p50: number;
   p90: number;
   estimativa_degradada: boolean;
-} {
-  const faixa = estimarParaIngresso(tipo, [], serieAtual());
+}> {
+  const faixa = estimarParaIngresso(tipo, [], await serieAtual());
   if (!faixa.disponivel) {
-    // Acima do tempo fixo (20) para não acionar no ingresso sem série (RF-09).
     return { p50: 45, p90: 70, estimativa_degradada: true };
   }
   return {
@@ -68,9 +78,9 @@ export function estimarNoIngresso(tipo: TipoAtendimento): {
 }
 
 /** RF-07 + espelho no histórico ao encerrar pela fila. */
-export function notificarEstimativaDuracaoReal(
+export async function notificarEstimativaDuracaoReal(
   registro: RegistroAtendimento,
-): void {
+): Promise<void> {
   if (registro.duracao_min === undefined || registro.duracao_min < 1) {
     return;
   }
@@ -80,7 +90,8 @@ export function notificarEstimativaDuracaoReal(
 
   const inicioReal = new Date(registro.horario_inicio_atendimento);
   const fimReal = new Date(registro.horario_fim);
-  const espelho = obterAtendimento(registro.id);
+  const espelho = await obterAtendimento(registro.id);
+  const serie = await serieAtual();
 
   if (espelho) {
     const inicioPrevisto =
@@ -97,7 +108,7 @@ export function notificarEstimativaDuracaoReal(
         inicio_real: inicioReal,
         fim_real: fimReal,
       },
-      serieAtual(),
+      serie,
     );
     const espera_realizada_minutos = Math.max(
       0,
@@ -116,9 +127,9 @@ export function notificarEstimativaDuracaoReal(
       erro_absoluto_minutos: resultado.erro_absoluto_minutos,
       suspeita: resultado.suspeita,
     };
-    salvarAtendimento(encerrado);
+    await salvarAtendimento(encerrado);
     if (!resultado.suspeita) {
-      adicionarAmostra({
+      await adicionarAmostra({
         tipo: registro.tipo_atendimento,
         duracao_minutos: registro.duracao_min,
         origem: "direta",
@@ -129,7 +140,7 @@ export function notificarEstimativaDuracaoReal(
     return;
   }
 
-  adicionarAmostra({
+  await adicionarAmostra({
     tipo: registro.tipo_atendimento,
     duracao_minutos: registro.duracao_min,
     origem: "direta",

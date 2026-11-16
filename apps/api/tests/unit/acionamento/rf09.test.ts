@@ -4,10 +4,8 @@ import { resetMemoriaFila } from "../../../src/fila/memoria.js";
 import {
   __definirRelogioAcionamento,
   obterEstadoAcionamento,
-  resetAcionamento,
 } from "../../../src/acionamento/estado.js";
 import { avaliarAcionamentos } from "../../../src/acionamento/motor.js";
-import { resetStore } from "../../../src/store/memoria.js";
 
 const ingresso = {
   especie: "cao",
@@ -17,10 +15,8 @@ const ingresso = {
 } as const;
 
 describe("RF-09 acionamento por tempo fixo", () => {
-  beforeEach(() => {
-    resetStore();
-    resetMemoriaFila();
-    resetAcionamento();
+  beforeEach(async () => {
+    await resetMemoriaFila();
   });
 
   it("recusa → tempo_fixo; aciona quando p50 ≤ 20; sem distância no estado", async () => {
@@ -66,7 +62,7 @@ describe("RF-09 acionamento por tempo fixo", () => {
     expect(deNovo.statusCode).toBe(409);
 
     // Garante elegibilidade (link já aberto acima) e dispara.
-    const disparados = avaliarAcionamentos(() => 20);
+    const disparados = await avaliarAcionamentos(() => 20);
     expect(disparados).toHaveLength(1);
     expect(disparados[0]?.acionamento?.criterio).toBe("tempo_fixo");
     const estado = obterEstadoAcionamento(id)!;
@@ -131,12 +127,12 @@ describe("RF-09 acionamento por tempo fixo", () => {
         recusou: true,
       },
     });
-    expect(avaliarAcionamentos(() => 15)).toHaveLength(1);
+    expect(await avaliarAcionamentos(() => 15)).toHaveLength(1);
 
     __definirRelogioAcionamento(
       () => new Date(t0.getTime() + 3 * 60_000 + 1),
     );
-    avaliarAcionamentos(() => 15);
+    await avaliarAcionamentos(() => 15);
 
     const alertas = await app.inject({ method: "GET", url: "/recepcao/alertas" });
     expect(alertas.json<{ alertas: { mensagem: string }[] }>().alertas[0]

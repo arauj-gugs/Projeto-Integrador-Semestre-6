@@ -25,19 +25,19 @@ function payload(): IngressoRequest {
 }
 
 describe("encerramento UC-05 (#30)", () => {
-  beforeEach(() => {
-    resetMemoriaFila();
+  beforeEach(async () => {
+    await resetMemoriaFila();
   });
 
-  it("grava fim com duracao_min e libera o veterinario", () => {
+  it("grava fim com duracao_min e libera o veterinario", async () => {
     const inicio = new Date("2026-11-16T10:00:00.000Z");
     __definirRelogioParaTestes(() => inicio);
 
-    const { id } = criarAtendimento(payload());
-    chamarProximoAtendimento();
+    const { id } = await criarAtendimento(payload());
+    await chamarProximoAtendimento();
 
     const fim = "2026-11-16T10:20:00.000Z";
-    const resposta = encerrarAtendimento(id, fim);
+    const resposta = await encerrarAtendimento(id, fim);
 
     expect(resposta.duracao_min).toBe(20);
     expect(resposta.horario_fim).toBe(fim);
@@ -46,30 +46,30 @@ describe("encerramento UC-05 (#30)", () => {
     expect(obterRegistro(id)?.estado).toBe("encerrado");
   });
 
-  it("rejeita duracao menor que 1 minuto (UC-05 E2)", () => {
+  it("rejeita duracao menor que 1 minuto (UC-05 E2)", async () => {
     const inicio = new Date("2026-11-16T10:00:00.000Z");
     __definirRelogioParaTestes(() => inicio);
 
-    const { id } = criarAtendimento(payload());
-    chamarProximoAtendimento();
+    const { id } = await criarAtendimento(payload());
+    await chamarProximoAtendimento();
 
-    expect(() =>
+    await expect(
       encerrarAtendimento(id, "2026-11-16T10:00:30.000Z"),
-    ).toThrow(HorarioFimInvalido);
+    ).rejects.toBeInstanceOf(HorarioFimInvalido);
     expect(obterEstadoRecursos().veterinario).toBe("ocupado");
     expect(obterRegistro(id)?.horario_fim).toBeUndefined();
   });
 
-  it("rejeita fim antes do inicio e nao grava (UC-05 E2)", () => {
+  it("rejeita fim antes do inicio e nao grava (UC-05 E2)", async () => {
     const inicio = new Date("2026-11-16T10:00:00.000Z");
     __definirRelogioParaTestes(() => inicio);
 
-    const { id } = criarAtendimento(payload());
-    chamarProximoAtendimento();
+    const { id } = await criarAtendimento(payload());
+    await chamarProximoAtendimento();
 
-    expect(() =>
+    await expect(
       encerrarAtendimento(id, "2026-11-16T09:00:00.000Z"),
-    ).toThrow(HorarioFimInvalido);
+    ).rejects.toBeInstanceOf(HorarioFimInvalido);
     expect(obterRegistro(id)?.horario_fim).toBeUndefined();
   });
 });
