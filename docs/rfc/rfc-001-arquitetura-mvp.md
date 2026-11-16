@@ -266,7 +266,8 @@ Imagens dos wireframes vão para [`assets/wireframes/`](assets/). Até lá, cada
 
 ## 9. Fora do Escopo / Próximos Passos
 
-- [ADR-005](../adr/005-escolha-do-hardware.md) — hardware de borda (aceito 2026-11-16): totem e painel em ESP32, HTTP(S) para a API, alimentação 5 V calculada (C-04, RNF-11). Esquema detalhado na issue #63; contrato de evento na #64.
+- [ADR-005](../adr/005-escolha-do-hardware.md) — hardware de borda (aceito 2026-11-16): totem e painel em ESP32, HTTP(S) para a API, alimentação 5 V calculada (C-04, RNF-11).
+- Esquemas C5: [painel](../hardware/esquema-painel.md), [totem](../hardware/esquema-totem.md) ([#63](../hardware/esquema-registro.md)); contrato de evento na #64.
 - Implementação física do totem ou painel (v2, C-03; protótipo #68 opcional)
 - Wireframes em imagem para as 4 telas
 

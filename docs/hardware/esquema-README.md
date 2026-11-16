@@ -1,12 +1,18 @@
-# Esquema de hardware (issue #63)
+# Hardware — esquemas de borda (Squad 4)
 
-Diagrama de blocos, BOM (C-02) e folhas de cálculo de fonte derivam do [ADR-005](../adr/005-escolha-do-hardware.md).
+Documentação de processo fica em `docs/`; firmware e contratos em `packages/contratos` (#64).
 
-| Entrega #63 | Base no ADR-005 |
+| Documento | Uso |
 |---|---|
-| Diagrama painel | ESP32 + display I2C, fonte 5 V / ≥ 1 A |
-| Diagrama totem | ESP32 + leitor RFID + LED, fonte 5 V / ≥ 1,5 A |
-| Lista de componentes | Inventário do laboratório ou orçamento; ver tabela "Plataforma" no ADR |
-| Consumo e fonte | Tabelas de pico painel (~340 mA) e totem (~460 mA) × 1,30 (RNF-11) |
+| [esquema-registro.md](esquema-registro.md) | Issue #63, critérios C5, checklist de fechamento |
+| [esquema-painel.md](esquema-painel.md) | Diagrama, BOM e fonte — painel RF-18 |
+| [esquema-totem.md](esquema-totem.md) | Diagrama, BOM e fonte — totem RF-19 |
 
-Arquivos do esquema (diagrama, BOM) serão adicionados nesta pasta no commit que fecha a #63.
+| Decisão | Link |
+|---|---|
+| ADR-005 | [005-escolha-do-hardware.md](../adr/005-escolha-do-hardware.md) |
+| UC-06 | [casos-de-uso.md](../requirements/casos-de-uso.md) |
+
+**Última entrega esquema:** 2026-11-16 (`Closes #63`).
+
+**Próximo:** issue [#64](https://github.com/arauj-gugs/Projeto-Integrador-Semestre-6/issues/64) — contrato Borda → Domínio.
