@@ -20,8 +20,8 @@ function payload(
   return {
     porte: "medio",
     tipo_atendimento: "consulta",
-    marcadores: [],
     ...parcial,
+    marcadores: parcial.marcadores ?? [],
   };
 }
 

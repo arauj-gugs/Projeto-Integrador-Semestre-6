@@ -5,7 +5,8 @@
   "type": "module",
   "scripts": {
     "test": "vitest run",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "test:integration": "vitest run --config vitest.integration.config.ts"
   },
   "dependencies": {
     "@fila-virtual/contratos": "*",
@@ -14,6 +15,9 @@
     "zod": "4.6.7"
   },
   "devDependencies": {
+    "@types/node": "24.6.0",
+    "@types/pg": "8.15.5",
+    "pg": "8.16.3",
     "typescript": "7.0.2",
     "vitest": "5.0.4"
   }

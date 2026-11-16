@@ -1,0 +1,10 @@
+# Evidência local CI (issue #66) — 2026-11-16
+
+Comandos espelhando os jobs `typecheck` e `test` do workflow ci.yml.
+
+```
+npm run typecheck  → OK (packages/contratos + apps/api)
+npm test           → OK (16 + 32 testes Vitest)
+```
+
+Integration (`npm run test:integration`) requer PostgreSQL 17; validado no GitHub Actions com service container.

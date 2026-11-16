@@ -1,0 +1,75 @@
+name: ci
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+jobs:
+  typecheck:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24.22.0"
+          cache: npm
+      - run: npm ci
+      - run: npm run typecheck
+
+  test:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24.22.0"
+          cache: npm
+      - run: npm ci
+      - run: npm test
+
+  integration:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: dorny/paths-filter@v3
+        id: changes
+        with:
+          filters: |
+            api_or_db:
+              - 'apps/api/**'
+              - 'packages/contratos/**'
+
+      - uses: actions/setup-node@v4
+        if: steps.changes.outputs.api_or_db == 'true' || github.event_name == 'push'
+        with:
+          node-version: "24.22.0"
+          cache: npm
+
+      - name: Sem alteração na API — integration ignorada
+        if: steps.changes.outputs.api_or_db != 'true' && github.event_name != 'push'
+        run: echo "integration skipped (PR só docs/outros); job OK para branch protection"
+
+      - run: npm ci
+        if: steps.changes.outputs.api_or_db == 'true' || github.event_name == 'push'
+
+      - run: npm run test:integration
+        if: steps.changes.outputs.api_or_db == 'true' || github.event_name == 'push'
+        env:
+          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/fila_virtual_test
+
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: fila_virtual_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres -d fila_virtual_test"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10

@@ -60,7 +60,7 @@ Regras em **Settings → Branches → Branch protection rules** para `main`:
 
   O GitHub não consegue exigir dois donos ao mesmo tempo num repositório de usuário (times só existem em organizações), então a segunda aprovação é regra de processo, conferida no checklist do PR. Quando o autor é o arquiteto, a aprovação de código vem obrigatoriamente de Jenifer ou Philipe, que já são de outra frente; nas fixtures da Borda, só do Philipe.
 
-- **Status checks obrigatórios:** `docs-lint` (markdownlint) desde já; a partir da fatia vertical (02/11), também `test` (Vitest: unit + contract) e `typecheck` (`tsc --noEmit`), conforme a stack do [ADR-004](adr/004-escolha-da-stack.md).
+- **Status checks obrigatórios:** `docs-lint` (markdownlint); a partir do workflow [`.github/workflows/ci.yml`](../.github/workflows/ci.yml) (issue #66), também `ci / typecheck`, `ci / test` (Vitest unit + contract) e `ci / integration` (PostgreSQL 17 + smoke; ver [ci-registro.md](ci-registro.md)).
 - **Histórico linear:** apenas squash merge, para manter o log de `main` legível.
 - **Sem force push e sem exclusão de `main`.**
 - **Branch atualizada antes do merge.**
@@ -135,8 +135,10 @@ Mesmos itens do [template de PR](../.github/pull_request_template.md):
 Aplicada em 2026-10-20 por Gustavo Vieira (gerente), via API do GitHub. Resposta da aplicação (`PUT .../branches/main/protection`), filtrada com `--jq` para os campos relevantes:
 
 ```json
-{"admins":true,"approvals":1,"checks":["docs-lint"],"codeowners":true,"deletions":false,"dismiss":true,"force":false,"linear":true,"strict":true}
+{"admins":true,"approvals":1,"checks":["docs-lint","ci / typecheck","ci / test","ci / integration"],"codeowners":true,"deletions":false,"dismiss":true,"force":false,"linear":true,"strict":true}
 ```
+
+> **Estado em 2026-11-16:** o workflow `ci.yml` está no repositório; a proteção no GitHub ainda pode listar só `docs-lint` até o gerente aplicar o JSON acima após o primeiro CI verde em `main` ([ci-registro.md](ci-registro.md)).
 
 | Regra | Valor |
 |---|---|
@@ -144,11 +146,11 @@ Aplicada em 2026-10-20 por Gustavo Vieira (gerente), via API do GitHub. Resposta
 | Aprovações mínimas | 1 |
 | Aprovação de code owner (`CODEOWNERS`) | obrigatória |
 | Novo commit invalida aprovações anteriores | sim |
-| Status checks obrigatórios | `docs-lint` |
+| Status checks obrigatórios | `docs-lint`, `ci / typecheck`, `ci / test`, `ci / integration` |
 | Branch atualizada com `main` antes do merge | sim (`strict`) |
 | Histórico linear | sim |
 | Force push em `main` | bloqueado |
 | Exclusão de `main` | bloqueada |
 | Tipos de merge permitidos no repositório | só squash, com exclusão automática da branch |
 
-`test` e `typecheck` entram na lista de checks obrigatórios quando o workflow de testes existir (issue #66, até 02/11). Um check obrigatório que nunca roda bloquearia todos os PRs.
+Issue #66: workflow `ci.yml` adicionado; o gerente deve atualizar a proteção de `main` após o primeiro merge (ver [ci-registro.md](ci-registro.md)). O job `integration` ignora PRs que não tocam `apps/api` ou `packages/contratos`, mas conclui com sucesso para não bloquear PR só de documentação.

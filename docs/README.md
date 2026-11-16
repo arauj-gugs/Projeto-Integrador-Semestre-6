@@ -28,7 +28,7 @@ Fora do escopo: decisão clínica, rastreamento contínuo, app nativo.
 
 ## Como rodar / verificar
 
-Stack: Node.js 24 + Fastify + Zod, React + Vite, PostgreSQL ([ADR-004](adr/004-escolha-da-stack.md)). Os comandos de instalação, execução e testes estão no [README da raiz](../README.md#como-rodar) e valem a partir da fatia vertical (02/11). Até lá, a verificação é o lint de Markdown no CI ([scm-plan.md](scm-plan.md)).
+Stack: Node.js 24 + Fastify + Zod, React + Vite, PostgreSQL ([ADR-004](adr/004-escolha-da-stack.md)). Os comandos de instalação, execução e testes estão no [README da raiz](../README.md#como-rodar). CI: [`docs-lint`](../.github/workflows/docs-lint.yml) + [`ci`](../.github/workflows/ci.yml) (`typecheck`, `test`, `integration`); detalhes em [scm-plan.md](scm-plan.md) e [ci-registro.md](ci-registro.md).
 
 ## Links
 
