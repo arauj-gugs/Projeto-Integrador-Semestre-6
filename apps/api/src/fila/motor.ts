@@ -3,7 +3,9 @@
  *
  * Dois eixos de segregação na espera: espécie e risco/comportamento (RF-02).
  * Desempate walk-in: FIFO por ordem de chegada dentro da mesma chave (RF-03).
- * Precedência de emergência após classificação do veterinário fica na issue seguinte (RF-05).
+ * Classificação de emergência pelo veterinário (RF-05, issue #29): bloco no início da
+ * fila da chave, ordenado por `emergencia_desde`; na chamada, o alocador prioriza cabeças
+ * com `emergencia === true`.
  *
  * RF-12: este módulo não classifica gravidade nem faz triagem clínica.
  */
@@ -26,8 +28,9 @@ export type CasoNaFila = {
   risco: Risco;
   marcadores: IngressoRequest["marcadores"];
   chegada_em: number;
-  /** Reservado para RF-05; o motor não altera por triagem nesta issue. */
   emergencia: boolean;
+  /** Ordem entre emergências na mesma fila (UC-03 E2); null se não emergência. */
+  emergencia_desde: number | null;
 };
 
 /** Campos que o motor não persiste (RF-12). */
@@ -39,7 +42,26 @@ export const CHAVES_PROIBIDAS_RF12 = [
 ] as const;
 
 let sequenciaChegada = 0;
+let sequenciaEmergencia = 0;
 const filas = new Map<ChaveFila, CasoNaFila[]>();
+
+function ordenarFila(lista: CasoNaFila[]): void {
+  lista.sort((a, b) => {
+    if (a.emergencia !== b.emergencia) {
+      return a.emergencia ? -1 : 1;
+    }
+    if (a.emergencia && b.emergencia) {
+      return (a.emergencia_desde ?? 0) - (b.emergencia_desde ?? 0);
+    }
+    return a.chegada_em - b.chegada_em;
+  });
+}
+
+export type LocalizacaoCaso = {
+  chave: ChaveFila;
+  indice: number;
+  caso: CasoNaFila;
+};
 
 export function chaveFila(especie: Especie, risco: Risco): ChaveFila {
   return `${especie}:${risco}`;
@@ -62,6 +84,7 @@ export function ingressar(
     marcadores: [...dados.marcadores],
     chegada_em: sequenciaChegada,
     emergencia: false,
+    emergencia_desde: null,
   };
 
   const lista = filas.get(chave) ?? [];
@@ -97,6 +120,67 @@ export function listarCabecasFilas(): { chave: ChaveFila; caso: CasoNaFila }[] {
 }
 
 /** Remove a cabeça da fila indicada (após `chamarProximo` escolher essa chave). */
+export function localizarCaso(id: string): LocalizacaoCaso | null {
+  for (const chave of filas.keys()) {
+    const lista = filas.get(chave) ?? [];
+    const indice = lista.findIndex((c) => c.id === id);
+    if (indice >= 0) {
+      return { chave, indice, caso: lista[indice]! };
+    }
+  }
+  return null;
+}
+
+export function posicaoNaFila(chave: ChaveFila, id: string): number | null {
+  const lista = filas.get(chave);
+  if (!lista) {
+    return null;
+  }
+  const indice = lista.findIndex((c) => c.id === id);
+  return indice >= 0 ? indice + 1 : null;
+}
+
+/**
+ * Classifica ou remove emergência (UC-03, RF-05). Só reordena a chave do caso.
+ * Não altera gravidade clínica (RF-12).
+ */
+export function definirEmergencia(
+  id: string,
+  ativa: boolean,
+): { caso: CasoNaFila; chave: ChaveFila; posicao: number } {
+  const local = localizarCaso(id);
+  if (!local) {
+    throw new Error("ATENDIMENTO_NAO_ENCONTRADO");
+  }
+
+  const lista = [...(filas.get(local.chave) ?? [])];
+  const indice = lista.findIndex((c) => c.id === id);
+  if (indice < 0) {
+    throw new Error("ATENDIMENTO_NAO_ENCONTRADO");
+  }
+
+  const caso = { ...lista[indice]! };
+  if (ativa) {
+    caso.emergencia = true;
+    sequenciaEmergencia += 1;
+    caso.emergencia_desde = sequenciaEmergencia;
+  } else {
+    caso.emergencia = false;
+    caso.emergencia_desde = null;
+  }
+
+  lista[indice] = caso;
+  ordenarFila(lista);
+  filas.set(local.chave, lista);
+
+  const posicao = posicaoNaFila(local.chave, id);
+  if (posicao === null) {
+    throw new Error("falha ao posicionar caso apos emergencia");
+  }
+
+  return { caso, chave: local.chave, posicao };
+}
+
 export function retirarCasoDaCabeca(chave: ChaveFila): CasoNaFila | undefined {
   const lista = filas.get(chave);
   if (!lista?.length) {
@@ -108,4 +192,5 @@ export function retirarCasoDaCabeca(chave: ChaveFila): CasoNaFila | undefined {
 export function resetMotor(): void {
   filas.clear();
   sequenciaChegada = 0;
+  sequenciaEmergencia = 0;
 }

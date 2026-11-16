@@ -5,7 +5,7 @@ import {
   encerrarAtendimentoAtual,
   resetAlocador,
 } from "../../../src/fila/alocador.js";
-import { ingressar } from "../../../src/fila/motor.js";
+import { definirEmergencia, ingressar } from "../../../src/fila/motor.js";
 import {
   liberarSalaIsolamento,
   liberarVeterinarioMantendoSalaIsolamento,
@@ -86,5 +86,23 @@ describe("alocador RF-04 (#28)", () => {
       obterEstadoRecursos().salaIsolamento === "ocupado" &&
       obterAtendimentoAtual()?.exigeSalaIsolamento === true;
     expect(salaOcupada).toBe(true);
+  });
+
+  it("prioriza cabeca com emergencia entre filas na chamarProximo (RF-05)", () => {
+    ingressar(
+      payload({ especie: "cao", marcadores: [] }),
+      "id-cao",
+      "A020",
+    );
+    ingressar(
+      payload({ especie: "gato", marcadores: [] }),
+      "id-gato",
+      "A021",
+    );
+    definirEmergencia("id-gato", true);
+
+    const chamado = chamarProximo();
+    expect(chamado?.caso.id).toBe("id-gato");
+    expect(chamado?.caso.emergencia).toBe(true);
   });
 });
