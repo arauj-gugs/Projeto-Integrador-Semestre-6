@@ -1,6 +1,7 @@
 import { randomBytes, randomUUID } from "node:crypto";
 import type {
   EmergenciaResponse,
+  EncerramentoResponse,
   IngressoRequest,
   IngressoResponse,
 } from "@fila-virtual/contratos";
@@ -12,6 +13,12 @@ import {
   localizarCaso,
   resetMotor,
 } from "./motor.js";
+import {
+  chamarProximoAtendimento as chamarProximoRegistro,
+  encerrarAtendimento as encerrarRegistro,
+  registrarIngresso,
+  resetRegistros,
+} from "./registro.js";
 
 const ESTIMATIVA_STUB = {
   p50: 20,
@@ -30,6 +37,10 @@ export function criarAtendimento(dados: IngressoRequest): IngressoResponse {
   const id = randomUUID();
   const codigo = proximoCodigo();
   const { posicao, caso } = ingressar(dados, id, codigo);
+  registrarIngresso(id, codigo, dados, {
+    p50: ESTIMATIVA_STUB.p50,
+    p90: ESTIMATIVA_STUB.p90,
+  });
   const token = randomBytes(32).toString("hex");
 
   return {
@@ -68,9 +79,21 @@ export function classificarEmergenciaDoAtendimento(
   };
 }
 
+export function chamarProximoAtendimento(): { id: string; codigo: string } {
+  return chamarProximoRegistro();
+}
+
+export function encerrarAtendimento(
+  id: string,
+  horario_fim: string,
+): EncerramentoResponse {
+  return encerrarRegistro(id, horario_fim);
+}
+
 /** Usado nos testes para isolar estado entre casos. */
 export function resetMemoriaFila(): void {
   sequenciaCodigo = 0;
+  resetRegistros();
   resetAlocador();
   resetMotor();
 }

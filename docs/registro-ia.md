@@ -37,6 +37,7 @@ flowchart LR
 | 2026-11-16 | Philipe Gonçalves | Cursor (agente) | Motor de fila segregado (issue #27), commit sem PR | `motor.ts`, `derive-risco.ts`, testes unit RF-02/03/RF-12; `memoria.ts` usa `ingressar` | Alocador e emergência na fila ficam na #28; `REGRA_DESEMPATE = fifo_chegada` |
 | 2026-11-16 | Philipe Gonçalves | Cursor (agente) | Corrigir body 422 do POST /atendimentos para lista completa (`erros422Schema`) | Rota envia array de `erros422DeZod`; teste de contrato com múltiplos campos ausentes | Antes só `erros[0]`; alinhado ao contrato #25 |
 | 2026-11-16 | Philipe Gonçalves | Cursor (agente) | Alocador RF-04 com sala única (issue #28) | `recursos.ts`, `alocador.ts`, testes ADR/UC-02; sala pode ficar ocupada com veterinário livre (E1) | RF-05/emergência e rotas HTTP ficam na #29+; `liberarVeterinarioMantendoSalaIsolamento` usado nos testes para o exemplo do ADR-003 |
+| 2026-11-16 | Philipe Gonçalves | Cursor (agente) | Encerramento com validação de duração (issue #30) | `registro.ts`, `POST /chamar-proximo` e `POST /atendimentos/:id/encerrar`, UC-05 E2, stub RF-07 | Recálculo de estimativa fica no Squad 2; histórico RF-10 fora do escopo |
 
 ## Erro da ferramenta identificado pela equipe
 
