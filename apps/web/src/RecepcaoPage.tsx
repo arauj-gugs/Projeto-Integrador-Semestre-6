@@ -1,4 +1,11 @@
-import { useCallback, useEffect, useMemo, useState, type FormEvent } from "react";
+import {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  type FormEvent,
+} from "react";
 import { api } from "./api";
 import {
   OPCOES_ESPECIE,
@@ -488,9 +495,8 @@ export function RecepcaoPage() {
           entradas={colunas.caes}
           busyId={busyId}
           addAberto={colunaAdd === "cao"}
-          onToggleAdd={() =>
-            setColunaAdd((v) => (v === "cao" ? null : "cao"))
-          }
+          onAbrir={() => setColunaAdd("cao")}
+          onFechar={() => setColunaAdd(null)}
           animais={animaisWalkIn.filter((a) => a.especieFila === "cao")}
           nomeTutor={nomeTutor}
           onAdicionar={(o) => void adicionarNaColuna({ ...o, variante: "cao" })}
@@ -503,9 +509,8 @@ export function RecepcaoPage() {
           entradas={colunas.gatos}
           busyId={busyId}
           addAberto={colunaAdd === "gato"}
-          onToggleAdd={() =>
-            setColunaAdd((v) => (v === "gato" ? null : "gato"))
-          }
+          onAbrir={() => setColunaAdd("gato")}
+          onFechar={() => setColunaAdd(null)}
           animais={animaisWalkIn.filter((a) => a.especieFila === "gato")}
           nomeTutor={nomeTutor}
           onAdicionar={(o) =>
@@ -520,9 +525,8 @@ export function RecepcaoPage() {
           entradas={colunas.silvestres}
           busyId={busyId}
           addAberto={colunaAdd === "silvestre"}
-          onToggleAdd={() =>
-            setColunaAdd((v) => (v === "silvestre" ? null : "silvestre"))
-          }
+          onAbrir={() => setColunaAdd("silvestre")}
+          onFechar={() => setColunaAdd(null)}
           animais={animaisWalkIn.filter((a) => a.especieFila === "silvestre")}
           nomeTutor={nomeTutor}
           onAdicionar={(o) =>
@@ -537,9 +541,8 @@ export function RecepcaoPage() {
           entradas={colunas.isolamento}
           busyId={busyId}
           addAberto={colunaAdd === "isolamento"}
-          onToggleAdd={() =>
-            setColunaAdd((v) => (v === "isolamento" ? null : "isolamento"))
-          }
+          onAbrir={() => setColunaAdd("isolamento")}
+          onFechar={() => setColunaAdd(null)}
           animais={animaisWalkIn}
           nomeTutor={nomeTutor}
           onAdicionar={(o) =>
@@ -745,6 +748,25 @@ export function RecepcaoPage() {
   );
 }
 
+function IconeEngrenagem() {
+  return (
+    <svg
+      width="16"
+      height="16"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.75"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+    >
+      <circle cx="12" cy="12" r="3" />
+      <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1Z" />
+    </svg>
+  );
+}
+
 function PainelEmAtendimento({
   titulo,
   itens,
@@ -762,24 +784,64 @@ function PainelEmAtendimento({
   onChamar: () => void;
   onCapacidade: (n: number) => void;
 }) {
+  const [configAberto, setConfigAberto] = useState(false);
+  const wrapRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!configAberto) return;
+    function onDoc(e: MouseEvent) {
+      if (wrapRef.current && !wrapRef.current.contains(e.target as Node)) {
+        setConfigAberto(false);
+      }
+    }
+    function onKey(e: KeyboardEvent) {
+      if (e.key === "Escape") setConfigAberto(false);
+    }
+    document.addEventListener("mousedown", onDoc);
+    document.addEventListener("keydown", onKey);
+    return () => {
+      document.removeEventListener("mousedown", onDoc);
+      document.removeEventListener("keydown", onKey);
+    };
+  }, [configAberto]);
+
   return (
-    <div className="em-curso">
+    <div className="em-curso" ref={wrapRef}>
       <div className="em-curso__topo">
         <p className="em-curso__rotulo">{titulo}</p>
-        <span className="em-curso__slots">
-          {ocupados}/{capacidade}
-        </span>
+        <div className="em-curso__topo-direita">
+          <span className="em-curso__slots">
+            {ocupados}/{capacidade}
+          </span>
+          <button
+            type="button"
+            className="em-curso__gear"
+            aria-label="Ajustar vagas"
+            aria-expanded={configAberto}
+            aria-haspopup="dialog"
+            onClick={() => setConfigAberto((v) => !v)}
+          >
+            <IconeEngrenagem />
+          </button>
+          {configAberto ? (
+            <div className="em-curso__popover" role="dialog" aria-label="Vagas">
+              <label>
+                Vagas
+                <input
+                  type="number"
+                  min={1}
+                  value={capacidade}
+                  autoFocus
+                  onChange={(e) =>
+                    onCapacidade(Number(e.target.value) || 1)
+                  }
+                />
+              </label>
+            </div>
+          ) : null}
+        </div>
       </div>
       <div className="em-curso__cap">
-        <label>
-          Vagas
-          <input
-            type="number"
-            min={1}
-            value={capacidade}
-            onChange={(e) => onCapacidade(Number(e.target.value) || 1)}
-          />
-        </label>
         <button
           type="button"
           className="primary"
@@ -821,7 +883,8 @@ function FilaColuna({
   entradas,
   busyId,
   addAberto,
-  onToggleAdd,
+  onAbrir,
+  onFechar,
   animais,
   nomeTutor,
   onAdicionar,
@@ -833,7 +896,8 @@ function FilaColuna({
   entradas: [string, ItemFilaSnapshot[]][];
   busyId: string | null;
   addAberto: boolean;
-  onToggleAdd: () => void;
+  onAbrir: () => void;
+  onFechar: () => void;
   animais: Animal[];
   nomeTutor: (id: string) => string;
   onAdicionar: (opts: {
@@ -848,6 +912,8 @@ function FilaColuna({
   onCancelar: (id: string) => void;
 }) {
   const itens = entradas.flatMap(([, lista]) => lista);
+  const dialogRef = useRef<HTMLDialogElement>(null);
+  const addBtnRef = useRef<HTMLButtonElement>(null);
   const [modo, setModo] = useState<"animal" | "walkin">("animal");
   const [animalIdSel, setAnimalIdSel] = useState("");
   const [tipoSel, setTipoSel] = useState("consulta");
@@ -857,12 +923,35 @@ function FilaColuna({
   );
   const [emergencia, setEmergencia] = useState(false);
 
+  const estavaAberto = useRef(false);
   useEffect(() => {
-    if (!addAberto) return;
-    setAnimalIdSel(animais[0]?.id ?? "");
-    setMarcadoresSel(variante === "isolamento" ? ["isolamento"] : []);
-    setEmergencia(false);
-  }, [addAberto, animais, variante]);
+    if (addAberto && !estavaAberto.current) {
+      setAnimalIdSel(animais[0]?.id ?? "");
+      setMarcadoresSel(variante === "isolamento" ? ["isolamento"] : []);
+      setEmergencia(false);
+      setModo("animal");
+    }
+    if (
+      addAberto &&
+      animais.length > 0 &&
+      !animais.some((a) => a.id === animalIdSel)
+    ) {
+      setAnimalIdSel(animais[0]?.id ?? "");
+    }
+    estavaAberto.current = addAberto;
+  }, [addAberto, animais, variante, animalIdSel]);
+
+  useEffect(() => {
+    const d = dialogRef.current;
+    if (!d) return;
+    if (addAberto && !d.open) d.showModal();
+    if (!addAberto && d.open) d.close();
+  }, [addAberto]);
+
+  function fecharDialog() {
+    onFechar();
+    dialogRef.current?.close();
+  }
 
   return (
     <div className={`fila-col fila-col--${variante}`}>
@@ -872,132 +961,155 @@ function FilaColuna({
           <span className="fila-col__count">{itens.length}</span>
         </span>
         <button
+          ref={addBtnRef}
           type="button"
           className="fila-col__add"
           aria-label={`Adicionar em ${titulo}`}
-          onClick={onToggleAdd}
+          aria-haspopup="dialog"
+          aria-expanded={addAberto}
+          onClick={() => (addAberto ? onFechar() : onAbrir())}
         >
-          {addAberto ? "×" : "+"}
+          +
         </button>
       </div>
-      <div className="fila-col__corpo">
-        {addAberto ? (
-          <form
-            className="fila-col__form"
-            onSubmit={(e) => {
-              e.preventDefault();
-              onAdicionar({
-                modo,
-                animalIdSel,
-                tipoSel,
-                porteSel,
-                marcadoresSel,
-                emergencia,
-              });
-            }}
+      <dialog
+        ref={dialogRef}
+        className={`fila-dialog fila-dialog--${variante}`}
+        aria-labelledby={`fila-dialog-titulo-${variante}`}
+        onClose={() => {
+          onFechar();
+          addBtnRef.current?.focus();
+        }}
+        onClick={(e) => {
+          if (e.target === dialogRef.current) fecharDialog();
+        }}
+      >
+        <div className="fila-dialog__cabeca">
+          <h3 id={`fila-dialog-titulo-${variante}`}>Adicionar · {titulo}</h3>
+          <button
+            type="button"
+            className="fila-dialog__fechar"
+            aria-label="Fechar"
+            onClick={fecharDialog}
           >
-            <div className="fila-col__form-modo">
-              <button
-                type="button"
-                className={modo === "animal" ? "primary" : "ghost"}
-                onClick={() => setModo("animal")}
-              >
-                Cadastrado
-              </button>
-              <button
-                type="button"
-                className={modo === "walkin" ? "primary" : "ghost"}
-                onClick={() => setModo("walkin")}
-              >
-                Sem cadastro
-              </button>
-            </div>
-            {modo === "animal" ? (
-              <label>
-                Animal
-                <select
-                  value={animalIdSel}
-                  onChange={(e) => setAnimalIdSel(e.target.value)}
-                  required
-                >
-                  {animais.map((a) => (
-                    <option key={a.id} value={a.id}>
-                      {a.nome} · {rotuloPorte(a.porte)} · {nomeTutor(a.tutorId)}
-                    </option>
-                  ))}
-                </select>
-              </label>
-            ) : (
-              <label>
-                Porte
-                <select
-                  value={porteSel}
-                  onChange={(e) => setPorteSel(e.target.value)}
-                >
-                  {OPCOES_PORTE.filter((p) => p !== "grande").map((p) => (
-                    <option key={p} value={p}>
-                      {rotuloPorte(p)}
-                    </option>
-                  ))}
-                </select>
-              </label>
-            )}
+            ×
+          </button>
+        </div>
+        <form
+          className="fila-dialog__corpo"
+          onSubmit={(e) => {
+            e.preventDefault();
+            onAdicionar({
+              modo,
+              animalIdSel,
+              tipoSel,
+              porteSel,
+              marcadoresSel,
+              emergencia,
+            });
+          }}
+        >
+          <div className="fila-dialog__modo">
+            <button
+              type="button"
+              className={modo === "animal" ? "primary" : "ghost"}
+              onClick={() => setModo("animal")}
+            >
+              Cadastrado
+            </button>
+            <button
+              type="button"
+              className={modo === "walkin" ? "primary" : "ghost"}
+              onClick={() => setModo("walkin")}
+            >
+              Sem cadastro
+            </button>
+          </div>
+          {modo === "animal" ? (
             <label>
-              Tipo
+              Animal
               <select
-                value={tipoSel}
-                onChange={(e) => setTipoSel(e.target.value)}
+                value={animalIdSel}
+                onChange={(e) => setAnimalIdSel(e.target.value)}
+                required
               >
-                {TIPOS_ATENDIMENTO.map((t) => (
-                  <option key={t} value={t}>
-                    {rotuloTipo(t)}
+                {animais.map((a) => (
+                  <option key={a.id} value={a.id}>
+                    {a.nome} · {rotuloPorte(a.porte)} · {nomeTutor(a.tutorId)}
                   </option>
                 ))}
               </select>
             </label>
-            {variante !== "isolamento" ? (
-              <fieldset>
-                <legend>Marcadores</legend>
-                {["reativo", "cio", "isolamento"].map((m) => (
-                  <label key={m} className="check">
-                    <input
-                      type="checkbox"
-                      checked={marcadoresSel.includes(m)}
-                      onChange={() =>
-                        setMarcadoresSel((prev) =>
-                          prev.includes(m)
-                            ? prev.filter((x) => x !== m)
-                            : [...prev, m],
-                        )
-                      }
-                    />
-                    {rotuloRisco(m)}
-                  </label>
+          ) : (
+            <label>
+              Porte
+              <select
+                value={porteSel}
+                onChange={(e) => setPorteSel(e.target.value)}
+              >
+                {OPCOES_PORTE.filter((p) => p !== "grande").map((p) => (
+                  <option key={p} value={p}>
+                    {rotuloPorte(p)}
+                  </option>
                 ))}
-              </fieldset>
-            ) : (
-              <p className="muted">Marcador isolamento aplicado</p>
-            )}
-            <label className="check">
-              <input
-                type="checkbox"
-                checked={emergencia}
-                onChange={(e) => setEmergencia(e.target.checked)}
-              />
-              Emergência (vai direto se houver vaga)
+              </select>
             </label>
-            <button
-              type="submit"
-              className="primary"
-              disabled={modo === "animal" && !animalIdSel}
+          )}
+          <label>
+            Tipo
+            <select
+              value={tipoSel}
+              onChange={(e) => setTipoSel(e.target.value)}
             >
-              Colocar na fila
-            </button>
-          </form>
-        ) : null}
-        {itens.length === 0 && !addAberto ? (
-          <p className="muted">Vazia</p>
-        ) : null}
+              {TIPOS_ATENDIMENTO.map((t) => (
+                <option key={t} value={t}>
+                  {rotuloTipo(t)}
+                </option>
+              ))}
+            </select>
+          </label>
+          {variante !== "isolamento" ? (
+            <fieldset>
+              <legend>Marcadores</legend>
+              {["reativo", "cio", "isolamento"].map((m) => (
+                <label key={m} className="check">
+                  <input
+                    type="checkbox"
+                    checked={marcadoresSel.includes(m)}
+                    onChange={() =>
+                      setMarcadoresSel((prev) =>
+                        prev.includes(m)
+                          ? prev.filter((x) => x !== m)
+                          : [...prev, m],
+                      )
+                    }
+                  />
+                  {rotuloRisco(m)}
+                </label>
+              ))}
+            </fieldset>
+          ) : (
+            <p className="muted">Marcador isolamento aplicado</p>
+          )}
+          <label className="check">
+            <input
+              type="checkbox"
+              checked={emergencia}
+              onChange={(e) => setEmergencia(e.target.checked)}
+            />
+            Emergência (vai direto se houver vaga)
+          </label>
+          <button
+            type="submit"
+            className="primary fila-dialog__submit"
+            disabled={modo === "animal" && !animalIdSel}
+          >
+            Colocar na fila
+          </button>
+        </form>
+      </dialog>
+      <div className="fila-col__corpo">
+        {itens.length === 0 ? <p className="muted">Vazia</p> : null}
         <ul className="fila-linhas">
           {itens.map((i) => (
             <li
