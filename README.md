@@ -181,8 +181,8 @@ npm run db:seed -w apps/api
 npm run up
 ```
 
-- API: http://localhost:3000 (OpenAPI em `/docs`)
-- Telas: http://localhost:5173 (fila em `/#/recepcao`, painel TV em `/#/painel`)
+- API: <http://localhost:3000> (OpenAPI em `/docs`)
+- Telas: <http://localhost:5173> (fila em `/#/recepcao`, painel TV em `/#/painel`)
 
 Só API ou só web: `npm run dev:api` / `npm run dev:web`. Só os dois sem Docker: `npm run dev`.
 
