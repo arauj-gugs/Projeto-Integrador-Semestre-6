@@ -73,7 +73,7 @@ Decidida no [ADR-004](../adr/004-escolha-da-stack.md). Monorepo com npm workspac
 | Telas web | React + Vite | 19.3.1 / 8.3.4 | Telas leves para caber no RNF-05 (≤ 500 KB) |
 | Tempo real | Server-Sent Events | — | Só servidor para cliente, que é o que as telas precisam (RNF-02); sem biblioteca extra |
 | Testes | Vitest + @playwright/test | 5.0.4 / 1.64.1 | Unit, integration e contract no Vitest; roteiro de demonstração no Playwright |
-| Borda (esquema) | ESP32 via HTTP | — | Confirmado no ADR de hardware do Squad 4 |
+| Borda (esquema) | ESP32 via HTTP(S) — [ADR-005](../adr/005-escolha-do-hardware.md) | — | Aceito 2026-11-16 (Squad 4) |
 | Hospedagem | Vercel (telas), Render (API), Neon (banco) | — | Planos gratuitos (restrição C-01) |
 
 ---
@@ -266,10 +266,9 @@ Imagens dos wireframes vão para [`assets/wireframes/`](assets/). Até lá, cada
 
 ## 9. Fora do Escopo / Próximos Passos
 
-- ADR de hardware: escolha entre totem e painel, protocolo HTTP ou MQTT, alimentação calculada (Squad 4, até 26/10)
-- Modelo de dados e contratos OpenAPI das três fronteiras (até 26/10)
+- [ADR-005](../adr/005-escolha-do-hardware.md) — hardware de borda (aceito 2026-11-16): totem e painel em ESP32, HTTP(S) para a API, alimentação 5 V calculada (C-04, RNF-11). Esquema detalhado na issue #63; contrato de evento na #64.
+- Implementação física do totem ou painel (v2, C-03; protótipo #68 opcional)
 - Wireframes em imagem para as 4 telas
-- Implementação física do totem ou painel (v2)
 
 ---
 
