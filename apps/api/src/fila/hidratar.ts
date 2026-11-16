@@ -75,11 +75,8 @@ export async function hidratarFilaDoBanco(): Promise<void> {
     )
     .sort((a, b) => a.criado_em.getTime() - b.criado_em.getTime());
 
-  let ordemChegada = 0;
   for (const a of naFila) {
-    ordemChegada += 1;
     const caso = paraCaso(a);
-    caso.chegada_em = ordemChegada;
     restaurarCasoNaFila(caso);
     const dados: IngressoRequest = {
       especie: caso.especie,
