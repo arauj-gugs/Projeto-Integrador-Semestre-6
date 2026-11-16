@@ -257,7 +257,7 @@ Imagens dos wireframes vão para [`assets/wireframes/`](assets/). Até lá, cada
 | Risco | Probabilidade | Impacto | Mitigação |
 |---|---|---|---|
 | R1 — Tutor não recebe o aviso | Média | Alto | Dois canais + confirmação de leitura; alerta à recepção após 3 min (UC-04, E3) |
-| R2 — Clínica cancela a autorização | Baixa | Alto | Segunda clínica identificada como reserva; série retrospectiva declarada como tal |
+| R2 — Clínica cancela a autorização | Baixa | Alto | Segunda clínica identificada como reserva; série retrospectiva declarada como tal. Estado atual: [autorizacao-clinica.md](../campo/autorizacao-clinica.md) (formalização escrita e reserva pendentes, nov/2026) |
 | R3 — As três frentes não integram a tempo | Alta | Alto | Contratos OpenAPI congelados em 26/10; contract tests entre frentes ([estratégia de testes](../test-strategy.md)) |
 | R4 — Série com poucas amostras por tipo | Média | Médio | Fallback agregado e marcação de estimativa degradada (ADR-002) |
 | R5 — Hibernação da hospedagem gratuita na bancada cruzada | Média | Médio | Monitor externo a cada 5 min no período (RNF-10); retorno ≤ 60 s documentado no manual |

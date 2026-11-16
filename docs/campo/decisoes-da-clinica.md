@@ -15,3 +15,4 @@
 | Integração ERP / pagamento / agendamento (W-04) | SimpleVet cobre cadastro, caixa, agendamento | Manter W-04; Fila Virtual não integra SimpleVet no MVP |
 | Internet estável na clínica | Internet instável; PCs bons | Reforça polling + monitor de hibernação (RNF-10) |
 | LGPD: sem nome no Fila Virtual (RF-01) | Cadastro local tem nome, raça, etc. | Ingresso do MVP continua sem nome; dados clínicos ficam no ERP deles |
+| Autorização de coleta + clínica reserva (R2, #55) | Visita/entrevista out/2026; sem termo ou e-mail formal no repo; reserva ainda não nomeada | Manter registro em [autorizacao-clinica.md](autorizacao-clinica.md); formalizar termo e identificar reserva antes de fechar #55 |

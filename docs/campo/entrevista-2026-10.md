@@ -144,4 +144,4 @@ Impacto no produto: reforça fallback de polling nas telas, monitor de hibernaç
 - Regra exata quando chegam dois cães no cio ou dois reativos ao mesmo tempo.
 - Se "urgência" vira um estado no sistema ou só "emergência" (RF-05) + ordem de chegada.
 - Faixas de distância reais dos tutores (F2) e margem de acionamento.
-- Autorização formal escrita e clínica reserva (risco R2), se ainda pendentes.
+- Autorização formal escrita e clínica reserva (risco R2): registro e próximos passos em [autorizacao-clinica.md](autorizacao-clinica.md) — formalização e reserva **pendentes** (issue #55).
