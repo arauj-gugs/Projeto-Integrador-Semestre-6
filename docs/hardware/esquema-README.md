@@ -15,4 +15,6 @@ Documentação de processo fica em `docs/`; firmware e contratos em `packages/co
 
 **Última entrega esquema:** 2026-11-16 (`Closes #63`).
 
-**Próximo:** issue [#64](https://github.com/arauj-gugs/Projeto-Integrador-Semestre-6/issues/64) — contrato Borda → Domínio.
+**Contrato #64:** [contrato-borda-registro.md](contrato-borda-registro.md) · fixtures em `packages/contratos/fixtures/borda/`.
+
+**Próximo:** #67 ambiente de bancada · #68 protótipo opcional.

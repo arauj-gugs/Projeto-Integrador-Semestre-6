@@ -127,5 +127,5 @@ Diagramas de blocos, BOM e dimensionamento de fonte versionados em:
 
 - Issue #62 — ADR-005
 - Issue #63 — entregue em `docs/hardware/` (ver links acima)
-- Issue #64 — contrato Zod e fixtures de evento
+- Issue #64 — [contrato Zod e fixtures](../../packages/contratos/fixtures/borda/README.md) ([registro](../hardware/contrato-borda-registro.md))
 - [UC-06](../requirements/casos-de-uso.md) · [RFC-001 §5](../rfc/rfc-001-arquitetura-mvp.md) · C-02, C-03, C-04

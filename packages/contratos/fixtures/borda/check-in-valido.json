@@ -1,0 +1,8 @@
+{
+  "tipo": "check_in",
+  "dispositivo_id": "totem-001",
+  "tag_lida": "E200341201F9ABCD01234567",
+  "horario": "2026-11-16T19:00:00.000Z",
+  "assinatura": "a1b2c3d4e5f6789012345678901234567890abcdef",
+  "nonce": "00000001"
+}

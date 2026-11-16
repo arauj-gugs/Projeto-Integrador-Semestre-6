@@ -50,6 +50,7 @@ flowchart LR
 | 2026-11-16 | Philipe Gonçalves | Cursor (agente) | `definirEmergencia` lança `AtendimentoNaoEncontrado` (rota emergência 404) | `motor.ts`, testes unit e contrato UC-03 | `alocador.ts` mantém erro interno na falha de retirada da cabeça |
 | 2026-11-16 | Philipe Gonçalves | Cursor (agente) | Issue #63 — esquema painel e totem (diagrama, BOM C-02, fonte 5 V) | `docs/hardware/esquema-*.md`, ADR-005 e RFC-001 §9 | Inventário lab a conferir na BOM; contrato #64 em `packages/contratos` |
 | 2026-11-16 | Philipe Gonçalves | Cursor (agente) | `liberarSalaIsolamento` não zera `atendimentoAtual` (UC-02 E1) | `recursos.ts`, assert no teste ADR-003 | Sala via `ocupanteSalaIsolamento`; vet no `atendimentoAtual` |
+| 2026-11-16 | Philipe Gonçalves | Cursor (agente) | Issue #64 — contrato Borda Zod + fixtures 256 B (UC-06) | `borda.ts`, `fixtures/borda/`, `test/borda.test.ts` | Rotas API totem ficam Squad 1; revisão CODEOWNERS contratos |
 
 ## Erro da ferramenta identificado pela equipe
 

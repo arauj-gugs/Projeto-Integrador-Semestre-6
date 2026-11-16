@@ -1,11 +1,11 @@
 /**
- * Contrato Domínio → Canais (issue #25, ADR-000).
+ * Contratos congelados (issue #25, ADR-000).
  *
- * Paths:
- * - POST /atendimentos
- * - GET /atendimentos/{id}
- * - POST /atendimentos/{id}/emergencia
- * - POST /atendimentos/{id}/encerrar
+ * Domínio → Canais:
+ * - POST /atendimentos, GET /atendimentos/{id}, emergência, encerrar
+ *
+ * Borda → Domínio / Domínio → painel (issue #64, UC-06):
+ * - eventoTotemBordaSchema, estadoPainelSchema
  */
 
 export * from "./enums.js";
@@ -15,3 +15,4 @@ export * from "./posicao.js";
 export * from "./ingresso.js";
 export * from "./emergencia.js";
 export * from "./encerramento.js";
+export * from "./borda.js";
