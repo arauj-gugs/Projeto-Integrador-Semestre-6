@@ -3,7 +3,7 @@
  *
  * Dois eixos de segregação na espera: espécie e risco/comportamento (RF-02).
  * Desempate walk-in: FIFO por ordem de chegada dentro da mesma chave (RF-03).
- * Precedência de emergência após classificação do veterinário fica na #28 (RF-05).
+ * Precedência de emergência após classificação do veterinário fica na issue seguinte (RF-05).
  *
  * RF-12: este módulo não classifica gravidade nem faz triagem clínica.
  */
@@ -26,8 +26,8 @@ export type CasoNaFila = {
   risco: Risco;
   marcadores: IngressoRequest["marcadores"];
   chegada_em: number;
-  /** Reservado para RF-05 na #28; o motor não altera por triagem. */
-  emergencia: false;
+  /** Reservado para RF-05; o motor não altera por triagem nesta issue. */
+  emergencia: boolean;
 };
 
 /** Campos que o motor não persiste (RF-12). */
@@ -82,6 +82,27 @@ export function ordemNaFila(chave: ChaveFila): readonly CasoNaFila[] {
 
 export function listarChavesFilas(): ChaveFila[] {
   return [...filas.keys()];
+}
+
+/** Cabeça de cada fila não vazia (ADR-003). */
+export function listarCabecasFilas(): { chave: ChaveFila; caso: CasoNaFila }[] {
+  const cabecas: { chave: ChaveFila; caso: CasoNaFila }[] = [];
+  for (const chave of filas.keys()) {
+    const caso = cabecaDaFila(chave);
+    if (caso) {
+      cabecas.push({ chave, caso });
+    }
+  }
+  return cabecas;
+}
+
+/** Remove a cabeça da fila indicada (após `chamarProximo` escolher essa chave). */
+export function retirarCasoDaCabeca(chave: ChaveFila): CasoNaFila | undefined {
+  const lista = filas.get(chave);
+  if (!lista?.length) {
+    return undefined;
+  }
+  return lista.shift();
 }
 
 export function resetMotor(): void {
