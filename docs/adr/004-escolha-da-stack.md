@@ -44,7 +44,7 @@ Opção 2, em monorepo com npm workspaces (`apps/api`, `apps/web`, `packages/con
 | Testes de sistema (roteiro) | @playwright/test | 1.64.1 |
 | Tempo real | Server-Sent Events escritos direto na resposta HTTP do Fastify (sem biblioteca extra), consulta a cada 15 s como fallback | — |
 | Hospedagem | Vercel (telas), Render (API), Neon (banco) — planos gratuitos | — |
-| Borda | ESP32 falando HTTP com a API (confirmado no ADR de hardware) | — |
+| Borda | ESP32 falando HTTP(S) com a API — ver [ADR-005](005-escolha-do-hardware.md) | — |
 
 O contrato de cada fronteira é escrito uma vez, em Zod, em `packages/contratos`. A API valida entrada e saída com ele e gera o OpenAPI 3.1 publicado em `/docs`; as telas importam os mesmos tipos. O OpenAPI gerado é versionado em `docs/contratos/openapi.json` e comparado no CI (ver [estratégia de testes](../test-strategy.md)).
 
