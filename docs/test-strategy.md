@@ -97,12 +97,10 @@ A cada push em `main`, roda a suíte completa (unit, contract, integration); fal
 
 ## 1.7 Evidência executável
 
-**Pendente.** O repositório ainda não tem código; a stack está definida no [ADR-004](adr/004-escolha-da-stack.md) (Node.js 24, Fastify, Zod, Vitest).
+**Entregue (issue #26, 2026-11-16).** Teste de contrato com Fastify + Zod conforme [ADR-004](adr/004-escolha-da-stack.md).
 
-Compromisso para a fatia vertical (S5, 02/11):
-
-- Teste de contrato em `apps/api/tests/contract/atendimentos.test.ts` validando `POST /atendimentos` (UC-01) via `fastify.inject`: status 201, corpo aceito pelo schema Zod de `packages/contratos`, presença de `id`, `fila`, `estimativa.p50`, `estimativa.p90` e `link_tutor`; e 422 com o nome do campo quando `tipo_atendimento` falta.
-- Log de execução em [`docs/test-strategy/evidencias/`](test-strategy/evidencias/), gerado com `npx vitest run --reporter=verbose apps/api/tests/contract > docs/test-strategy/evidencias/contract-AAAA-MM-DD.log`, com data e hora no topo do arquivo.
+- Implementação: `apps/api/tests/contract/atendimentos.test.ts` — `POST /atendimentos` (UC-01) via `fastify.inject`: 201 com corpo validado por `ingressoResponseSchema` de `packages/contratos` (`id`, `fila`, `estimativa.p50`, `estimativa.p90`, `link_tutor`); 422 com `campo: "tipo_atendimento"` quando o tipo falta.
+- Evidência: [`docs/test-strategy/evidencias/contract-2026-11-16.log`](test-strategy/evidencias/contract-2026-11-16.log) (data e hora no topo). Regenerar com `npx vitest run --reporter=verbose apps/api/tests/contract` redirecionado para `contract-AAAA-MM-DD.log`.
 
 ---
 

@@ -2,12 +2,16 @@
   "name": "fila-virtual",
   "private": true,
   "workspaces": [
-    "packages/*"
+    "packages/*",
+    "apps/*"
   ],
   "scripts": {
-    "test": "npm test -w packages/contratos"
+    "test": "npm test -w packages/contratos && npm test -w apps/api"
   },
   "engines": {
     "node": ">=24.22.0"
+  },
+  "overrides": {
+    "cookie": "1.0.2"
   }
 }

@@ -1,0 +1,12 @@
+2026-11-16 01:45:53
+
+ RUN  v5.0.4 C:/Users/phili/Documents/Facudade/Projeto-Integrador-Semestre-6
+
+ ? apps/api/tests/contract/atendimentos.test.ts > POST /atendimentos (contrato UC-01, RF-01) > retorna 201 e corpo validado pelo schema Zod 97ms
+ ? apps/api/tests/contract/atendimentos.test.ts > POST /atendimentos (contrato UC-01, RF-01) > retorna 422 com campo tipo_atendimento quando o tipo falta 3ms
+
+ Test Files  1 passed (1)
+      Tests  2 passed (2)
+   Start at  01:45:54
+   Duration  548ms (import 44%, transform 31%, tests 24%, worker 1%)
+
