@@ -55,8 +55,12 @@ describe("alocador RF-04 (#28)", () => {
     expect(proximo?.caso.id).toBe("id-C");
     expect(proximo?.caso.risco).toBe("comum");
 
-    encerrarAtendimentoAtual();
     liberarSalaIsolamento();
+    expect(obterAtendimentoAtual()?.casoId).toBe("id-C");
+    expect(obterEstadoRecursos().veterinario).toBe("ocupado");
+    expect(obterEstadoRecursos().salaIsolamento).toBe("livre");
+
+    encerrarAtendimentoAtual();
     const depois = chamarProximo();
     expect(depois?.caso.id).toBe("id-B");
     expect(depois?.caso.risco).toBe("isolamento");

@@ -93,11 +93,7 @@ export function liberarAposEncerramento(): void {
 /** Sala liberada após o caso de isolamento sair da sala (fim do bloqueio para o próximo). */
 export function liberarSalaIsolamento(): void {
   ocupanteSalaIsolamento = null;
-  estadoRecursos = {
-    ...estadoRecursos,
-    salaIsolamento: "livre",
-  };
-  atendimentoAtual = null;
+  sincronizarSalaNoEstado();
 }
 
 export function resetRecursos(): void {
