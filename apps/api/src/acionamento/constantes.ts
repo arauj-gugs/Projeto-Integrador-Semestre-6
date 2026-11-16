@@ -10,7 +10,7 @@ export const TEMPO_FIXO_ACIONAMENTO_MIN = 20;
 export const SEGUNDO_CANAL_APOS_MS = 3 * 60 * 1000;
 
 /** Retenção da faixa (RNF-01 / ADR-001). */
-export const RETENCAO_FAIXA_MS = 24 * 60 * 60_1000;
+export const RETENCAO_FAIXA_MS = 24 * 60 * 60 * 1000;
 
 /** Máximo de leituras de posição por atendimento (RNF-01). */
 export const MAX_MOMENTOS_POSICAO = 3;

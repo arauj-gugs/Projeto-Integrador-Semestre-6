@@ -13,6 +13,11 @@ describe("retenção 24 h da faixa (RNF-01 / #54)", () => {
     await resetMemoriaFila();
   });
 
+  it("RETENCAO_FAIXA_MS vale exatamente 24 horas", () => {
+    expect(RETENCAO_FAIXA_MS).toBe(24 * 60 * 60 * 1000);
+    expect(RETENCAO_FAIXA_MS).toBe(86_400_000);
+  });
+
   it("apaga faixa com mais de 24 h (relógio simulado)", async () => {
     const app = await buildApp();
     const t0 = new Date("2026-11-16T10:00:00.000Z");
