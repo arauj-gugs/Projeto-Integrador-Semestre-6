@@ -1,69 +1,58 @@
 import { z } from "zod";
 
+/** Limite do evento Borda → Domínio (UC-06, ADR-T01). */
+export const BORDA_EVENTO_MAX_BYTES = 256;
+
+const dispositivoIdSchema = z.string().min(1).max(64);
+const emitidoEmSchema = z.string().datetime();
+const assinaturaSchema = z.string().min(1).max(128);
+
 /**
- * Contrato Borda → Domínio e Domínio → painel (issue #64, UC-06, RNF-12).
- * Payload totem: corpo JSON ≤ 256 bytes UTF-8 (validado nos fixtures).
+ * Check-in do totem: tag/microchip sem nome de tutor ou animal.
+ * Não cria ingresso sozinho — a recepção confirma (UC-06).
  */
+export const eventoCheckInSchema = z.object({
+  tipo: z.literal("check_in"),
+  dispositivo_id: dispositivoIdSchema,
+  emitido_em: emitidoEmSchema,
+  assinatura: assinaturaSchema,
+  tag: z.string().min(1).max(64),
+});
+export type EventoCheckIn = z.infer<typeof eventoCheckInSchema>;
 
-const dispositivoIdSchema = z.string().min(1).max(32);
-const assinaturaHexSchema = z
-  .string()
-  .regex(/^[0-9a-fA-F]+$/, "assinatura deve ser hexadecimal");
-const nonceSchema = z.string().min(8).max(64);
+/** Chamada exibida no painel físico. */
+export const eventoChamadaSchema = z.object({
+  tipo: z.literal("chamada"),
+  dispositivo_id: dispositivoIdSchema,
+  emitido_em: emitidoEmSchema,
+  assinatura: assinaturaSchema,
+  codigo: z.string().min(1).max(16),
+  destino: z.string().min(1).max(64),
+});
+export type EventoChamada = z.infer<typeof eventoChamadaSchema>;
 
-export const codigoDiagnosticoBordaSchema = z.enum([
-  "leitura_invalida",
-  "fila_offline_cheia",
-  "wifi_indisponivel",
+/** Diagnóstico após falhas de leitura (UC-06 E1). */
+export const eventoDiagnosticoSchema = z.object({
+  tipo: z.literal("diagnostico"),
+  dispositivo_id: dispositivoIdSchema,
+  emitido_em: emitidoEmSchema,
+  assinatura: assinaturaSchema,
+  falhas: z.number().int().positive(),
+});
+export type EventoDiagnostico = z.infer<typeof eventoDiagnosticoSchema>;
+
+export const eventoBordaSchema = z.discriminatedUnion("tipo", [
+  eventoCheckInSchema,
+  eventoChamadaSchema,
+  eventoDiagnosticoSchema,
 ]);
+export type EventoBorda = z.infer<typeof eventoBordaSchema>;
 
-/** Totem → API: check-in físico (UC-06 passo 2). */
-export const eventoCheckInBordaSchema = z
-  .object({
-    tipo: z.literal("check_in"),
-    dispositivo_id: dispositivoIdSchema,
-    tag_lida: z.string().min(4).max(96),
-    horario: z.iso.datetime(),
-    assinatura: assinaturaHexSchema,
-    nonce: nonceSchema,
-  })
-  .strict();
-export type EventoCheckInBorda = z.infer<typeof eventoCheckInBordaSchema>;
+/** Tamanho em bytes UTF-8 do JSON serializado (limite UC-06). */
+export function tamanhoEventoBordaBytes(evento: unknown): number {
+  return new TextEncoder().encode(JSON.stringify(evento)).length;
+}
 
-/** Totem → API: diagnóstico (UC-06 E1, E2). */
-export const eventoDiagnosticoBordaSchema = z
-  .object({
-    tipo: z.literal("diagnostico"),
-    dispositivo_id: dispositivoIdSchema,
-    codigo: codigoDiagnosticoBordaSchema,
-    horario: z.iso.datetime(),
-    assinatura: assinaturaHexSchema,
-    contagem: z.number().int().min(0).max(20).optional(),
-  })
-  .strict();
-export type EventoDiagnosticoBorda = z.infer<typeof eventoDiagnosticoBordaSchema>;
-
-export const eventoTotemBordaSchema = z.discriminatedUnion("tipo", [
-  eventoCheckInBordaSchema,
-  eventoDiagnosticoBordaSchema,
-]);
-export type EventoTotemBorda = z.infer<typeof eventoTotemBordaSchema>;
-
-export const estadoPainelSchema = z
-  .object({
-    atualizado_em: z.iso.datetime(),
-    estado: z.enum(["chamada", "aguardando", "offline"]),
-    codigo: z.string().min(1).max(16).optional(),
-    local: z.string().min(1).max(32).optional(),
-  })
-  .strict()
-  .superRefine((data, ctx) => {
-    if (data.estado === "chamada" && !data.codigo) {
-      ctx.addIssue({
-        code: "custom",
-        message: "codigo obrigatorio quando estado e chamada",
-        path: ["codigo"],
-      });
-    }
-  });
-export type EstadoPainel = z.infer<typeof estadoPainelSchema>;
+export function eventoBordaDentroDoLimite(evento: unknown): boolean {
+  return tamanhoEventoBordaBytes(evento) <= BORDA_EVENTO_MAX_BYTES;
+}

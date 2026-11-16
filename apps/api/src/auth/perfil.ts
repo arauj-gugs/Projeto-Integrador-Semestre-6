@@ -1,10 +1,7 @@
 import type { FastifyRequest } from "fastify";
-import {
-  erro403Emergencia,
-  type PerfilSemPermissaoEmergencia,
-} from "@fila-virtual/contratos";
+import { erro403Emergencia } from "@fila-virtual/contratos";
 
-export type PerfilEquipe = "veterinario" | PerfilSemPermissaoEmergencia;
+export type PerfilEquipe = "veterinario" | "recepcao" | "tutor";
 
 const MENSAGEM_401 = "Autenticacao obrigatoria para este endpoint";
 
@@ -23,7 +20,10 @@ export function lerPerfil(
   return null;
 }
 
-/** UC-03 E1, RNF-07 provisório: veterinário só com header `x-perfil`. */
+/**
+ * Demo PI: recepção e veterinário classificam emergência (exceção a RF-05).
+ * Tutor continua 403.
+ */
 export function autorizarClassificacaoEmergencia(request: FastifyRequest):
   | { ok: true }
   | { ok: false; status: 401; body: { codigo: 401; mensagem: string } }
@@ -36,7 +36,7 @@ export function autorizarClassificacaoEmergencia(request: FastifyRequest):
       body: { codigo: 401, mensagem: MENSAGEM_401 },
     };
   }
-  if (perfil === "recepcao" || perfil === "tutor") {
+  if (perfil === "tutor") {
     return {
       ok: false,
       status: 403,
@@ -46,10 +46,40 @@ export function autorizarClassificacaoEmergencia(request: FastifyRequest):
   return { ok: true };
 }
 
+const MENSAGEM_403_EQUIPE =
+  "Somente recepção ou veterinário executa esta ação";
+
+/** Cancelar / ações de equipe na fila. */
+export function exigirEquipe(request: FastifyRequest):
+  | { ok: true; perfil: "recepcao" | "veterinario" }
+  | { ok: false; status: 401; body: { codigo: 401; mensagem: string } }
+  | {
+      ok: false;
+      status: 403;
+      body: { codigo: 403; mensagem: string };
+    } {
+  const perfil = lerPerfil(request);
+  if (!perfil) {
+    return {
+      ok: false,
+      status: 401,
+      body: { codigo: 401, mensagem: MENSAGEM_401 },
+    };
+  }
+  if (perfil !== "recepcao" && perfil !== "veterinario") {
+    return {
+      ok: false,
+      status: 403,
+      body: { codigo: 403, mensagem: MENSAGEM_403_EQUIPE },
+    };
+  }
+  return { ok: true, perfil };
+}
+
 const MENSAGEM_403_ACAO_VET =
   "Somente o veterinário encerra atendimento";
 
-/** RF-15, UC-05: chamar próximo e encerrar só pelo veterinário. */
+/** UC-05: encerrar só pelo veterinário. */
 export function exigirVeterinario(request: FastifyRequest):
   | { ok: true }
   | { ok: false; status: 401; body: { codigo: 401; mensagem: string } }
@@ -74,4 +104,19 @@ export function exigirVeterinario(request: FastifyRequest):
     };
   }
   return { ok: true };
+}
+
+/**
+ * Demo PI: recepção e veterinário podem chamar o próximo
+ * (exceção a RF-15 que restringia à UI do vet).
+ */
+export function autorizarChamarProximo(request: FastifyRequest):
+  | { ok: true; perfil: "recepcao" | "veterinario" }
+  | { ok: false; status: 401; body: { codigo: 401; mensagem: string } }
+  | {
+      ok: false;
+      status: 403;
+      body: { codigo: 403; mensagem: string };
+    } {
+  return exigirEquipe(request);
 }

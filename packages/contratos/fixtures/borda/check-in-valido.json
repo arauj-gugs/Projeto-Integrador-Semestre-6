@@ -1,8 +1,1 @@
-{
-  "tipo": "check_in",
-  "dispositivo_id": "totem-001",
-  "tag_lida": "E200341201F9ABCD01234567",
-  "horario": "2026-11-16T19:00:00.000Z",
-  "assinatura": "a1b2c3d4e5f6789012345678901234567890abcdef",
-  "nonce": "00000001"
-}
+{"tipo":"check_in","dispositivo_id":"totem-recepcao-01","emitido_em":"2026-11-16T12:00:00.000Z","assinatura":"a1b2c3d4e5f60718293a4b5c6d7e8f90","tag":"CHIP-4A7F2B"}

@@ -1,8 +1,8 @@
 # ADR-001 — Como a posição do tutor é obtida
 
-Data: 2026-10-20
-Status: proposto
-Decidem: `<arquiteto>`, Squad 3 — Tutor
+Data: 2026-11-16
+Status: aceito
+Decidem: Gustavo Vieira (arquiteto), Squad 3 — Tutor
 
 ## Contexto
 

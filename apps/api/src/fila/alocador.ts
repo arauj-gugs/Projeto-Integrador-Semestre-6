@@ -1,13 +1,17 @@
 /**
  * Alocador de recursos compartilhados (issue #28, RF-04, ADR-003).
+ * Lanes Em atendimento: caes | outros (capacidade configurável).
  */
 import {
   exigeSalaIsolamento,
+  laneDaEspecie,
   liberarAposEncerramento,
   obterEstadoRecursos,
   ocuparParaAtendimento,
   resetRecursos,
+  temVagaParaCaso,
   type EstadoRecursos,
+  type LaneAtendimento,
 } from "./recursos.js";
 import {
   listarCabecasFilas,
@@ -23,14 +27,14 @@ export type ChamarProximoResult = {
   recursos: EstadoRecursos;
 };
 
-function casoElegivel(
-  caso: CasoNaFila,
-  recursos: EstadoRecursos,
-): boolean {
-  if (recursos.veterinario !== "livre") {
+function casoElegivel(caso: CasoNaFila, lane?: LaneAtendimento): boolean {
+  if (lane && laneDaEspecie(caso.especie) !== lane) {
     return false;
   }
-  if (exigeSalaIsolamento(caso.risco) && recursos.salaIsolamento !== "livre") {
+  if (!temVagaParaCaso(caso)) {
+    return false;
+  }
+  if (exigeSalaIsolamento(caso.risco) && obterEstadoRecursos().salaIsolamento !== "livre") {
     return false;
   }
   return true;
@@ -46,14 +50,11 @@ function compararElegiveis(a: CasoNaFila, b: CasoNaFila): number {
   return a.id.localeCompare(b.id);
 }
 
-export function chamarProximo(): ChamarProximoResult | null {
-  const recursos = obterEstadoRecursos();
-  if (recursos.veterinario !== "livre") {
-    return null;
-  }
-
+export function chamarProximo(
+  lane?: LaneAtendimento,
+): ChamarProximoResult | null {
   const cabecas = listarCabecasFilas();
-  const elegiveis = cabecas.filter(({ caso }) => casoElegivel(caso, recursos));
+  const elegiveis = cabecas.filter(({ caso }) => casoElegivel(caso, lane));
   if (elegiveis.length === 0) {
     return null;
   }
@@ -74,8 +75,8 @@ export function chamarProximo(): ChamarProximoResult | null {
   };
 }
 
-export function encerrarAtendimentoAtual(): void {
-  liberarAposEncerramento();
+export function encerrarAtendimentoAtual(casoId?: string): void {
+  liberarAposEncerramento(casoId);
 }
 
 export function resetAlocador(): void {

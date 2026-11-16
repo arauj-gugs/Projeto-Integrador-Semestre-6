@@ -1,8 +1,0 @@
-{
-  "tipo": "diagnostico",
-  "dispositivo_id": "totem-001",
-  "codigo": "leitura_invalida",
-  "horario": "2026-11-16T19:01:00.000Z",
-  "assinatura": "deadbeef",
-  "contagem": 3
-}

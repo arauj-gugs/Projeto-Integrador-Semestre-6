@@ -1,15 +1,10 @@
 {
+  "extends": "../../tsconfig.base.json",
   "compilerOptions": {
-    "target": "ES2022",
-    "module": "ESNext",
-    "moduleResolution": "bundler",
-    "strict": true,
-    "skipLibCheck": true,
+    "rootDir": ".",
+    "outDir": "dist",
     "noEmit": true,
-    "esModuleInterop": true,
-    "isolatedModules": true,
-    "verbatimModuleSyntax": true,
     "types": ["node"]
   },
-  "include": ["src/**/*.ts", "tests/**/*.ts"]
+  "include": ["src", "tests"]
 }

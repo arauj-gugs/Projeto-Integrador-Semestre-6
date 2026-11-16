@@ -1,15 +1,10 @@
 {
+  "extends": "../../tsconfig.base.json",
   "compilerOptions": {
-    "target": "ES2022",
-    "module": "ESNext",
-    "moduleResolution": "bundler",
-    "strict": true,
-    "skipLibCheck": true,
+    "rootDir": ".",
+    "outDir": "dist",
     "noEmit": true,
-    "esModuleInterop": true,
-    "isolatedModules": true,
-    "verbatimModuleSyntax": true,
-    "types": ["vitest/globals", "node"]
+    "types": ["node"]
   },
-  "include": ["src/**/*.ts", "test/**/*.ts"]
+  "include": ["src", "test"]
 }

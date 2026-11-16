@@ -132,16 +132,19 @@ describe("POST /atendimentos/{id}/emergencia", () => {
     expect(emergenciaResponseSchema.parse(body).fila.posicao).toBe(1);
   });
 
-  it("403 exige perfil recepcao ou tutor e a mensagem do UC-03", () => {
-    const erro = erro403Emergencia("recepcao");
-    expect(erro403Schema.parse(erro)).toEqual({
+  it("403 de emergência só para tutor (recepção autorizada na demo PI)", () => {
+    expect(erro403Schema.parse(erro403Emergencia("tutor"))).toEqual({
+      codigo: 403,
+      perfil: "tutor",
+      mensagem: MENSAGEM_403_EMERGENCIA,
+    });
+
+    const recepcao = erro403Schema.safeParse({
       codigo: 403,
       perfil: "recepcao",
       mensagem: MENSAGEM_403_EMERGENCIA,
     });
-    expect(erro403Schema.parse(erro403Emergencia("tutor")).perfil).toBe(
-      "tutor",
-    );
+    expect(recepcao.success).toBe(false);
 
     const veterinario = erro403Schema.safeParse({
       codigo: 403,
@@ -185,5 +188,41 @@ describe("POST /atendimentos/{id}/encerrar", () => {
         horario_fim: "2026-11-16T14:30:00.000Z",
       }),
     ).toEqual({ horario_fim: "2026-11-16T14:30:00.000Z" });
+  });
+});
+
+describe("POST /atendimentos/{id}/localizacao (contrato #43)", () => {
+  it("aceita consentimento com coordenada e recusa expl�cita", async () => {
+    const { localizacaoRequestSchema, localizacaoResponseSchema } = await import("../src/localizacao.js");
+    const ok = localizacaoRequestSchema.parse({
+      momento: "entrada",
+      consentimento: { concedido: true },
+      latitude: -23.1,
+      longitude: -46.8,
+    });
+    expect(ok.recusou).toBe(false);
+
+    const recusa = localizacaoRequestSchema.parse({
+      momento: "entrada",
+      consentimento: { concedido: false },
+      recusou: true,
+    });
+    expect(recusa.recusou).toBe(true);
+
+    expect(() =>
+      localizacaoRequestSchema.parse({
+        momento: "entrada",
+        consentimento: { concedido: true },
+      }),
+    ).toThrow();
+
+    const resp = localizacaoResponseSchema.parse({
+      id: "x",
+      criterio: "tempo_fixo",
+      faixa: null,
+      deslocamento_minutos: null,
+      momentos_usados: 1,
+    });
+    expect(resp.criterio).toBe("tempo_fixo");
   });
 });

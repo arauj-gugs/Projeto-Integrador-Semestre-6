@@ -1,64 +1,64 @@
-import { readdirSync, readFileSync } from "node:fs";
+import { readFileSync, readdirSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
 import {
-  estadoPainelSchema,
-  eventoTotemBordaSchema,
+  BORDA_EVENTO_MAX_BYTES,
+  eventoBordaDentroDoLimite,
+  eventoBordaSchema,
+  tamanhoEventoBordaBytes,
 } from "../src/borda.js";
 
-const __dir = dirname(fileURLToPath(import.meta.url));
-const fixturesDir = join(__dir, "..", "fixtures", "borda");
+const fixturesDir = join(
+  dirname(fileURLToPath(import.meta.url)),
+  "../fixtures/borda",
+);
 
-function tamanhoUtf8(obj: unknown): number {
-  return Buffer.byteLength(JSON.stringify(obj), "utf8");
+function lerFixture(nome: string): unknown {
+  const raw = readFileSync(join(fixturesDir, nome), "utf8");
+  return JSON.parse(raw) as unknown;
 }
 
-function carregarFixtures(): { nome: string; raw: string; parsed: unknown }[] {
-  return readdirSync(fixturesDir)
-    .filter((f) => f.endsWith(".json"))
-    .map((nome) => {
-      const raw = readFileSync(join(fixturesDir, nome), "utf8");
-      return { nome, raw, parsed: JSON.parse(raw) as unknown };
-    });
-}
-
-describe("contrato Borda (#64, ADR-T01)", () => {
-  const fixtures = carregarFixtures();
-
-  it("cada fixture totem valida no schema e cabe em 256 bytes", () => {
-    for (const { nome, parsed } of fixtures) {
-      if (!nome.startsWith("check-in") && !nome.startsWith("diagnostico")) {
-        continue;
-      }
-      const resultado = eventoTotemBordaSchema.safeParse(parsed);
-      expect(resultado.success, nome).toBe(true);
-      expect(tamanhoUtf8(parsed), nome).toBeLessThanOrEqual(256);
-    }
-  });
-
-  it("check-in-256-bytes.json ocupa exatamente 256 bytes no arquivo", () => {
-    const alvo = fixtures.find((f) => f.nome === "check-in-256-bytes.json");
-    expect(alvo).toBeDefined();
-    expect(Buffer.byteLength(alvo!.raw, "utf8")).toBe(256);
-    expect(eventoTotemBordaSchema.safeParse(alvo!.parsed).success).toBe(true);
-  });
-
-  it("fixtures painel validam estadoPainelSchema", () => {
-    for (const { nome, parsed } of fixtures) {
-      if (!nome.startsWith("painel-")) {
-        continue;
-      }
-      expect(estadoPainelSchema.safeParse(parsed).success, nome).toBe(true);
-    }
-  });
-
-  it("estado chamada sem codigo e rejeitado", () => {
+describe("contrato Borda → Domínio (issue #64, UC-06)", () => {
+  it("valida check-in, chamada e diagnóstico", () => {
+    expect(eventoBordaSchema.parse(lerFixture("check-in-valido.json")).tipo).toBe(
+      "check_in",
+    );
+    expect(eventoBordaSchema.parse(lerFixture("chamada-valida.json")).tipo).toBe(
+      "chamada",
+    );
     expect(
-      estadoPainelSchema.safeParse({
-        atualizado_em: "2026-11-16T19:00:00.000Z",
-        estado: "chamada",
-      }).success,
-    ).toBe(false);
+      eventoBordaSchema.parse(lerFixture("diagnostico-valido.json")).tipo,
+    ).toBe("diagnostico");
+  });
+
+  it("aceita fixture de exatamente 256 bytes", () => {
+    const evento = lerFixture("check-in-256-bytes.json");
+    expect(tamanhoEventoBordaBytes(evento)).toBe(BORDA_EVENTO_MAX_BYTES);
+    expect(eventoBordaSchema.safeParse(evento).success).toBe(true);
+    expect(eventoBordaDentroDoLimite(evento)).toBe(true);
+  });
+
+  it("rejeita fixture acima de 256 bytes pelo limite de tamanho", () => {
+    const evento = lerFixture("check-in-acima-256.json");
+    expect(tamanhoEventoBordaBytes(evento)).toBeGreaterThan(BORDA_EVENTO_MAX_BYTES);
+    expect(eventoBordaSchema.safeParse(evento).success).toBe(true);
+    expect(eventoBordaDentroDoLimite(evento)).toBe(false);
+  });
+
+  it("valida schema de toda fixture válida (exceto a acima de 256)", () => {
+    const arquivos = readdirSync(fixturesDir).filter((f) => f.endsWith(".json"));
+    expect(arquivos.length).toBeGreaterThanOrEqual(4);
+
+    for (const nome of arquivos) {
+      const evento = lerFixture(nome);
+      const parse = eventoBordaSchema.safeParse(evento);
+      expect(parse.success, nome).toBe(true);
+      if (nome.includes("acima-256")) {
+        expect(eventoBordaDentroDoLimite(evento), nome).toBe(false);
+      } else {
+        expect(eventoBordaDentroDoLimite(evento), nome).toBe(true);
+      }
+    }
   });
 });

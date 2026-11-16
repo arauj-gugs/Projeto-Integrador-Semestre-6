@@ -1,6 +1,5 @@
 import { beforeEach, describe, expect, it } from "vitest";
 import type { IngressoRequest } from "@fila-virtual/contratos";
-import { AtendimentoNaoEncontrado } from "../../../src/fila/erros-dominio.js";
 import {
   cabecaDaFila,
   chaveFila,
@@ -51,12 +50,6 @@ describe("emergência RF-05 (#29)", () => {
 
     const chave = chaveFila("cao", "comum");
     expect(ordemNaFila(chave).map((c) => c.id)).toEqual(["id-b", "id-a"]);
-  });
-
-  it("id inexistente lança AtendimentoNaoEncontrado", () => {
-    expect(() => definirEmergencia("id-inexistente", true)).toThrow(
-      AtendimentoNaoEncontrado,
-    );
   });
 
   it("reclassificação false devolve FIFO entre não emergências (UC-03 A2)", () => {

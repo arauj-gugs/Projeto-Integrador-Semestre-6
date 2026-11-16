@@ -1,0 +1,3 @@
+cenario,descricao,p50,p90,estimativa_degradada
+A,vacina em curso 5min + vacina aguardando (serie do tipo),18,21,false
+B,consulta aguardando com fallback agregado (<8 amostras),15,40,true

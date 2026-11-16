@@ -12,12 +12,18 @@ import {
 } from "./erros-dominio.js";
 import { publicarMudancaFila } from "./fila-eventos.js";
 import { notificarEstimativaDuracaoReal } from "./estimativa-stub.js";
-import { obterAtendimentoAtual } from "./recursos.js";
+import {
+  obterAtendimentoAtualPorId,
+  type LaneAtendimento,
+} from "./recursos.js";
+import { obterAtendimento, salvarAtendimento } from "../store/memoria.js";
+import { registrarEventoFila } from "../store/fila-log.js";
 
 export type EstadoAtendimentoRegistro =
   | "na_fila"
   | "em_atendimento"
-  | "encerrado";
+  | "encerrado"
+  | "cancelado";
 
 export type RegistroAtendimento = {
   id: string;
@@ -67,8 +73,13 @@ export function obterRegistro(id: string): RegistroAtendimento | undefined {
   return registros.get(id);
 }
 
-export function chamarProximoAtendimento(): { id: string; codigo: string } {
-  const resultado = chamarProximo();
+export async function chamarProximoAtendimento(
+  lane?: LaneAtendimento,
+): Promise<{
+  id: string;
+  codigo: string;
+}> {
+  const resultado = chamarProximo(lane);
   if (!resultado) {
     throw new NenhumCasoElegivel();
   }
@@ -81,7 +92,15 @@ export function chamarProximoAtendimento(): { id: string; codigo: string } {
   registro.estado = "em_atendimento";
   registro.horario_inicio_atendimento = agoraIso();
 
-  publicarMudancaFila();
+  const atendimento = await obterAtendimento(registro.id);
+  if (atendimento) {
+    atendimento.estado = "em_atendimento";
+    atendimento.inicio_real = new Date(registro.horario_inicio_atendimento);
+    await salvarAtendimento(atendimento);
+  }
+  await registrarEventoFila(registro.id, "chamado");
+
+  await publicarMudancaFila();
 
   return { id: registro.id, codigo: registro.codigo };
 }
@@ -92,10 +111,10 @@ function calcularDuracaoMin(inicioIso: string, fimIso: string): number {
   return Math.floor((fim - inicio) / 60_000);
 }
 
-export function encerrarAtendimento(
+export async function encerrarAtendimento(
   id: string,
   horario_fim: string,
-): EncerramentoResponse {
+): Promise<EncerramentoResponse> {
   const registro = registros.get(id);
   if (!registro) {
     throw new AtendimentoNaoEncontrado();
@@ -115,18 +134,18 @@ export function encerrarAtendimento(
     throw new HorarioFimInvalido();
   }
 
-  const atual = obterAtendimentoAtual();
-  if (atual?.casoId === id) {
-    encerrarAtendimentoAtual();
+  if (obterAtendimentoAtualPorId(id)) {
+    encerrarAtendimentoAtual(id);
   }
 
   registro.horario_fim = horario_fim;
   registro.duracao_min = duracao_min;
   registro.estado = "encerrado";
 
-  notificarEstimativaDuracaoReal(registro);
+  await notificarEstimativaDuracaoReal(registro);
+  await registrarEventoFila(id, "encerrado", `duracao_min=${duracao_min}`);
 
-  publicarMudancaFila();
+  await publicarMudancaFila();
 
   return {
     id,

@@ -144,7 +144,7 @@ describe("GET /fila/stream (SSE, RNF-02, issue #31)", () => {
   let port: number;
 
   beforeEach(async () => {
-    resetMemoriaFila();
+    await resetMemoriaFila();
     app = await buildApp();
     await app.listen({ port: 0, host: "127.0.0.1" });
     port = obterPorta(app);

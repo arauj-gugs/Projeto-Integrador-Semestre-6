@@ -118,7 +118,7 @@ Marcos às segundas-feiras com a coordenação. Atraso em marco se resolve com r
 | S4 | 26/10 | **Arquitetura (marco crítico)** | Contratos de interface congelados, modelo de dados, esquema de hardware, ADRs, riscos, custos |
 | S5 | 02/11 | Fatia vertical | Uma feature fim a fim, 4 janelas concluídas, dado de campo versionado |
 | S6 | 09/11 | As três features | F1, F2 e F3 em operação, plano de testes, riscos revisados |
-| S7 | 16/11 | **Congelamento** | Código congelado, sistema publicado, [manual de bancada](docs/manual-bancada.md), início da bancada cruzada |
+| S7 | 16/11 | **Congelamento** | Código congelado, sistema publicado, manual, início da bancada cruzada |
 | S8 | 23/11 | Bancada cruzada | Relatório entregue e respostas aos defeitos; 24/11 pacote do PI |
 | S9 | 30/11 | Apresentação final | Demonstração no roteiro comum, confronto dos ADRs, relatório de extensão |
 | — | 03/12 | Entrega final | Versão com defeitos corrigidos, documentação, lições aprendidas |
@@ -156,24 +156,48 @@ Regras que valem para todos:
 
 > Os comandos abaixo valem a partir da fatia vertical (02/11), quando o código entra no repositório. Stack e versões: [ADR-004](docs/adr/004-escolha-da-stack.md).
 
-Pré-requisitos: Node.js 24.22.0 (LTS) e um banco PostgreSQL 17 (local ou Neon).
+Pré-requisitos: **Node.js 24** (LTS) e Docker Desktop. A API grava no **PostgreSQL 17 local** (Docker). O Neon do ADR-004 continua sendo o banco publicado; nesta máquina o compose substitui a memória.
+
+Hot reload: a API usa `tsx watch`; as telas usam Vite HMR. Não é necessário nodemon.
+
+**Primeira vez** (clone / máquina nova):
 
 ```bash
 git clone <url-do-repositorio>
 cd Projeto-Integrador-Semestre-6
-npm install                       # instala os workspaces apps/api, apps/web e packages/contratos
-cp apps/api/.env.example apps/api/.env   # preencher DATABASE_URL
-npm run db:migrate -w apps/api    # aplica as migrações do drizzle-kit
-npm run dev                       # API em http://localhost:3000 (OpenAPI em /docs) e telas em http://localhost:5173
+npm install
+cp apps/api/.env.example apps/api/.env   # se ainda não existir
+npm run db:up
+npm run db:migrate -w apps/api
+npm run db:seed -w apps/api
 ```
 
-Testes:
+**No dia a dia** (um comando — Postgres + API + web):
 
 ```bash
-npm test                          # unit + contract (Vitest), bloqueiam o merge
-npm run test:integration          # API com banco real
-npm run seed:bancada              # dados sintéticos para bancada (#67); ver docs/manual-bancada.md
-npm run test:e2e                  # roteiro de demonstração (Playwright)
+# Windows: se `node -v` mostrar v18, force o 24 nesta sessão:
+# $env:Path = "C:\nvm4w\nodejs;" + $env:Path
+
+npm run up
+```
+
+- API: <http://localhost:3000> (OpenAPI em `/docs`)
+- Telas: <http://localhost:5173> (fila em `/#/recepcao`, painel TV em `/#/painel`)
+
+Só API ou só web: `npm run dev:api` / `npm run dev:web`. Só os dois sem Docker: `npm run dev`.
+
+Demo local da estimativa (API no ar):
+
+```bash
+npm run demo:local                # reset localhost + série demo + casos D1–D6
+# checklist: docs/estimativa/demo-local.md
+```
+
+Testes (exigem o Postgres do compose no ar):
+
+```bash
+npm test                          # unit + contract (Vitest)
+npm run typecheck                 # tsc nos workspaces
 ```
 
 ---

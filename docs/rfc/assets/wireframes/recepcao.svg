@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="480" viewBox="0 0 800 480">
+  <rect width="800" height="480" fill="#f4f6f8"/>
+  <text x="24" y="36" font-family="Segoe UI,sans-serif" font-size="20" fill="#1a1a1a">Recepção  Fila Virtual</text>
+  <rect x="24" y="56" width="240" height="160" rx="8" fill="#fff" stroke="#dde3ea"/>
+  <text x="36" y="80" font-size="14" font-family="Segoe UI,sans-serif">Novo ingresso</text>
+  <rect x="36" y="96" width="200" height="24" rx="4" fill="#eef2f6"/>
+  <rect x="36" y="128" width="200" height="24" rx="4" fill="#eef2f6"/>
+  <rect x="36" y="160" width="96" height="28" rx="4" fill="#1a5fb4"/>
+  <text x="52" y="179" font-size="12" fill="#fff" font-family="Segoe UI,sans-serif">Registrar</text>
+  <rect x="280" y="56" width="140" height="200" rx="8" fill="#fff" stroke="#dde3ea"/>
+  <text x="292" y="80" font-size="13" font-family="Segoe UI,sans-serif">Cães</text>
+  <rect x="436" y="56" width="140" height="200" rx="8" fill="#fff" stroke="#dde3ea"/>
+  <text x="448" y="80" font-size="13" font-family="Segoe UI,sans-serif">Gatos</text>
+  <rect x="592" y="56" width="180" height="200" rx="8" fill="#fff" stroke="#dde3ea"/>
+  <text x="604" y="80" font-size="13" font-family="Segoe UI,sans-serif">Isolamento / silvestres</text>
+  <rect x="24" y="280" width="360" height="80" rx="8" fill="#fff3cd" stroke="#e0c36a"/>
+  <text x="36" y="310" font-size="13" font-family="Segoe UI,sans-serif">Alertas: Tutor A017 não confirmou aviso</text>
+  <rect x="400" y="280" width="200" height="120" rx="8" fill="#fff" stroke="#dde3ea"/>
+  <text x="412" y="310" font-size="12" font-family="Segoe UI,sans-serif">QR link do tutor</text>
+  <rect x="430" y="320" width="140" height="60" fill="#111"/>
+</svg>
