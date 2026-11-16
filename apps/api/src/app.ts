@@ -16,6 +16,12 @@ import {
   historicoDoDia,
   importarSerie,
 } from "./services/estimativa-servico.js";
+import { resetStore } from "./store/memoria.js";
+
+function hostLocal(hostHeader: string | undefined): boolean {
+  const host = (hostHeader ?? "").split(":")[0]?.toLowerCase() ?? "";
+  return host === "localhost" || host === "127.0.0.1" || host === "::1";
+}
 
 export function buildApp() {
   const app = Fastify({ logger: false }).withTypeProvider<ZodTypeProvider>();
@@ -23,6 +29,15 @@ export function buildApp() {
   app.setSerializerCompiler(serializerCompiler);
 
   app.get("/health", async () => ({ status: "ok" }));
+
+  /** Limpa memória e zera códigos. Só em localhost (demo local). */
+  app.post("/dev/reset", async (request, reply) => {
+    if (!hostLocal(request.headers.host)) {
+      return reply.status(404).send({ erro: "nao_encontrado" });
+    }
+    resetStore();
+    return { ok: true };
+  });
 
   app.post(
     "/atendimentos",

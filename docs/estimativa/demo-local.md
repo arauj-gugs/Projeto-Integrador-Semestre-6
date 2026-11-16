@@ -1,37 +1,48 @@
 # Demo local — conferir estimativas no localhost
 
-Script que popula a API em memória com a série da entrevista e três casos genéricos. Só para máquina local; não é a série oficial da clínica (#65).
+Script completo: reset da memória, série com ≥ 8 amostras por tipo (faixas curtas) e seis casos (D1–D6). Só para máquina local; **não** é a série oficial da clínica (#65).
+
+## Regra importante
+
+**p50 / p90 = espera até o início** (soma de quem está à frente), **não** a duração típica do procedimento.
+
+- Vacina 10–15 min da clínica → aparece na coluna **Duração** quando o atendimento encerra.
+- Se o animal é o **primeiro da fila**, espera p50/p90 = **0/0** — isso está **correto**.
 
 ## Como rodar
 
 ```bash
 npm run dev:api    # terminal 1 — http://localhost:3000
 npm run dev:web    # terminal 2 — http://localhost:5173
-npm run demo:local # terminal 3 — exige a API no ar
+npm run demo:local # terminal 3 — chama POST /dev/reset (só localhost)
 ```
-
-Se a API reiniciar, a memória zera; rode `demo:local` de novo.
 
 ## Casos
 
-| Caso | Tipo | O que acontece | O que olhar na tela |
+| ID | Tipo | Cenário | O que olhar |
 |---|---|---|---|
-| A | vacina | Primeiro da fila; encerra com espera ~0 e duração 12 min | Espera prevista p50/p90 = 0; espera realizada ~0; duração 12; \|erro\| pequeno |
-| B | consulta | Segundo da fila (espera > 0 no ingresso); encerra com espera realizada ≈ 5 e duração 20 | Espera prevista = valor do ingresso (não zerou); espera realizada ≈ 5; duração 20 |
-| C | exame | Só ingresso; não encerra | Não aparece no histórico |
+| D1 | vacina | 1º da fila; encerra duração 12 | Espera **0/0**; duração 12; \|erro\| ≈ 0 |
+| D2 | vacina | 2º (atrás de D1) | Espera **≠ 0**, na casa ~10–15 (série vacina) |
+| D3 | consulta | Atrás de D1+D2 | Espera > D2; previsto **congelado** após encerrar quem estava na frente |
+| D4 | retorno | Começa atrasado (+10 vs previsto) | **Erro positivo** |
+| D5 | exame | Começa adiantado (−5 vs previsto) | **Erro negativo** (se p50 ≥ 5) |
+| D6 | emergencia | Só ingresso | **Não** aparece no histórico |
 
 ## Checklist na tela
 
-1. Abra o link impresso pelo script (filtro **Dia** = data UTC do seed).
-2. Tabela lista A e B; C não.
-3. Colunas: Espera prevista p50/p90, Espera realizada, Erro, Duração.
-4. Barras: **Espera prevista versus espera realizada** (mesma dimensão; não misturar com duração).
-5. Erro médio absoluto = média de \|início real − início previsto\|.
+1. Dia = data UTC impressa pelo script.
+2. Tabela lista D1–D5; D6 não.
+3. Há uma vacina com 0/0 **e** uma vacina com espera > 0.
+4. Colunas: Espera prevista p50/p90, Espera realizada, Erro, Duração.
+5. Barras: espera vs espera (mesma dimensão).
+6. Filtro Tipo = `vacina`: só as duas vacinas; MAE só delas.
+
+## Por que o demo antigo tinha p90 = 120
+
+A série da entrevista tinha poucas amostras de vacina/consulta (&lt; 8) → fallback agregado puxava exames longos. A `serie-demo-local.csv` evita isso no localhost.
 
 ## Comando
 
 ```bash
 npm run demo:local
 ```
-
-Opcional: `API_URL=http://localhost:3000 WEB_URL=http://localhost:5173 npm run demo:local`
