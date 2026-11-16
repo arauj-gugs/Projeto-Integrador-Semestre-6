@@ -142,6 +142,17 @@ O diagrama acima é a fonte. Uma versão em imagem, se gerada, fica em [`assets/
 2. A API grava o fim, calcula o erro do atendimento e o motor de estimativa incorpora a duração (exceto se `suspeita`).
 3. As estimativas da fila são recalculadas e publicadas.
 
+#### Paths do contrato Domínio → Canais (issue #25)
+
+Schemas Zod em `packages/contratos`. Não inclui `POST /atendimentos/{id}/localizacao` (contrato Canais → Domínio, UC-04).
+
+| Método e path | Uso |
+|---|---|
+| `POST /atendimentos` | Ingresso (UC-01); 422 com nome do campo |
+| `GET /atendimentos/{id}` | Posição na fila segregada (UC-02) |
+| `POST /atendimentos/{id}/emergencia` | Classificar ou retirar emergência (UC-03); 403 por perfil |
+| `POST /atendimentos/{id}/encerrar` | Encerramento com duração real (UC-05); 422 em `horario_fim` |
+
 ### 5.3 Fronteiras e Responsabilidades
 
 | Componente | Squad | Responsável por | NÃO faz |
