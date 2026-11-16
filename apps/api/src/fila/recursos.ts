@@ -79,15 +79,12 @@ export function liberarVeterinarioMantendoSalaIsolamento(): void {
 
 export function liberarAposEncerramento(): void {
   const exigeSala = atendimentoAtual?.exigeSalaIsolamento ?? false;
-  estadoRecursos = {
-    veterinario: "livre",
-    salaIsolamento: estadoRecursos.salaIsolamento,
-  };
   if (exigeSala) {
     ocupanteSalaIsolamento = null;
-    sincronizarSalaNoEstado();
   }
+  estadoRecursos = { ...estadoRecursos, veterinario: "livre" };
   atendimentoAtual = null;
+  sincronizarSalaNoEstado();
 }
 
 /** Sala liberada após o caso de isolamento sair da sala (fim do bloqueio para o próximo). */

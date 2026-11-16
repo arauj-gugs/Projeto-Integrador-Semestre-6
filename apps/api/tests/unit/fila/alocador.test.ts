@@ -66,6 +66,38 @@ describe("alocador RF-04 (#28)", () => {
     expect(depois?.caso.risco).toBe("isolamento");
   });
 
+  it("encerrar caso comum mantém sala ocupada enquanto animal permanece (UC-02 E1)", () => {
+    ingressar(
+      payload({ especie: "gato", marcadores: ["isolamento"] }),
+      "id-A",
+      "A001",
+    );
+    chamarProximo();
+    liberarVeterinarioMantendoSalaIsolamento();
+
+    ingressar(
+      payload({ especie: "gato", marcadores: ["isolamento"] }),
+      "id-B",
+      "A002",
+    );
+    ingressar(payload({ especie: "cao", marcadores: [] }), "id-C", "A003");
+
+    chamarProximo();
+    expect(obterEstadoRecursos().veterinario).toBe("ocupado");
+
+    encerrarAtendimentoAtual();
+    expect(obterEstadoRecursos()).toEqual({
+      veterinario: "livre",
+      salaIsolamento: "ocupado",
+    });
+    expect(chamarProximo()).toBeNull();
+
+    liberarSalaIsolamento();
+    const proximo = chamarProximo();
+    expect(proximo?.caso.id).toBe("id-B");
+    expect(proximo?.caso.risco).toBe("isolamento");
+  });
+
   it("nunca chama dois isolamentos sem encerrar o atendimento (UC-02 matriz)", () => {
     ingressar(
       payload({ especie: "gato", marcadores: ["isolamento"] }),
