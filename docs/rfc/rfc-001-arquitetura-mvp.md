@@ -142,6 +142,17 @@ O diagrama acima é a fonte. Uma versão em imagem, se gerada, fica em [`assets/
 2. A API grava o fim, calcula o erro do atendimento e o motor de estimativa incorpora a duração (exceto se `suspeita`).
 3. As estimativas da fila são recalculadas e publicadas.
 
+#### Paths do contrato Domínio → Canais (issue #25)
+
+Schemas Zod em `packages/contratos`. Não inclui `POST /atendimentos/{id}/localizacao` (contrato Canais → Domínio, UC-04).
+
+| Método e path | Uso |
+|---|---|
+| `POST /atendimentos` | Ingresso (UC-01); 422 com nome do campo |
+| `GET /atendimentos/{id}` | Posição na fila segregada (UC-02) |
+| `POST /atendimentos/{id}/emergencia` | Classificar ou retirar emergência (UC-03); 403 por perfil |
+| `POST /atendimentos/{id}/encerrar` | Encerramento com duração real (UC-05); 422 em `horario_fim` |
+
 ### 5.3 Fronteiras e Responsabilidades
 
 | Componente | Squad | Responsável por | NÃO faz |
@@ -163,7 +174,7 @@ Cada ADR é registrado em arquivo próprio em [`docs/adr/`](../adr/), commitado 
 
 ### ADR-001: Posição do tutor em momentos-chave
 
-**Status:** Proposto — **Data:** 2026-10-20 — [arquivo](../adr/001-posicao-do-tutor.md)
+**Status:** Aceito — **Data:** 2026-11-16 — [arquivo](../adr/001-posicao-do-tutor.md)
 
 **Contexto.** A F2 usa a distância para decidir o acionamento, não para rastrear; o tutor usa navegador e pode recusar a permissão.
 
@@ -187,13 +198,13 @@ Cada ADR é registrado em arquivo próprio em [`docs/adr/`](../adr/), commitado 
 
 ### ADR-003: Filas segregadas com alocador de recursos
 
-**Status:** Proposto — **Data:** 2026-10-20 — [arquivo](../adr/003-alocacao-de-recurso-compartilhado.md)
+**Status:** Aceito — **Data:** 2026-11-16 — [arquivo](../adr/003-alocacao-de-recurso-compartilhado.md)
 
-**Contexto.** Veterinário compartilhado entre espécies e sala de isolamento única.
+**Contexto.** Veterinário compartilhado entre espécies e sala de isolamento única (quantidade real a confirmar nas janelas; premissa RF-04 até lá). Eixos finais da entrevista: espécie e risco/comportamento.
 
 **Opções consideradas:** N filas independentes; fila única ponderada; filas segregadas + alocador.
 
-**Decisão.** Espera segregada; a chamada escolhe entre cabeças de fila com recurso livre.
+**Decisão.** Espera segregada; a chamada escolhe entre cabeças de fila com recurso livre. Com a sala de isolamento ocupada, o caso de isolamento fica "aguardando sala" e o veterinário recebe o próximo caso comum (UC-02 E1).
 
 **Consequências.** Modelo de recursos no contrato e no banco; em troca, regra testável e passo 2 do roteiro verificável.
 
@@ -213,7 +224,7 @@ Cada ADR é registrado em arquivo próprio em [`docs/adr/`](../adr/), commitado 
 
 ## 7. Telas (Wireframes)
 
-Imagens dos wireframes vão para [`assets/wireframes/`](assets/). Até lá, cada tela é descrita pelo conteúdo.
+Wireframes em [`assets/wireframes/`](assets/wireframes/): [recepção](assets/wireframes/recepcao.svg), [veterinário](assets/wireframes/veterinario.svg), [tutor](assets/wireframes/tutor.svg), [histórico](assets/wireframes/historico.svg).
 
 ### 7.1 Tela 1 — Recepção (atende UC-01, UC-02)
 

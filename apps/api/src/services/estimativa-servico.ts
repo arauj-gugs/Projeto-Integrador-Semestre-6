@@ -21,11 +21,11 @@ import {
   type AtendimentoMemoria,
 } from "../store/memoria.js";
 
-function aFrenteComoCasos(
+async function aFrenteComoCasos(
   excluindoId?: string,
   agora = new Date(),
-): CasoNaFila[] {
-  return listarAguardandoOuEmCurso()
+): Promise<CasoNaFila[]> {
+  return (await listarAguardandoOuEmCurso())
     .filter((a) => a.id !== excluindoId)
     .sort((a, b) => a.criado_em.getTime() - b.criado_em.getTime())
     .map((a) => {
@@ -44,19 +44,19 @@ function aFrenteComoCasos(
     });
 }
 
-export function criarAtendimento(input: {
+export async function criarAtendimento(input: {
   especie: string;
   porte: string;
   tipo_atendimento: TipoAtendimento;
   reativo?: boolean;
   suspeita_infectocontagiosa?: boolean;
-}): {
+}): Promise<{
   atendimento: AtendimentoMemoria;
   faixa: ReturnType<typeof estimarParaIngresso>;
-} {
+}> {
   const agora = new Date();
-  const serie = serieAtual();
-  const aFrente = aFrenteComoCasos(undefined, agora);
+  const serie = await serieAtual();
+  const aFrente = await aFrenteComoCasos(undefined, agora);
   const faixa = estimarParaIngresso(input.tipo_atendimento, aFrente, serie);
 
   const previsto_ingresso_p50 = faixa.disponivel ? faixa.p50 : null;
@@ -68,13 +68,19 @@ export function criarAtendimento(input: {
 
   const atendimento: AtendimentoMemoria = {
     id: novoId(),
-    codigo: proximoCodigo(),
+    codigo: await proximoCodigo(),
+    animal_id: null,
+    agendamento_id: null,
+    origem: "chegada",
     especie: input.especie,
     porte: input.porte,
     tipo: input.tipo_atendimento,
     reativo: input.reativo ?? false,
     suspeita_infectocontagiosa: input.suspeita_infectocontagiosa ?? false,
+    marcador_cio: false,
     estado: "aguardando",
+    emergencia: false,
+    emergencia_desde: null,
     previsto_ingresso_p50,
     previsto_ingresso_p90,
     estimativa_degradada: faixa.disponivel
@@ -94,13 +100,13 @@ export function criarAtendimento(input: {
     criado_em: agora,
   };
 
-  salvarAtendimento(atendimento);
+  await salvarAtendimento(atendimento);
   return { atendimento, faixa };
 }
 
-export function importarSerie(csv: string, substituir = true) {
+export async function importarSerie(csv: string, substituir = true) {
   const resultado = importarSerieCsv(csv);
-  definirSerie(
+  await definirSerie(
     resultado.aceitas.map((a) => ({
       tipo: a.tipo,
       duracao_minutos: a.duracao_minutos,
@@ -113,16 +119,16 @@ export function importarSerie(csv: string, substituir = true) {
   return resultado;
 }
 
-export function encerrarAtendimento(
+export async function encerrarAtendimento(
   id: string,
   inicioReal: Date,
   fimReal: Date,
   tipoFinal?: TipoAtendimento,
-): {
+): Promise<{
   atendimento: AtendimentoMemoria;
   recalculados: Array<{ id: string; p50: number | null; p90: number | null }>;
-} {
-  const atual = obterAtendimento(id);
+}> {
+  const atual = await obterAtendimento(id);
   if (!atual) {
     throw new Error("atendimento_nao_encontrado");
   }
@@ -134,7 +140,7 @@ export function encerrarAtendimento(
   }
 
   const tipo = tipoFinal ?? atual.tipo;
-  let serie = serieAtual();
+  let serie = await serieAtual();
 
   const inicioPrevisto =
     atual.inicio_previsto ??
@@ -169,7 +175,7 @@ export function encerrarAtendimento(
   );
 
   if (!resultado.suspeita) {
-    adicionarAmostra({
+    await adicionarAmostra({
       tipo,
       duracao_minutos: resultado.duracao_real_minutos,
       origem: "direta",
@@ -195,16 +201,16 @@ export function encerrarAtendimento(
     erro_absoluto_minutos: resultado.erro_absoluto_minutos,
     suspeita: resultado.suspeita,
   };
-  salvarAtendimento(encerrado);
+  await salvarAtendimento(encerrado);
 
-  const recalculados = recalcularFila();
+  const recalculados = await recalcularFila();
   return { atendimento: encerrado, recalculados };
 }
 
 /** Recalcula só espera_atual_*; não mexe no previsto do ingresso. */
-export function recalcularFila(agora = new Date()) {
-  const serie = serieAtual();
-  const abertos = listarAguardandoOuEmCurso().sort(
+export async function recalcularFila(agora = new Date()) {
+  const serie = await serieAtual();
+  const abertos = (await listarAguardandoOuEmCurso()).sort(
     (a, b) => a.criado_em.getTime() - b.criado_em.getTime(),
   );
   const resultado: Array<{ id: string; p50: number | null; p90: number | null }> =
@@ -213,10 +219,13 @@ export function recalcularFila(agora = new Date()) {
   for (let i = 0; i < abertos.length; i++) {
     const atual = abertos[i];
     if (!atual) continue;
+    const tipoEfetivo = (a: (typeof abertos)[number]) =>
+      a.emergencia ? ("emergencia" as const) : a.tipo;
+
     const frente = abertos.slice(0, i).map((a) => {
       if (a.estado === "em_atendimento" && a.inicio_real) {
         return {
-          tipo: a.tipo,
+          tipo: tipoEfetivo(a),
           estado: "em_atendimento" as const,
           minutos_decorridos: Math.max(
             0,
@@ -224,19 +233,18 @@ export function recalcularFila(agora = new Date()) {
           ),
         };
       }
-      return { tipo: a.tipo, estado: "aguardando" as const };
+      return { tipo: tipoEfetivo(a), estado: "aguardando" as const };
     });
 
-    const faixa = estimarParaIngresso(atual.tipo, frente, serie);
+    const faixa = estimarParaIngresso(tipoEfetivo(atual), frente, serie);
     const espera_atual_p50 = faixa.disponivel ? faixa.p50 : null;
     const espera_atual_p90 = faixa.disponivel ? faixa.p90 : null;
     const atualizado: AtendimentoMemoria = {
       ...atual,
       espera_atual_p50,
       espera_atual_p90,
-      // previsto_ingresso_* e inicio_previsto permanecem intactos
     };
-    salvarAtendimento(atualizado);
+    await salvarAtendimento(atualizado);
     resultado.push({
       id: atual.id,
       p50: espera_atual_p50,
@@ -247,15 +255,15 @@ export function recalcularFila(agora = new Date()) {
   return resultado;
 }
 
-export function historicoDoDia(filtro?: {
+export async function historicoDoDia(filtro?: {
   dia?: string;
   tipo?: TipoAtendimento;
 }) {
   const dia = filtro?.dia ?? new Date().toISOString().slice(0, 10);
-  const encerrados = listarEncerrados({
+  const encerrados = (await listarEncerrados({
     dia,
     tipo: filtro?.tipo,
-  }).sort(
+  })).sort(
     (a, b) => (a.fim_real?.getTime() ?? 0) - (b.fim_real?.getTime() ?? 0),
   );
 

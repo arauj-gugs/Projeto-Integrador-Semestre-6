@@ -7,11 +7,15 @@ export const N_REAMOSTRAS = 100;
 /** Abaixo deste limiar o tipo usa a série agregada (UC-01 E2). */
 export const LIMITE_AMOSTRAS_TIPO = 8;
 
+/** Tipos alinhados ao contrato congelado (RF-01 / enums). */
 export const TIPOS_ATENDIMENTO = [
   "consulta",
   "vacina",
-  "retorno",
-  "exame",
+  "ultrassom",
+  "raio-x",
+  "coleta",
+  "castracao",
+  "cirurgia",
   "emergencia",
 ] as const;
 

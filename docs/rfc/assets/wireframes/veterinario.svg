@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="420" viewBox="0 0 800 420">
+  <rect width="800" height="420" fill="#f4f6f8"/>
+  <text x="24" y="36" font-family="Segoe UI,sans-serif" font-size="20" fill="#1a1a1a">Veterinário</text>
+  <rect x="24" y="56" width="360" height="140" rx="8" fill="#fff" stroke="#dde3ea"/>
+  <text x="36" y="84" font-size="14" font-family="Segoe UI,sans-serif">Próximo elegível: A003 · cão · comum</text>
+  <rect x="36" y="110" width="140" height="36" rx="4" fill="#1a5fb4"/>
+  <text x="60" y="133" font-size="13" fill="#fff" font-family="Segoe UI,sans-serif">Chamar próximo</text>
+  <rect x="190" y="110" width="160" height="36" rx="4" fill="#c01c28"/>
+  <text x="210" y="133" font-size="13" fill="#fff" font-family="Segoe UI,sans-serif">Classificar emergência</text>
+  <rect x="400" y="56" width="376" height="140" rx="8" fill="#fff" stroke="#dde3ea"/>
+  <text x="412" y="84" font-size="14" font-family="Segoe UI,sans-serif">Em atendimento: A001</text>
+  <text x="412" y="112" font-size="13" font-family="Segoe UI,sans-serif" fill="#555">Duração: 12 min</text>
+  <rect x="412" y="130" width="120" height="36" rx="4" fill="#2ec27e"/>
+  <text x="444" y="153" font-size="13" fill="#fff" font-family="Segoe UI,sans-serif">Encerrar</text>
+  <rect x="24" y="220" width="752" height="120" rx="8" fill="#fff" stroke="#dde3ea"/>
+  <text x="36" y="250" font-size="13" font-family="Segoe UI,sans-serif">Alterar tipo · Histórico do dia</text>
+</svg>

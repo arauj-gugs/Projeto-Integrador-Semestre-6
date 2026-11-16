@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="420" viewBox="0 0 800 420">
+  <rect width="800" height="420" fill="#f4f6f8"/>
+  <text x="24" y="36" font-family="Segoe UI,sans-serif" font-size="20" fill="#1a1a1a">Histórico do dia</text>
+  <rect x="24" y="56" width="752" height="48" rx="8" fill="#fff" stroke="#dde3ea"/>
+  <text x="36" y="86" font-size="13" font-family="Segoe UI,sans-serif">Filtro: tipo · período · MAE geral</text>
+  <rect x="24" y="120" width="752" height="220" rx="8" fill="#fff" stroke="#dde3ea"/>
+  <text x="36" y="150" font-size="13" font-family="Segoe UI,sans-serif">Código · Tipo · Previsto · Realizado · Erro</text>
+  <line x1="36" y1="160" x2="760" y2="160" stroke="#e8edf2"/>
+  <text x="36" y="190" font-size="12" font-family="Segoe UI,sans-serif" fill="#555">A001 · vacina · 12 · 14 · +2</text>
+  <text x="36" y="220" font-size="12" font-family="Segoe UI,sans-serif" fill="#555">A002 · consulta · 25 · 20 · 5</text>
+  <rect x="36" y="260" width="200" height="48" rx="4" fill="#eef2f6"/>
+  <text x="48" y="290" font-size="12" font-family="Segoe UI,sans-serif">Barras previsto × realizado</text>
+</svg>

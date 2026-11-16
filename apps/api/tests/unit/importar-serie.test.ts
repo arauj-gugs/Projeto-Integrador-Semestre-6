@@ -20,7 +20,7 @@ describe("importarSerieCsv (RF-11)", () => {
     expect(resultado.aceitas).toHaveLength(15);
     expect(resultado.serie.vacina).toHaveLength(8);
     expect(resultado.serie.consulta).toHaveLength(5);
-    expect(resultado.serie.exame).toHaveLength(2);
+    expect(resultado.serie.ultrassom).toHaveLength(2);
   });
 
   it("preserva origem direta e retrospectiva", () => {
@@ -59,7 +59,7 @@ describe("importarSerieCsv (RF-11)", () => {
     expect(resultado.rejeitadas).toEqual([]);
     expect(resultado.serie.vacina).toEqual([10, 15]);
     expect(resultado.serie.consulta).toEqual([20]);
-    expect(resultado.serie.exame).toEqual([
+    expect(resultado.serie.ultrassom).toEqual([
       15, 20, 60, 15, 10, 15, 30, 40, 50, 60, 90, 120, 180,
     ]);
     expect(

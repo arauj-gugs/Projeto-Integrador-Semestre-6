@@ -4,5 +4,8 @@ export default defineConfig({
   test: {
     include: ["tests/**/*.test.ts"],
     environment: "node",
+    setupFiles: ["tests/setup-db.ts"],
+    fileParallelism: false,
+    sequence: { concurrent: false },
   },
 });

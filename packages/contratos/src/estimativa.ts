@@ -1,12 +1,16 @@
 import { z } from "zod";
+import { tipoAtendimentoSchema } from "./enums.js";
 
-export const TipoAtendimentoSchema = z.enum([
-  "consulta",
-  "vacina",
-  "retorno",
-  "exame",
-  "emergencia",
-]);
+/** Faixa p50–p90 no contrato Domínio → Canais (ADR-002). */
+export const estimativaSchema = z.object({
+  p50: z.number().int().nonnegative(),
+  p90: z.number().int().nonnegative(),
+  estimativa_degradada: z.boolean(),
+});
+export type Estimativa = z.infer<typeof estimativaSchema>;
+
+/** Alias PascalCase usado pelo motor F1 e pela tela de histórico. */
+export const TipoAtendimentoSchema = tipoAtendimentoSchema;
 
 export const EstadoNaFilaSchema = z.enum(["aguardando", "em_atendimento"]);
 
@@ -23,12 +27,9 @@ export const EstadoFilaParaEstimativaSchema = z.object({
   tipo_alvo: TipoAtendimentoSchema.optional(),
 });
 
-/** Saída do motor: p50/p90 por atendimento. */
-export const EstimativaDisponivelSchema = z.object({
+/** Saída do motor: p50/p90 por atendimento (inclui indisponível). */
+export const EstimativaDisponivelSchema = estimativaSchema.extend({
   disponivel: z.literal(true),
-  p50: z.number().int().nonnegative(),
-  p90: z.number().int().nonnegative(),
-  estimativa_degradada: z.boolean(),
 });
 
 export const EstimativaIndisponivelSchema = z.object({
@@ -46,7 +47,6 @@ export const EstimativaPorAtendimentoSchema = z.object({
   estimativa: EstimativaFaixaSchema,
 });
 
-export type TipoAtendimento = z.infer<typeof TipoAtendimentoSchema>;
 export type CasoNaFila = z.infer<typeof CasoNaFilaSchema>;
 export type EstadoFilaParaEstimativa = z.infer<
   typeof EstadoFilaParaEstimativaSchema

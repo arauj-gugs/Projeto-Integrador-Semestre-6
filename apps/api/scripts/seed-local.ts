@@ -180,26 +180,26 @@ async function main(): Promise<void> {
     `D3=${d3.estimativa.p50} D2=${d2.estimativa.p50}`,
   );
 
-  // D4 — retorno (vai atrasar no encerramento)
+  // D4 — consulta extra (vai atrasar no encerramento)
   const t4 = Date.now();
   const d4 = await request<AtendimentoCriado>("POST", "/atendimentos", {
     especie: "gato",
     porte: "medio",
-    tipo_atendimento: "retorno",
+    tipo_atendimento: "consulta",
   });
-  console.log("\n5) D4 retorno — será encerrado atrasado (+10 vs previsto)");
+  console.log("\n5) D4 consulta — será encerrado atrasado (+10 vs previsto)");
   console.log(
     `   ${d4.codigo} espera p50/p90=${d4.estimativa.p50}/${d4.estimativa.p90}`,
   );
 
-  // D5 — exame (vai adiantar)
+  // D5 — ultrassom (vai adiantar)
   const t5 = Date.now();
   const d5 = await request<AtendimentoCriado>("POST", "/atendimentos", {
     especie: "cao",
     porte: "pequeno",
-    tipo_atendimento: "exame",
+    tipo_atendimento: "ultrassom",
   });
-  console.log("\n6) D5 exame — será encerrado adiantado (−5 vs previsto)");
+  console.log("\n6) D5 ultrassom — será encerrado adiantado (−5 vs previsto)");
   console.log(
     `   ${d5.codigo} espera p50/p90=${d5.estimativa.p50}/${d5.estimativa.p90}`,
   );

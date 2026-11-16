@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="360" height="640" viewBox="0 0 360 640">
+  <rect width="360" height="640" rx="24" fill="#1a1a1a"/>
+  <rect x="12" y="12" width="336" height="616" rx="18" fill="#f4f6f8"/>
+  <text x="28" y="56" font-family="Segoe UI,sans-serif" font-size="18" fill="#1a1a1a">Sua vez na fila</text>
+  <text x="28" y="100" font-size="42" font-family="Segoe UI,sans-serif" fill="#1a5fb4">3º</text>
+  <text x="28" y="140" font-size="14" font-family="Segoe UI,sans-serif" fill="#555">Entre 18 e 28 minutos</text>
+  <rect x="28" y="170" width="304" height="120" rx="8" fill="#fff" stroke="#dde3ea"/>
+  <text x="40" y="200" font-size="12" font-family="Segoe UI,sans-serif">Usaremos sua localização 3 vezes no máximo,</text>
+  <text x="40" y="220" font-size="12" font-family="Segoe UI,sans-serif">só para avisar a hora de voltar. Guardamos</text>
+  <text x="40" y="240" font-size="12" font-family="Segoe UI,sans-serif">apenas a faixa de distância, por 24 horas.</text>
+  <rect x="40" y="256" width="120" height="28" rx="4" fill="#1a5fb4"/>
+  <text x="58" y="275" font-size="12" fill="#fff" font-family="Segoe UI,sans-serif">Permitir</text>
+  <rect x="172" y="256" width="120" height="28" rx="4" fill="#fff" stroke="#888"/>
+  <text x="200" y="275" font-size="12" fill="#333" font-family="Segoe UI,sans-serif">Recusar</text>
+  <rect x="28" y="320" width="304" height="48" rx="8" fill="#2ec27e"/>
+  <text x="110" y="350" font-size="14" fill="#fff" font-family="Segoe UI,sans-serif">Estou a caminho</text>
+</svg>

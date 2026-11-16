@@ -17,7 +17,7 @@ describe("contrato interno fila → estimativa (#32)", () => {
         },
         { tipo: "consulta", estado: "aguardando" },
       ],
-      tipo_alvo: "retorno",
+      tipo_alvo: "consulta",
     });
     expect(parsed.a_frente).toHaveLength(2);
   });
