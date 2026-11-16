@@ -1,0 +1,7 @@
+# Seed bancada local (#67) — 2026-11-16
+
+Comando: `BANCADA_API_URL=http://127.0.0.1:3000 node scripts/seed-bancada.mjs`
+
+Após `npm run start -w apps/api` (GET /health OK): cinco POST /atendimentos + emergência no caso `cao_emergencia_candidato`.
+
+Regenerar após mudar o cenário em `scripts/seed-bancada.mjs`.

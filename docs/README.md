@@ -28,14 +28,17 @@ Fora do escopo: decisão clínica, rastreamento contínuo, app nativo.
 
 ## Como rodar / verificar
 
-Stack: Node.js 24 + Fastify + Zod, React + Vite, PostgreSQL ([ADR-004](adr/004-escolha-da-stack.md)). Os comandos de instalação, execução e testes estão no [README da raiz](../README.md#como-rodar) e valem a partir da fatia vertical (02/11). Até lá, a verificação é o lint de Markdown no CI ([scm-plan.md](scm-plan.md)).
+Stack: Node.js 24 + Fastify + Zod, React + Vite, PostgreSQL ([ADR-004](adr/004-escolha-da-stack.md)). Os comandos de instalação, execução e testes estão no [README da raiz](../README.md#como-rodar). CI: [`docs-lint`](../.github/workflows/docs-lint.yml) + [`ci`](../.github/workflows/ci.yml) (`typecheck`, `test`, `integration`); detalhes em [scm-plan.md](scm-plan.md) e [ci-registro.md](ci-registro.md).
 
 ## Links
 
 - [Processo](process.md)
 - [Métricas](metrics.md)
 - [Requisitos](requirements/)
-- [Campo — entrevista e decisões](campo/)
+- [Campo — entrevista, decisões e autorização (R2)](campo/) — [autorização](campo/autorizacao-clinica.md) · [protocolo](campo/protocolo-coleta.md) · [janelas 1–4](campo/janela-1-registro.md) ([2](campo/janela-2-registro.md), [3](campo/janela-3-registro.md), [4 meta 40/4](campo/janela-4-registro.md)) · [série consolidada #65](campo/serie-registro.md)
 - [RFC de arquitetura](rfc/rfc-001-arquitetura-mvp.md)
+- [ADR-005 — hardware de borda](adr/005-escolha-do-hardware.md) (totem, painel, HTTP, 5 V)
+- [Hardware — esquemas C5](hardware/esquema-registro.md) ([painel](hardware/esquema-painel.md), [totem](hardware/esquema-totem.md)) · [contrato Borda #64](hardware/contrato-borda-registro.md)
+- [Bancada cruzada #67](bancada/ambiente-registro.md) · [manual de acesso](manual-bancada.md)
 - [Plano de SCM](scm-plan.md)
 - [Estratégia de testes](test-strategy.md)

@@ -1,0 +1,17 @@
+# Blueprint Render — API Fila Virtual (#67)
+# https://render.com/docs/blueprint-spec
+services:
+  - type: web
+    name: fila-virtual-api
+    runtime: node
+    plan: free
+    region: oregon
+    buildCommand: npm ci
+    startCommand: npm run start -w apps/api
+    healthCheckPath: /health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      # - key: DATABASE_URL
+      #   sync: false
+      # Conectar manualmente ao Neon quando persistência existir (deploy.md).

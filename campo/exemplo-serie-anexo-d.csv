@@ -1,0 +1,2 @@
+motivo,inicio,fim,especie,fonte,janela,suspeita,observacao
+consulta,2026-01-01T10:05:00,2026-01-01T10:25:00,cao,observacao_direta,1,false,linha sintetica apenas para validar formato e import RF-11
