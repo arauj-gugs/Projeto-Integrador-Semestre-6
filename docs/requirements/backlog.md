@@ -6,9 +6,9 @@ Prioridade em MoSCoW. **Must** é o piso que aprova o projeto: as três features
 
 | ID | Requisito | Feature | Squad | Prioridade |
 |---|---|---|---|---|
-| RF-01 | Registrar o ingresso do animal com tipo de atendimento, espécie, porte e marcadores de risco | F3 | Fila | Must |
-| RF-02 | Separar a espera em filas por pelo menos dois eixos (espécie e risco) | F3 | Fila | Must |
-| RF-03 | Aplicar regra de desempate declarada entre casos equivalentes | F3 | Fila | Must |
+| RF-01 | Registrar o ingresso com tipo (consulta, vacina, ultrassom, raio-x, coleta, castração, cirurgia, emergência), espécie, porte e marcadores (reativo, cio, isolamento) — sem nome | F3 | Fila | Must |
+| RF-02 | Separar a espera por espécie e por risco/comportamento (comum, cio, reativo, isolamento/estresse) | F3 | Fila | Must |
+| RF-03 | Desempatar walk-in de pequenos pela ordem de chegada (grandes/cirurgia fora desta fila) | F3 | Fila | Must |
 | RF-04 | Alocar recurso compartilhado (veterinário, sala de isolamento única) entre filas | F3 | Fila | Must |
 | RF-05 | Dar precedência à emergência classificada pelo veterinário | F3 | Fila | Must |
 | RF-06 | Estimar o tempo restante por tipo de atendimento, em faixa p50–p90 | F1 | Estimativa | Must |
@@ -33,7 +33,7 @@ Prioridade em MoSCoW. **Must** é o piso que aprova o projeto: as três features
 | W-01 | Triagem ou score de gravidade automático | Ato exclusivo do médico-veterinário |
 | W-02 | Rastreamento contínuo de localização | Para quando a aba fecha, gasta bateria e maximiza a exposição na LGPD |
 | W-03 | Aplicativo mobile nativo | Link no navegador basta para o roteiro; publicação em loja não cabe no prazo |
-| W-04 | Agendamento online e pagamento | Não faz parte do problema da fila |
+| W-04 | Agendamento online, pagamento e integração com o ERP da clínica (SimpleVet) | Não faz parte do problema da fila; a clínica já cobre isso no sistema próprio |
 | W-05 | Sensor de ocupação da recepção | Só entra se o Squad 4 justificar ganho na F1; fica para v2 |
 
 ## Requisitos Não-Funcionais críticos
