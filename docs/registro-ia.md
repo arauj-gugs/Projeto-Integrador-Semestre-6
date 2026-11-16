@@ -47,6 +47,7 @@ flowchart LR
 | 2026-11-16 | Philipe Gonçalves | Cursor (agente) | Issue #60 — janela 3: registro pendente, distinção das janelas 1 e 2 (estado B) | `janela-3-registro.md`, cross-links | Sem CSV inventado; #60 aberta até coleta real |
 | 2026-11-16 | Philipe Gonçalves | Cursor (agente) | Issue #61 — janela 4: registro pendente, tabela meta 40 atendimentos / 4 motivos (estado B) | `janela-4-registro.md`, `campo/README` | #65 série consolidada fica após coleta real; #61 aberta |
 | 2026-11-16 | Philipe Gonçalves | Cursor (agente) | Issue #62 — ADR-005: totem + painel, HTTP(S), ESP32, cálculo 5 V (C-04, RNF-11) | `docs/adr/005-escolha-do-hardware.md`, RFC-001 §9, link no ADR-004 | Esquema de blocos e BOM na #63; contrato e fixtures na #64; MQTT fora do escopo v1 |
+| 2026-11-16 | Philipe Gonçalves | Cursor (agente) | `definirEmergencia` lança `AtendimentoNaoEncontrado` (rota emergência 404) | `motor.ts`, testes unit e contrato UC-03 | `alocador.ts` mantém erro interno na falha de retirada da cabeça |
 
 ## Erro da ferramenta identificado pela equipe
 

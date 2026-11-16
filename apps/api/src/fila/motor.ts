@@ -15,6 +15,7 @@ import type {
   Risco,
 } from "@fila-virtual/contratos";
 import { deriveRisco } from "./derive-risco.js";
+import { AtendimentoNaoEncontrado } from "./erros-dominio.js";
 
 /** Regra de desempate declarada (RF-03). */
 export const REGRA_DESEMPATE = "fifo_chegada" as const;
@@ -150,13 +151,13 @@ export function definirEmergencia(
 ): { caso: CasoNaFila; chave: ChaveFila; posicao: number } {
   const local = localizarCaso(id);
   if (!local) {
-    throw new Error("ATENDIMENTO_NAO_ENCONTRADO");
+    throw new AtendimentoNaoEncontrado();
   }
 
   const lista = [...(filas.get(local.chave) ?? [])];
   const indice = lista.findIndex((c) => c.id === id);
   if (indice < 0) {
-    throw new Error("ATENDIMENTO_NAO_ENCONTRADO");
+    throw new AtendimentoNaoEncontrado();
   }
 
   const caso = { ...lista[indice]! };

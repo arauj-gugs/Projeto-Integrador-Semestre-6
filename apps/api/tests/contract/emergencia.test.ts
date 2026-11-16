@@ -73,6 +73,25 @@ describe("POST /atendimentos/:id/emergencia (contrato UC-03, RF-05)", () => {
     await app.close();
   });
 
+  it("id inexistente retorna 404", async () => {
+    const app = await buildApp();
+
+    const response = await app.inject({
+      method: "POST",
+      url: "/atendimentos/00000000-0000-4000-8000-000000000000/emergencia",
+      headers: { "x-perfil": "veterinario" },
+      payload: { emergencia: true },
+    });
+
+    expect(response.statusCode).toBe(404);
+    expect(response.json()).toEqual({
+      codigo: 404,
+      mensagem: "atendimento nao encontrado",
+    });
+
+    await app.close();
+  });
+
   it("sem x-perfil retorna 401", async () => {
     const app = await buildApp();
 
