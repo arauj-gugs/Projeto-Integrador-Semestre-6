@@ -78,11 +78,12 @@ async function main(): Promise<void> {
   const toro = await criarAnimal({
     tutor_id: bruno.id,
     nome: "Toro Demo",
-    especie_fila: "cao",
+    especie_fila: "silvestre",
+    especie_detalhe: "boi",
     porte: "grande",
     sexo: "M",
     castrado: true,
-    raca: "Fila",
+    raca: null,
     nascido_em: "2018-08-20T00:00:00.000Z",
   });
 
@@ -114,8 +115,8 @@ async function main(): Promise<void> {
   });
 
   console.log("Semente ok:");
-  console.log(`  tutores: ${ana.nome}, ${bruno.nome}`);
-  console.log(`  animais: ${rex.nome}, ${mia.nome}, ${pipa.nome}, ${toro.nome}`);
+  console.log(`  tutores: ${ana.nome} pin=${ana.pinAcesso}, ${bruno.nome} pin=${bruno.pinAcesso}`);
+  console.log(`  animais: ${rex.nome}, ${mia.nome}, ${pipa.nome}, ${toro.nome} (grande/boi)`);
   console.log("  1 agendamento de cirurgia (grande) para amanhã 10h");
 }
 

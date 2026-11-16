@@ -67,6 +67,12 @@ export function chaveFila(especie: Especie, risco: Risco): ChaveFila {
   return `${especie}:${risco}`;
 }
 
+/** Próximo número FIFO de chegada (RF-03). Usado também no check-in agendado. */
+export function proximaChegada(): number {
+  sequenciaChegada += 1;
+  return sequenciaChegada;
+}
+
 export function ingressar(
   dados: IngressoRequest,
   id: string,
@@ -74,7 +80,6 @@ export function ingressar(
 ): { caso: CasoNaFila; posicao: number; chave: ChaveFila } {
   const risco = deriveRisco(dados.marcadores);
   const chave = chaveFila(dados.especie, risco);
-  sequenciaChegada += 1;
 
   const caso: CasoNaFila = {
     id,
@@ -82,7 +87,7 @@ export function ingressar(
     especie: dados.especie,
     risco,
     marcadores: [...dados.marcadores],
-    chegada_em: sequenciaChegada,
+    chegada_em: proximaChegada(),
     emergencia: false,
     emergencia_desde: null,
   };

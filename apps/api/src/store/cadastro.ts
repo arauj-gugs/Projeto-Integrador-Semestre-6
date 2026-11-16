@@ -1,4 +1,5 @@
-import { eq } from "drizzle-orm";
+import { randomBytes } from "node:crypto";
+import { and, eq } from "drizzle-orm";
 import { getDb } from "../db/client.js";
 import {
   agendamentos,
@@ -8,7 +9,7 @@ import {
   tutores,
 } from "../db/schema.js";
 
-export type TutorInput = { nome: string; telefone?: string | null };
+export type TutorInput = { nome: string; telefone: string };
 export type AnimalInput = {
   tutor_id: string;
   nome: string;
@@ -21,13 +22,19 @@ export type AnimalInput = {
   nascido_em?: string | null;
 };
 
+export function gerarPinAcesso(): string {
+  return randomBytes(4).toString("hex");
+}
+
 export async function criarTutor(input: TutorInput) {
   const db = getDb();
+  const pinAcesso = gerarPinAcesso();
   const rows = await db
     .insert(tutores)
     .values({
       nome: input.nome,
-      telefone: input.telefone ?? null,
+      telefone: input.telefone.trim(),
+      pinAcesso,
     })
     .returning();
   return rows[0]!;
@@ -44,8 +51,29 @@ export async function obterTutor(id: string) {
   return rows[0];
 }
 
+export async function obterTutorPorCredencial(telefone: string, pin: string) {
+  const db = getDb();
+  const rows = await db
+    .select()
+    .from(tutores)
+    .where(
+      and(
+        eq(tutores.telefone, telefone.trim()),
+        eq(tutores.pinAcesso, pin.trim()),
+      ),
+    )
+    .limit(1);
+  return rows[0];
+}
+
 export async function criarAnimal(input: AnimalInput) {
   const db = getDb();
+  if (input.porte === "grande" && !input.especie_detalhe?.trim()) {
+    throw new Error("grande_exige_detalhe");
+  }
+  if (input.porte === "grande" && input.especie_fila !== "silvestre") {
+    throw new Error("grande_exige_silvestre");
+  }
   const rows = await db
     .insert(animais)
     .values({
@@ -132,9 +160,15 @@ export async function criarAgendamento(input: {
   return rows[0]!;
 }
 
-export async function listarAgendamentos() {
+export async function listarAgendamentos(tutorId?: string) {
   const db = getDb();
-  return db.select().from(agendamentos);
+  if (!tutorId) {
+    return db.select().from(agendamentos);
+  }
+  const animaisDoTutor = await listarAnimais(tutorId);
+  const ids = new Set(animaisDoTutor.map((a) => a.id));
+  const todos = await db.select().from(agendamentos);
+  return todos.filter((g) => ids.has(g.animalId));
 }
 
 export async function obterAgendamento(id: string) {

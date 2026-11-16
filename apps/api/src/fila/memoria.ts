@@ -1,4 +1,4 @@
-import { randomBytes, randomUUID } from "node:crypto";
+import { randomUUID } from "node:crypto";
 import type {
   EmergenciaResponse,
   EncerramentoResponse,
@@ -14,6 +14,7 @@ import {
   definirEmergencia,
   ingressar,
   localizarCaso,
+  proximaChegada,
   resetMotor,
 } from "./motor.js";
 import {
@@ -31,6 +32,7 @@ import {
   hidratarAcionamentoDoBanco,
 } from "../acionamento/estado.js";
 import {
+  novoToken,
   proximoCodigo,
   resetStore,
   salvarAtendimento,
@@ -51,7 +53,7 @@ export async function criarAtendimento(
   const codigo = await proximoCodigo();
   const origem = extras?.origem ?? "chegada";
   const estimativa = await estimarNoIngresso(dados.tipo_atendimento);
-  const token = randomBytes(32).toString("hex");
+  const token = novoToken();
 
   let posicao = 0;
   let especie = dados.especie;
@@ -92,7 +94,7 @@ export async function criarAtendimento(
       especie: dados.especie,
       risco,
       marcadores: [...dados.marcadores],
-      chegada_em: Date.now(),
+      chegada_em: proximaChegada(),
       emergencia: false,
       emergencia_desde: null,
     });

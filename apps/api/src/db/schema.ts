@@ -12,7 +12,10 @@ import {
 export const tutores = pgTable("tutores", {
   id: uuid("id").defaultRandom().primaryKey(),
   nome: text("nome").notNull(),
-  telefone: text("telefone"),
+  /** Obrigatório: acesso do dono = telefone + pin. */
+  telefone: text("telefone").notNull(),
+  /** PIN gerado no cadastro (demo local; texto simples). */
+  pinAcesso: text("pin_acesso").notNull(),
   criadoEm: timestamp("criado_em", { withTimezone: true }).notNull().defaultNow(),
 });
 

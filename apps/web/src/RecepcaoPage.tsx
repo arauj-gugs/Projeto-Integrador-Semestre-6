@@ -1,4 +1,4 @@
-import { useMemo, useState, type FormEvent } from "react";
+import { useCallback, useEffect, useMemo, useState, type FormEvent } from "react";
 import { api } from "./api";
 import { useFilaStream } from "./useFilaStream";
 
@@ -16,12 +16,31 @@ const TIPOS = [
 type IngressoResp = {
   id: string;
   codigo: string;
-  fila: { especie: string; risco: string; posicao: number };
+  fila: { especie: string; risco: string; posicao: number; estado?: string };
   estimativa: { p50: number; p90: number };
   link_tutor: string;
 };
 
 type CampoErro = { campo?: string; mensagem: string };
+
+type Animal = {
+  id: string;
+  tutorId: string;
+  nome: string;
+  especieFila: string;
+  porte: string;
+};
+
+type Tutor = { id: string; nome: string };
+
+type Agendamento = {
+  id: string;
+  animalId: string;
+  tipo: string;
+  inicioEm: string;
+  duracaoMinutos: number;
+  estado: string;
+};
 
 export function RecepcaoPage() {
   const { snapshot, atualizando } = useFilaStream();
@@ -33,6 +52,46 @@ export function RecepcaoPage() {
   const [ultimo, setUltimo] = useState<IngressoResp | null>(null);
   const [msg, setMsg] = useState("");
 
+  const [animais, setAnimais] = useState<Animal[]>([]);
+  const [tutores, setTutores] = useState<Tutor[]>([]);
+  const [agendamentos, setAgendamentos] = useState<Agendamento[]>([]);
+  const [animalId, setAnimalId] = useState("");
+  const [tipoAnimal, setTipoAnimal] = useState<string>("consulta");
+  const [marcadoresAnimal, setMarcadoresAnimal] = useState<string[]>([]);
+
+  const carregarCadastro = useCallback(async () => {
+    const perfil = { perfil: "recepcao" as const };
+    const [a, t, g] = await Promise.all([
+      api<Animal[]>("/animais", perfil),
+      api<Tutor[]>("/tutores", perfil),
+      api<Agendamento[]>("/agendamentos", perfil),
+    ]);
+    setAnimais(a);
+    setTutores(t);
+    setAgendamentos(g);
+  }, []);
+
+  useEffect(() => {
+    void carregarCadastro().catch(() =>
+      setMsg("Não foi possível carregar animais/agenda"),
+    );
+  }, [carregarCadastro]);
+
+  const animaisWalkIn = useMemo(
+    () => animais.filter((a) => a.porte !== "grande"),
+    [animais],
+  );
+
+  useEffect(() => {
+    if (
+      animalId &&
+      !animaisWalkIn.some((a) => a.id === animalId)
+    ) {
+      setAnimalId(animaisWalkIn[0]?.id ?? "");
+      return;
+    }
+    if (!animalId && animaisWalkIn[0]) setAnimalId(animaisWalkIn[0].id);
+  }, [animaisWalkIn, animalId]);
   const colunas = useMemo(() => {
     const filas = snapshot?.filas ?? {};
     return {
@@ -47,10 +106,42 @@ export function RecepcaoPage() {
     };
   }, [snapshot]);
 
+  const agendaPendentes = useMemo(
+    () => agendamentos.filter((g) => g.estado === "marcado"),
+    [agendamentos],
+  );
+
+  function nomeTutor(id: string): string {
+    return tutores.find((t) => t.id === id)?.nome ?? "—";
+  }
+
+  function nomeAnimal(id: string): string {
+    return animais.find((a) => a.id === id)?.nome ?? id.slice(0, 8);
+  }
+
   function toggleMarcador(m: string) {
     setMarcadores((prev) =>
       prev.includes(m) ? prev.filter((x) => x !== m) : [...prev, m],
     );
+  }
+
+  function toggleMarcadorAnimal(m: string) {
+    setMarcadoresAnimal((prev) =>
+      prev.includes(m) ? prev.filter((x) => x !== m) : [...prev, m],
+    );
+  }
+
+  function aplicarErros(err: unknown, fallback: string) {
+    const body = (err as { body?: CampoErro[] }).body;
+    if (Array.isArray(body)) {
+      const mapa: Record<string, string> = {};
+      for (const item of body) {
+        if (item.campo) mapa[item.campo] = item.mensagem;
+      }
+      setErros(mapa);
+    } else {
+      setMsg(fallback);
+    }
   }
 
   async function onSubmit(e: FormEvent) {
@@ -71,21 +162,55 @@ export function RecepcaoPage() {
       setUltimo(body);
       setMsg(`Ingresso ${body.codigo} na posição ${body.fila.posicao}`);
     } catch (err) {
-      const body = (err as { body?: CampoErro[] }).body;
-      if (Array.isArray(body)) {
-        const mapa: Record<string, string> = {};
-        for (const item of body) {
-          if (item.campo) mapa[item.campo] = item.mensagem;
-        }
-        setErros(mapa);
-      } else {
-        setMsg("Falha ao registrar ingresso");
-      }
+      aplicarErros(err, "Falha ao registrar ingresso");
+    }
+  }
+
+  async function onIngressoAnimal(e: FormEvent) {
+    e.preventDefault();
+    setErros({});
+    setMsg("");
+    try {
+      const body = await api<IngressoResp>(`/animais/${animalId}/atendimentos`, {
+        method: "POST",
+        perfil: "recepcao",
+        body: JSON.stringify({
+          tipo_atendimento: tipoAnimal,
+          marcadores: marcadoresAnimal,
+        }),
+      });
+      setUltimo(body);
+      setMsg(
+        `Ingresso ${body.codigo} (${nomeAnimal(animalId)}) na posição ${body.fila.posicao}`,
+      );
+    } catch (err) {
+      aplicarErros(err, "Falha ao ingressar animal");
+    }
+  }
+
+  async function onCheckIn(id: string) {
+    setMsg("");
+    try {
+      const res = await api<{
+        agendamento_id: string;
+        atendimento: IngressoResp;
+      }>(`/agendamentos/${id}/check-in`, {
+        method: "POST",
+        perfil: "recepcao",
+      });
+      setUltimo(res.atendimento);
+      setMsg(`Check-in ${res.atendimento.codigo} (agenda)`);
+      await carregarCadastro();
+    } catch {
+      setMsg("Falha no check-in da agenda");
     }
   }
 
   async function marcarSemLink(id: string) {
-    await api(`/atendimentos/${id}/sem-link`, { method: "POST", perfil: "recepcao" });
+    await api(`/atendimentos/${id}/sem-link`, {
+      method: "POST",
+      perfil: "recepcao",
+    });
     setMsg("Marcado sem link");
   }
 
@@ -115,8 +240,77 @@ export function RecepcaoPage() {
         </div>
       ) : null}
 
-      <form className="card" onSubmit={onSubmit}>
-        <h3>Novo ingresso</h3>
+      <form className="card" onSubmit={(e) => void onIngressoAnimal(e)}>
+        <h3>Ingresso com animal cadastrado</h3>
+        <p className="muted">Grandes só entram por check-in de agenda</p>
+        <label>
+          Animal
+          <select
+            value={animalId}
+            onChange={(e) => setAnimalId(e.target.value)}
+            required
+          >
+            {animaisWalkIn.map((a) => (
+              <option key={a.id} value={a.id}>
+                {a.nome} · {a.especieFila} · {a.porte} · tutor{" "}
+                {nomeTutor(a.tutorId)}
+              </option>
+            ))}
+          </select>
+        </label>
+        <label>
+          Tipo
+          <select
+            value={tipoAnimal}
+            onChange={(e) => setTipoAnimal(e.target.value)}
+          >
+            {TIPOS.map((t) => (
+              <option key={t} value={t}>
+                {t}
+              </option>
+            ))}
+          </select>
+        </label>
+        <fieldset>
+          <legend>Marcadores</legend>
+          {["reativo", "cio", "isolamento"].map((m) => (
+            <label key={m} className="check">
+              <input
+                type="checkbox"
+                checked={marcadoresAnimal.includes(m)}
+                onChange={() => toggleMarcadorAnimal(m)}
+              />
+              {m}
+            </label>
+          ))}
+        </fieldset>
+        <button type="submit" disabled={!animalId || animaisWalkIn.length === 0}>
+          Colocar na fila
+        </button>
+        {erros.porte ? <span className="erro">{erros.porte}</span> : null}
+      </form>
+
+      <div className="card">
+        <h3>Check-in de agenda</h3>
+        {agendaPendentes.length === 0 ? (
+          <p className="muted">Nenhum agendamento marcado</p>
+        ) : (
+          <ul>
+            {agendaPendentes.map((g) => (
+              <li key={g.id}>
+                {nomeAnimal(g.animalId)} · {g.tipo} ·{" "}
+                {new Date(g.inicioEm).toLocaleString()} · {g.duracaoMinutos} min{" "}
+                <button type="button" onClick={() => void onCheckIn(g.id)}>
+                  Check-in
+                </button>
+              </li>
+            ))}
+          </ul>
+        )}
+      </div>
+
+      <form className="card" onSubmit={(e) => void onSubmit(e)}>
+        <h3>Novo ingresso (sem cadastro)</h3>
         <label>
           Espécie
           <select value={especie} onChange={(e) => setEspecie(e.target.value)}>
@@ -166,6 +360,7 @@ export function RecepcaoPage() {
           <p>
             Posição {ultimo.fila.posicao} · {ultimo.fila.especie}/
             {ultimo.fila.risco}
+            {ultimo.fila.estado ? ` · ${ultimo.fila.estado}` : ""}
           </p>
           <p>
             Faixa p50–p90: {ultimo.estimativa.p50}–{ultimo.estimativa.p90} min
@@ -173,7 +368,9 @@ export function RecepcaoPage() {
           <p>
             Link: <a href={ultimo.link_tutor}>{ultimo.link_tutor}</a>
           </p>
-          {qrUrl ? <img src={qrUrl} alt="QR do link do tutor" width={160} height={160} /> : null}
+          {qrUrl ? (
+            <img src={qrUrl} alt="QR do link do tutor" width={160} height={160} />
+          ) : null}
           <button type="button" onClick={() => void marcarSemLink(ultimo.id)}>
             Sem link
           </button>

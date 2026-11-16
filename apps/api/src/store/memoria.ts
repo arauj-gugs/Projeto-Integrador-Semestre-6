@@ -58,7 +58,7 @@ export function novoId(): string {
 }
 
 export function novoToken(): string {
-  return randomBytes(16).toString("hex");
+  return randomBytes(32).toString("hex");
 }
 
 export async function proximoCodigo(): Promise<string> {

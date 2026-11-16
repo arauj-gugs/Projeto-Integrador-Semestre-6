@@ -23,7 +23,7 @@ import { hostLocal } from "./http/host-local.js";
 /** Carrega apps/api/.env se existir (dev local). */
 function carregarEnvLocal(): void {
   const dir = dirname(fileURLToPath(import.meta.url));
-  const envPath = join(dir, "../../.env");
+  const envPath = join(dir, "../.env");
   if (!existsSync(envPath)) return;
   for (const linha of readFileSync(envPath, "utf8").split(/\r?\n/)) {
     const t = linha.trim();
