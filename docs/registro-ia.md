@@ -34,6 +34,8 @@ flowchart LR
 | 2026-11-16 | Philipe Gonçalves | Cursor (agente) | Aceitar o ADR-003 (issue #24): status aceito, exemplo de sala ocupada e resumo na RFC-001 | Status aceito em 2026-11-16; exemplo concreto alinhado ao UC-02 E1; RFC seção 6 atualizada de Proposto para Aceito | Mantida a premissa de sala única (RF-04) enquanto as janelas não confirmam o número; o alocador em código continua na issue #28 |
 | 2026-11-16 | Philipe Gonçalves | Cursor (agente) | Schemas Zod da issue #25 em `packages/contratos` (ingresso, posição, emergência, encerramento, 422 e 403), commit sem PR | Pacote `@fila-virtual/contratos`, testes Vitest e paths anotados na RFC-001 seção 5.2 | Porte ficou texto livre porque a entrevista não fechou a escala; a #25 não foi fechada — falta revisão do Squad 3 no PR |
 | 2026-11-16 | Philipe Gonçalves | Cursor (agente) | Primeira rota `POST /atendimentos` e teste de contrato (issue #26), commit sem PR | `apps/api` com store em memória, `fastify.inject`, log em `docs/test-strategy/evidencias/contract-2026-11-16.log` | Estimativa fixa stub até o Squad 2; override `cookie@1.0.2` na raiz para `inject` em Node 20 local |
+| 2026-11-16 | Philipe Gonçalves | Cursor (agente) | Motor de fila segregado (issue #27), commit sem PR | `motor.ts`, `derive-risco.ts`, testes unit RF-02/03/RF-12; `memoria.ts` usa `ingressar` | Alocador e emergência na fila ficam na #28; `REGRA_DESEMPATE = fifo_chegada` |
+| 2026-11-16 | Philipe Gonçalves | Cursor (agente) | Corrigir body 422 do POST /atendimentos para lista completa (`erros422Schema`) | Rota envia array de `erros422DeZod`; teste de contrato com múltiplos campos ausentes | Antes só `erros[0]`; alinhado ao contrato #25 |
 
 ## Erro da ferramenta identificado pela equipe
 

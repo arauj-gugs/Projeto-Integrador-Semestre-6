@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it } from "vitest";
 import {
-  erro422Schema,
+  erros422Schema,
   ingressoResponseSchema,
 } from "@fila-virtual/contratos";
 import { buildApp } from "../../src/app.js";
@@ -51,9 +51,28 @@ describe("POST /atendimentos (contrato UC-01, RF-01)", () => {
     });
 
     expect(response.statusCode).toBe(422);
-    const erro = erro422Schema.parse(response.json());
-    expect(erro.campo).toBe("tipo_atendimento");
-    expect(erro.codigo).toBe(422);
+    const erros = erros422Schema.parse(response.json());
+    expect(erros.some((e) => e.campo === "tipo_atendimento")).toBe(true);
+    expect(erros.every((e) => e.codigo === 422)).toBe(true);
+
+    await app.close();
+  });
+
+  it("retorna 422 com todos os erros quando vários campos faltam", async () => {
+    const app = await buildApp();
+
+    const response = await app.inject({
+      method: "POST",
+      url: "/atendimentos",
+      payload: { porte: "medio", marcadores: [] },
+    });
+
+    expect(response.statusCode).toBe(422);
+    const erros = erros422Schema.parse(response.json());
+    expect(erros.length).toBeGreaterThanOrEqual(2);
+    const campos = erros.map((e) => e.campo);
+    expect(campos).toContain("especie");
+    expect(campos).toContain("tipo_atendimento");
 
     await app.close();
   });
