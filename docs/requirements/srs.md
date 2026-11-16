@@ -4,8 +4,8 @@
 |---|---|
 | Versão | 0.1 |
 | Data | 2026-10-14 |
-| Base | [Caderno do aluno](../../Projeto_Integrador_Fila_Virtual_Caderno_do_Aluno_1.pdf), [backlog v0.1](backlog.md), [stakeholders](stakeholders.md) |
-| Status | Em revisão — valores marcados como "a calibrar" serão fixados com a série de campo (S5, 02/11) |
+| Base | [Caderno do aluno](../../Projeto_Integrador_Fila_Virtual_Caderno_do_Aluno_1.pdf), [backlog v0.1](backlog.md), [stakeholders](stakeholders.md), [entrevista clínica](../campo/entrevista-2026-10.md) |
+| Status | Em revisão — eixos e tipos alinhados à entrevista (out/2026); valores "a calibrar" fecham com a série de campo (S5) |
 
 Vocabulário: **DEVE** e **NÃO DEVE** são obrigatórios; **PODE** é opcional. Toda métrica tem forma de verificação no critério de aceitação.
 
@@ -23,9 +23,9 @@ O sistema tem três pontas:
 
 | ID | Descrição | Prioridade | Critério de aceitação |
 |---|---|---|---|
-| RF-01 | O sistema DEVE registrar o ingresso de um atendimento com: código sequencial do animal, espécie (cão, gato, silvestre/exótico), porte, tipo de atendimento (consulta, vacina, retorno, exame, emergência), marcador "reativo" e marcador "suspeita infectocontagiosa". O sistema NÃO DEVE exigir nome do tutor ou do animal. | Must | `POST` de ingresso com os campos válidos retorna 201 e o atendimento aparece na fila; omissão de campo obrigatório retorna 422 com o nome do campo; requisição sem nome é aceita. |
-| RF-02 | O sistema DEVE manter filas separadas por pelo menos dois eixos: **espécie** (cães; gatos; silvestres/exóticos) e **risco** (comum; isolamento). Eixos e pesos finais vêm da entrevista com o veterinário. | Must | Inserir 1 cão, 1 gato e 1 gato com suspeita infectocontagiosa produz 3 filas distintas; o gato suspeito não aparece na fila comum de felinos. |
-| RF-03 | O sistema DEVE desempatar casos equivalentes pela ordem: (1) horário agendado, se houver e o tutor chegou até 10 min depois; (2) horário de chegada; (3) menor duração p50 do tipo. | Must | Teste unitário com pares empatados em cada nível retorna a ordem esperada nos 3 níveis. |
+| RF-01 | O sistema DEVE registrar o ingresso de um atendimento com: código sequencial do animal, espécie (cão, gato, silvestre/exótico), porte, tipo de atendimento (consulta, vacina, ultrassom, raio-x, coleta, castração, cirurgia, emergência) e marcadores de risco/comportamento (reativo/agressivo, cio, suspeita infectocontagiosa / isolamento). O sistema NÃO DEVE exigir nome do tutor ou do animal. | Must | `POST` de ingresso com os campos válidos retorna 201 e o atendimento aparece na fila; omissão de campo obrigatório retorna 422 com o nome do campo; requisição sem nome é aceita. |
+| RF-02 | O sistema DEVE manter filas separadas por pelo menos dois eixos: **espécie** (cães; gatos; silvestres/exóticos) e **risco/comportamento** (comum; cio; reativo/agressivo; isolamento/estresse). Eixos confirmados na [entrevista](../campo/entrevista-2026-10.md). | Must | Inserir 1 cão comum, 1 gato comum, 1 cão no cio e 1 gato com marcador de isolamento produz 4 filas distintas; o cão no cio e o gato isolado não aparecem na fila comum da sua espécie. |
+| RF-03 | O sistema DEVE desempatar casos equivalentes na fila walk-in de **pequenos animais** pela **ordem de chegada**. Nesta versão, grandes animais e procedimentos cirúrgicos agendados ficam fora do escopo da fila walk-in (continuam no ERP da clínica). | Must | Teste unitário com dois cães comuns do mesmo tipo, chegados em t1 e t2 (t1 < t2): o de t1 é chamado primeiro; emergência classificada pelo veterinário continua à frente (RF-05). |
 | RF-04 | O sistema DEVE alocar recursos compartilhados: um veterinário pode atender filas de espécies diferentes, e a sala de isolamento atende um caso por vez. O sistema NÃO DEVE chamar um caso de isolamento enquanto a sala estiver ocupada. | Must | Com a sala ocupada, o próximo caso de isolamento permanece "aguardando sala" e o veterinário recebe o próximo caso de fila comum; ao liberar a sala, o caso de isolamento é o próximo chamado. |
 | RF-05 | O sistema DEVE colocar à frente de todas as filas o atendimento que um usuário com perfil veterinário classificar como emergência. A classificação NÃO DEVE ser feita por outro perfil. | Must | Classificação por veterinário move o caso para posição 1 em ≤ 1 s; a mesma requisição com token de recepção ou de tutor retorna 403. |
 | RF-06 | O sistema DEVE estimar o tempo restante de cada atendimento por tipo, como faixa p50–p90, calculada a partir da série de campo e dos atendimentos já realizados. | Must | Para uma fila sintética com durações conhecidas, o p50 e o p90 calculados batem com o cálculo de referência (planilha versionada) com diferença ≤ 1 min. |

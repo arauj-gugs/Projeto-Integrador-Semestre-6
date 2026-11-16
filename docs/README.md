@@ -35,6 +35,7 @@ Stack: Node.js 24 + Fastify + Zod, React + Vite, PostgreSQL ([ADR-004](adr/004-e
 - [Processo](process.md)
 - [Métricas](metrics.md)
 - [Requisitos](requirements/)
+- [Campo — entrevista e decisões](campo/)
 - [RFC de arquitetura](rfc/rfc-001-arquitetura-mvp.md)
 - [Plano de SCM](scm-plan.md)
 - [Estratégia de testes](test-strategy.md)
