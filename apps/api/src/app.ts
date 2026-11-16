@@ -1,5 +1,8 @@
+import swagger from "@fastify/swagger";
+import swaggerUi from "@fastify/swagger-ui";
 import Fastify from "fastify";
 import {
+  jsonSchemaTransform,
   serializerCompiler,
   validatorCompiler,
   type ZodTypeProvider,
@@ -23,10 +26,25 @@ function hostLocal(hostHeader: string | undefined): boolean {
   return host === "localhost" || host === "127.0.0.1" || host === "::1";
 }
 
-export function buildApp() {
+export async function buildApp() {
   const app = Fastify({ logger: false }).withTypeProvider<ZodTypeProvider>();
   app.setValidatorCompiler(validatorCompiler);
   app.setSerializerCompiler(serializerCompiler);
+
+  await app.register(swagger, {
+    openapi: {
+      info: {
+        title: "Fila Virtual API",
+        description: "API da F1 (estimativa) e rotas mínimas do MVP",
+        version: "0.1.0",
+      },
+    },
+    transform: jsonSchemaTransform,
+  });
+
+  await app.register(swaggerUi, {
+    routePrefix: "/docs",
+  });
 
   app.get("/health", async () => ({ status: "ok" }));
 
@@ -43,6 +61,7 @@ export function buildApp() {
     "/atendimentos",
     {
       schema: {
+        tags: ["atendimentos"],
         body: IngressoAtendimentoSchema,
       },
     },
@@ -88,6 +107,7 @@ export function buildApp() {
     "/atendimentos/:id/encerrar",
     {
       schema: {
+        tags: ["atendimentos"],
         params: z.object({ id: z.string() }),
         body: EncerrarAtendimentoSchema,
       },
@@ -135,6 +155,7 @@ export function buildApp() {
     "/serie/importar",
     {
       schema: {
+        tags: ["serie"],
         body: z.object({
           csv: z.string(),
           substituir: z.boolean().optional().default(true),
@@ -160,6 +181,7 @@ export function buildApp() {
     "/historico",
     {
       schema: {
+        tags: ["historico"],
         querystring: z.object({
           dia: z.string().optional(),
           tipo: TipoAtendimentoSchema.optional(),

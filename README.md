@@ -156,23 +156,35 @@ Regras que valem para todos:
 
 > Os comandos abaixo valem a partir da fatia vertical (02/11), quando o código entra no repositório. Stack e versões: [ADR-004](docs/adr/004-escolha-da-stack.md).
 
-Pré-requisitos: Node.js 24.22.0 (LTS) e um banco PostgreSQL 17 (local ou Neon).
+Pré-requisitos: Node.js 24 (LTS). Nesta fatia da F1 a API usa **store em memória** (o schema Drizzle já existe; Neon/`DATABASE_URL` entra quando a fatia de banco for ligada).
 
 ```bash
 git clone <url-do-repositorio>
 cd Projeto-Integrador-Semestre-6
 npm install                       # instala os workspaces apps/api, apps/web e packages/contratos
+npm run dev:api                   # API em http://localhost:3000 (OpenAPI em /docs)
+npm run dev:web                   # telas em http://localhost:5173
+```
+
+Demo local da estimativa (API no ar):
+
+```bash
+npm run demo:local                # reset localhost + série demo + casos D1–D6
+# checklist: docs/estimativa/demo-local.md
+```
+
+Quando o Postgres estiver configurado:
+
+```bash
 cp apps/api/.env.example apps/api/.env   # preencher DATABASE_URL
-npm run db:migrate -w apps/api    # aplica as migrações do drizzle-kit
-npm run dev                       # API em http://localhost:3000 (OpenAPI em /docs) e telas em http://localhost:5173
+npm run db:migrate -w apps/api           # migrações do drizzle-kit
 ```
 
 Testes:
 
 ```bash
-npm test                          # unit + contract (Vitest), bloqueiam o merge
-npm run test:integration          # API com banco real
-npm run test:e2e                  # roteiro de demonstração (Playwright)
+npm test                          # unit (Vitest)
+npm run typecheck                 # tsc nos workspaces
 ```
 
 ---

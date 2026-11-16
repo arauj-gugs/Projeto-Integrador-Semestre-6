@@ -18,8 +18,15 @@ describe("histórico do dia (API)", () => {
     resetStore();
   });
 
+  it("expõe OpenAPI em /docs", async () => {
+    const app = await buildApp();
+    const res = await app.inject({ method: "GET", url: "/docs" });
+    expect(res.statusCode).toBe(200);
+    await app.close();
+  });
+
   it("lista espera prevista/realizada, duração e MAE na mesma dimensão", async () => {
-    const app = buildApp();
+    const app = await buildApp();
     await app.inject({
       method: "POST",
       url: "/serie/importar",
