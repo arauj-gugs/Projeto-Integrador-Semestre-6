@@ -10,7 +10,7 @@ export async function registerAtendimentos(app: FastifyInstance): Promise<void> 
     const parsed = ingressoRequestSchema.safeParse(request.body);
     if (!parsed.success) {
       const erros = erros422DeZod(parsed.error);
-      return reply.status(422).send(erros[0]);
+      return reply.status(422).send(erros);
     }
 
     const body = criarAtendimento(parsed.data);
