@@ -43,10 +43,18 @@ O importador RF-11 (Squad 2) deve aceitar pelo menos `motivo`, `inicio` e `fim`;
 
 Meta **≥ 40** atendimentos e **≥ 4** motivos distintos na soma das quatro janelas: rastrear em [janela-4-registro.md](../docs/campo/janela-4-registro.md) (#61).
 
+## Série consolidada (#65)
+
+| Item | Estado |
+|---|---|
+| Registro | [serie-registro.md](../docs/campo/serie-registro.md) — `pendente_coleta` |
+| Arquivo | `serie-consolidada-<AAAA-MM-DD>.csv` _(após janelas 1–4)_ |
+| Scripts | [`campo/scripts/`](scripts/README.md) — `consolidar-janelas.mjs`, `validar-serie.mjs` |
+
+A série consolidada agrega as quatro janelas (≥ 40 atendimentos, ≥ 4 motivos distintos). O exemplo abaixo **não** substitui esse arquivo.
+
 ## Arquivos
 
 | Arquivo | Uso |
 |---|---|
-| [exemplo-serie-anexo-d.csv](exemplo-serie-anexo-d.csv) | Formato e teste de import; **não** é a série oficial da clínica |
-
-A série consolidada da issue #65 deve agregar as quatro janelas (≥ 40 atendimentos, ≥ 4 motivos distintos).
+| [exemplo-serie-anexo-d.csv](exemplo-serie-anexo-d.csv) | Formato e smoke de import RF-11; **não** é a série oficial da clínica |

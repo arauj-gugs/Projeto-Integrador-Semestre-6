@@ -7,7 +7,7 @@
 | Protocolo | [protocolo-coleta.md](protocolo-coleta.md) |
 | Ficha | [ficha-observacao.md](ficha-observacao.md) |
 | Janelas anteriores | [1](janela-1-registro.md) (#58), [2](janela-2-registro.md) (#59), [3](janela-3-registro.md) (#60) |
-| Série consolidada | [campo/README.md](../../campo/README.md) — issue [#65](https://github.com/arauj-gugs/Projeto-Integrador-Semestre-6/issues/65) após meta atingida |
+| Série consolidada | [serie-registro.md](serie-registro.md) ([#65](https://github.com/arauj-gugs/Projeto-Integrador-Semestre-6/issues/65); `pendente_coleta`) |
 | Autorização | [autorizacao-clinica.md](autorizacao-clinica.md) — formalização escrita ainda pendente |
 | Última atualização | 2026-11-16 |
 
@@ -81,7 +81,7 @@ Atualizar esta tabela após cada janela ser digitada em `campo/`:
 4. Preencher a ficha, gerar `campo/janela-4-<AAAA-MM-DD>.csv` com `janela=4`.
 5. Atualizar a **tabela de meta acumulada** e confirmar ≥ 40 e ≥ 4 motivos.
 6. Commit com `campo(janela-4): ...` e `Closes #61`.
-7. Em seguida, preparar série consolidada para [#65](../../campo/README.md) (import RF-11 / Squad 2).
+7. Em seguida, consolidar conforme [serie-registro.md](serie-registro.md) (#65; import RF-11 / Squad 2).
 
 ---
 

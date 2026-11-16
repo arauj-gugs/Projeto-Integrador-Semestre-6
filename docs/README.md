@@ -35,7 +35,7 @@ Stack: Node.js 24 + Fastify + Zod, React + Vite, PostgreSQL ([ADR-004](adr/004-e
 - [Processo](process.md)
 - [Métricas](metrics.md)
 - [Requisitos](requirements/)
-- [Campo — entrevista, decisões e autorização (R2)](campo/) — [autorização](campo/autorizacao-clinica.md) · [protocolo](campo/protocolo-coleta.md) · [janelas 1–4](campo/janela-1-registro.md) ([2](campo/janela-2-registro.md), [3](campo/janela-3-registro.md), [4 meta 40/4](campo/janela-4-registro.md))
+- [Campo — entrevista, decisões e autorização (R2)](campo/) — [autorização](campo/autorizacao-clinica.md) · [protocolo](campo/protocolo-coleta.md) · [janelas 1–4](campo/janela-1-registro.md) ([2](campo/janela-2-registro.md), [3](campo/janela-3-registro.md), [4 meta 40/4](campo/janela-4-registro.md)) · [série consolidada #65](campo/serie-registro.md)
 - [RFC de arquitetura](rfc/rfc-001-arquitetura-mvp.md)
 - [ADR-005 — hardware de borda](adr/005-escolha-do-hardware.md) (totem, painel, HTTP, 5 V)
 - [Hardware — esquemas C5](hardware/esquema-registro.md) ([painel](hardware/esquema-painel.md), [totem](hardware/esquema-totem.md)) · [contrato Borda #64](hardware/contrato-borda-registro.md)
