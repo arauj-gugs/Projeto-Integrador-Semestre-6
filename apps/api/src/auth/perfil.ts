@@ -45,3 +45,33 @@ export function autorizarClassificacaoEmergencia(request: FastifyRequest):
   }
   return { ok: true };
 }
+
+const MENSAGEM_403_ACAO_VET =
+  "Somente o veterinário encerra atendimento";
+
+/** RF-15, UC-05: chamar próximo e encerrar só pelo veterinário. */
+export function exigirVeterinario(request: FastifyRequest):
+  | { ok: true }
+  | { ok: false; status: 401; body: { codigo: 401; mensagem: string } }
+  | {
+      ok: false;
+      status: 403;
+      body: { codigo: 403; mensagem: string };
+    } {
+  const perfil = lerPerfil(request);
+  if (!perfil) {
+    return {
+      ok: false,
+      status: 401,
+      body: { codigo: 401, mensagem: MENSAGEM_401 },
+    };
+  }
+  if (perfil !== "veterinario") {
+    return {
+      ok: false,
+      status: 403,
+      body: { codigo: 403, mensagem: MENSAGEM_403_ACAO_VET },
+    };
+  }
+  return { ok: true };
+}
