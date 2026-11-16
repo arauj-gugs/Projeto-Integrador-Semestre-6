@@ -39,5 +39,6 @@ Stack: Node.js 24 + Fastify + Zod, React + Vite, PostgreSQL ([ADR-004](adr/004-e
 - [RFC de arquitetura](rfc/rfc-001-arquitetura-mvp.md)
 - [ADR-005 — hardware de borda](adr/005-escolha-do-hardware.md) (totem, painel, HTTP, 5 V)
 - [Hardware — esquemas C5](hardware/esquema-registro.md) ([painel](hardware/esquema-painel.md), [totem](hardware/esquema-totem.md)) · [contrato Borda #64](hardware/contrato-borda-registro.md)
+- [Bancada cruzada #67](bancada/ambiente-registro.md) · [manual de acesso](manual-bancada.md)
 - [Plano de SCM](scm-plan.md)
 - [Estratégia de testes](test-strategy.md)

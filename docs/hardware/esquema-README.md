@@ -17,4 +17,6 @@ Documentação de processo fica em `docs/`; firmware e contratos em `packages/co
 
 **Contrato #64:** [contrato-borda-registro.md](contrato-borda-registro.md) · fixtures em `packages/contratos/fixtures/borda/`.
 
-**Próximo:** #67 ambiente de bancada · #68 protótipo opcional.
+**Bancada #67:** [ambiente-registro.md](../bancada/ambiente-registro.md) · [manual-bancada.md](../manual-bancada.md) (`pendente_publicacao`).
+
+**Próximo:** #68 protótipo opcional.

@@ -118,7 +118,7 @@ Marcos às segundas-feiras com a coordenação. Atraso em marco se resolve com r
 | S4 | 26/10 | **Arquitetura (marco crítico)** | Contratos de interface congelados, modelo de dados, esquema de hardware, ADRs, riscos, custos |
 | S5 | 02/11 | Fatia vertical | Uma feature fim a fim, 4 janelas concluídas, dado de campo versionado |
 | S6 | 09/11 | As três features | F1, F2 e F3 em operação, plano de testes, riscos revisados |
-| S7 | 16/11 | **Congelamento** | Código congelado, sistema publicado, manual, início da bancada cruzada |
+| S7 | 16/11 | **Congelamento** | Código congelado, sistema publicado, [manual de bancada](docs/manual-bancada.md), início da bancada cruzada |
 | S8 | 23/11 | Bancada cruzada | Relatório entregue e respostas aos defeitos; 24/11 pacote do PI |
 | S9 | 30/11 | Apresentação final | Demonstração no roteiro comum, confronto dos ADRs, relatório de extensão |
 | — | 03/12 | Entrega final | Versão com defeitos corrigidos, documentação, lições aprendidas |
@@ -172,6 +172,7 @@ Testes:
 ```bash
 npm test                          # unit + contract (Vitest), bloqueiam o merge
 npm run test:integration          # API com banco real
+npm run seed:bancada              # dados sintéticos para bancada (#67); ver docs/manual-bancada.md
 npm run test:e2e                  # roteiro de demonstração (Playwright)
 ```
 

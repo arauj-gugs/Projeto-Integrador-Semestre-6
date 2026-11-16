@@ -104,6 +104,8 @@ A cada push em `main`, roda a suíte completa (unit, contract, integration); fal
 
 **Entregue (issue #66, 2026-11-16).** Workflow GitHub Actions [`ci.yml`](../.github/workflows/ci.yml): `npm run typecheck`, `npm test` (unit + contract) e job `integration` com serviço `postgres:17`. Smoke: `apps/api/tests/integration/postgres-health.test.ts` (`SELECT 1`). Evidência local: [`ci-local-2026-11-16.log`](test-strategy/evidencias/ci-local-2026-11-16.log). Suítes com drizzle/migrações substituem o smoke quando `apps/api/src/db/` existir.
 
+**Parcial (issue #67, 2026-11-16).** Ambiente de bancada: [`manual-bancada.md`](manual-bancada.md), [`bancada/dados-teste.md`](bancada/dados-teste.md), seed [`scripts/seed-bancada.mjs`](../scripts/seed-bancada.mjs), [`render.yaml`](../render.yaml). URL pública e monitor RNF-10: [ambiente-registro.md](bancada/ambiente-registro.md) (`pendente_publicacao`).
+
 ---
 
 ## 1.8 Próximos passos (v0.2)

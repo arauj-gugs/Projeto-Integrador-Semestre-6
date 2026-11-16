@@ -54,6 +54,7 @@ flowchart LR
 | 2026-11-16 | Philipe Gonçalves | Cursor (agente) | Issue #65 — série consolidada estado B: registro, scripts consolidar/validar, RF-11 pendente na série real | `serie-registro.md`, `campo/scripts/`, `campo/README`, `protocolo-coleta` | Sem `serie-consolidada-*.csv` inventado (C-09); `Refs #65`; smoke em `exemplo-serie-anexo-d.csv` |
 | 2026-11-16 | Philipe Gonçalves | Cursor (agente) | `liberarAposEncerramento` sempre sincroniza sala com `ocupanteSalaIsolamento` (UC-02 E1) | `recursos.ts`, teste alocador | Evita sala `livre` stale com ocupante persistente após encerrar caso comum |
 | 2026-11-16 | Philipe Gonçalves | Cursor (agente) | Issue #66 — workflow ci (typecheck, test, integration PG17), scripts raiz, smoke integration | `.github/workflows/ci.yml`, `docs/ci-registro.md`, scm-plan | Proteção `main` com novos checks: gerente após primeiro CI verde; `Refs #66` até aplicar |
+| 2026-11-16 | Philipe Gonçalves | Cursor (agente) | Issue #67 — manual bancada, seed, deploy Render, estado B sem URL pública | `docs/manual-bancada.md`, `scripts/seed-bancada.mjs`, `render.yaml`, `apps/api/src/server.ts` | `Refs #67`; Closes após deploy + monitor RNF-10 |
 
 ## Erro da ferramenta identificado pela equipe
 
