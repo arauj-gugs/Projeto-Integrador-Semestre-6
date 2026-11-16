@@ -45,6 +45,8 @@ A visita/entrevista de out/2026 ([entrevista-2026-10.md](entrevista-2026-10.md))
 4. Atualizar **este** registro com data, horários, contagem e link para o CSV.
 5. Commit com `campo(janela-1): ...` e `Closes #58`.
 
+A [janela 2](janela-2-registro.md) (#59) exige dia e horário **distintos** desta janela — fixar data/hora aqui antes de agendar a segunda observação.
+
 ---
 
 ## Notas operacionais (após a janela)
