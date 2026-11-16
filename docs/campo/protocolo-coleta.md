@@ -82,6 +82,7 @@ Revisor de outro squad confere o PR de dados (`campo/`) antes do merge.
       janela 1: [janela-1-registro.md](janela-1-registro.md) (status pendente_coleta)
       janela 2: [janela-2-registro.md](janela-2-registro.md) (status pendente_coleta)
       janela 3: [janela-3-registro.md](janela-3-registro.md) (status pendente_coleta)
+      janela 4: [janela-4-registro.md](janela-4-registro.md) (status pendente_coleta; meta 40/4)
   → #65 CSV consolidado versionado em campo/
   → Squad 2 import RF-11 e calibra F1
 ```

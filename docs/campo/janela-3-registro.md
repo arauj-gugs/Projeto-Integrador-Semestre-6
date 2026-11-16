@@ -62,6 +62,8 @@ Ordem recomendada: **janela 1 → 2 → 3**.
 5. Atualizar **este** registro e conferir distinção nas tabelas das janelas 1 e 2.
 6. Commit com `campo(janela-3): ...` e `Closes #60`.
 
+A [janela 4](janela-4-registro.md) (#61) é a última obrigatória e concentra a meta **≥ 40** atendimentos e **≥ 4** motivos na soma das quatro janelas.
+
 ---
 
 ## Notas operacionais (após a janela)

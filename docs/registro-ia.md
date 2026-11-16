@@ -45,6 +45,7 @@ flowchart LR
 | 2026-11-16 | Philipe Gonçalves | Cursor (agente) | Issue #58 — janela 1: registro pendente sem CSV inventado (estado B; C-09) | `janela-1-registro.md`, índice em `campo/README` e links | Equipe sem série cronometrada no repo; entrevista out/2026 não conta como janela; #58 aberta até visita de 1 h |
 | 2026-11-16 | Philipe Gonçalves | Cursor (agente) | Issue #59 — janela 2: registro pendente, regra dia/hora ≠ janela 1 (estado B) | `janela-2-registro.md`, cross-links e índice `campo/` | Sem CSV inventado; #59 aberta até coleta real distinta da janela 1 |
 | 2026-11-16 | Philipe Gonçalves | Cursor (agente) | Issue #60 — janela 3: registro pendente, distinção das janelas 1 e 2 (estado B) | `janela-3-registro.md`, cross-links | Sem CSV inventado; #60 aberta até coleta real |
+| 2026-11-16 | Philipe Gonçalves | Cursor (agente) | Issue #61 — janela 4: registro pendente, tabela meta 40 atendimentos / 4 motivos (estado B) | `janela-4-registro.md`, `campo/README` | #65 série consolidada fica após coleta real; #61 aberta |
 
 ## Erro da ferramenta identificado pela equipe
 
