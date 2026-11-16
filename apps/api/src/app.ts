@@ -4,11 +4,13 @@ import {
   validatorCompiler,
 } from "fastify-type-provider-zod";
 import { registerAtendimentos } from "./routes/atendimentos.js";
+import { registerFilaStream } from "./routes/fila-stream.js";
 
 export async function buildApp() {
   const app = Fastify({ logger: false });
   app.setValidatorCompiler(validatorCompiler);
   app.setSerializerCompiler(serializerCompiler);
   await registerAtendimentos(app);
+  await registerFilaStream(app);
   return app;
 }
