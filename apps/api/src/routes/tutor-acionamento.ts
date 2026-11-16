@@ -26,6 +26,7 @@ import {
 import { obterAtendimento } from "../store/memoria.js";
 import { obterRegistro } from "../fila/registro.js";
 import { publicarMudancaFila } from "../fila/fila-eventos.js";
+import { hostLocal } from "../http/host-local.js";
 
 export async function registerTutorAcionamento(
   app: FastifyInstance,
@@ -197,8 +198,7 @@ export async function registerTutorAcionamento(
       },
     },
     async (request, reply) => {
-      const host = (request.headers.host ?? "").split(":")[0]?.toLowerCase();
-      if (host !== "localhost" && host !== "127.0.0.1") {
+      if (!hostLocal(request.headers.host)) {
         return reply.status(404).send({ erro: "nao_encontrado" });
       }
       const { expurgarFaixasAntigas } = await import(

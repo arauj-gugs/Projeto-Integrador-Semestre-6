@@ -16,11 +16,7 @@ import { registerAtendimentos } from "./routes/atendimentos.js";
 import { registerFilaStream } from "./routes/fila-stream.js";
 import { registerTutorAcionamento } from "./routes/tutor-acionamento.js";
 import { resetAcionamento } from "./acionamento/estado.js";
-
-function hostLocal(hostHeader: string | undefined): boolean {
-  const host = (hostHeader ?? "").split(":")[0]?.toLowerCase() ?? "";
-  return host === "localhost" || host === "127.0.0.1" || host === "::1";
-}
+import { hostLocal } from "./http/host-local.js";
 
 export async function buildApp() {
   const app = Fastify({ logger: false }).withTypeProvider<ZodTypeProvider>();
