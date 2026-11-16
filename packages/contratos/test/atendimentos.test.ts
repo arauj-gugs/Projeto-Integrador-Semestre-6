@@ -132,16 +132,19 @@ describe("POST /atendimentos/{id}/emergencia", () => {
     expect(emergenciaResponseSchema.parse(body).fila.posicao).toBe(1);
   });
 
-  it("403 exige perfil recepcao ou tutor e a mensagem do UC-03", () => {
-    const erro = erro403Emergencia("recepcao");
-    expect(erro403Schema.parse(erro)).toEqual({
+  it("403 de emergência só para tutor (recepção autorizada na demo PI)", () => {
+    expect(erro403Schema.parse(erro403Emergencia("tutor"))).toEqual({
+      codigo: 403,
+      perfil: "tutor",
+      mensagem: MENSAGEM_403_EMERGENCIA,
+    });
+
+    const recepcao = erro403Schema.safeParse({
       codigo: 403,
       perfil: "recepcao",
       mensagem: MENSAGEM_403_EMERGENCIA,
     });
-    expect(erro403Schema.parse(erro403Emergencia("tutor")).perfil).toBe(
-      "tutor",
-    );
+    expect(recepcao.success).toBe(false);
 
     const veterinario = erro403Schema.safeParse({
       codigo: 403,

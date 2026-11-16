@@ -27,7 +27,11 @@ export function TutorPage({ token }: { token: string }) {
       const data = await api<TutorEstado>(`/tutor/${token}`);
       setEstado(data);
       setErro("");
-      if (data.acionado && "Notification" in window && Notification.permission === "granted") {
+      if (
+        data.acionado &&
+        "Notification" in window &&
+        Notification.permission === "granted"
+      ) {
         new Notification("Fila Virtual", { body: "Hora de voltar à clínica" });
       }
     } catch (err) {
@@ -67,7 +71,10 @@ export function TutorPage({ token }: { token: string }) {
                   longitude: pos.coords.longitude,
                 }),
               });
-              if ("Notification" in window && Notification.permission === "default") {
+              if (
+                "Notification" in window &&
+                Notification.permission === "default"
+              ) {
                 await Notification.requestPermission();
               }
               await carregar();
@@ -116,55 +123,75 @@ export function TutorPage({ token }: { token: string }) {
 
   if (erro) {
     return (
-      <main className="tutor">
+      <section className="tutor">
+        <p className="tutor__marca">Fila Virtual</p>
         <p className="erro">{erro}</p>
-      </main>
+      </section>
     );
   }
 
   if (!estado) {
     return (
-      <main className="tutor">
+      <section className="tutor">
+        <p className="tutor__marca">Fila Virtual</p>
         <p>Carregando…</p>
-      </main>
+      </section>
     );
   }
 
+  const posicaoTexto = estado.posicao
+    ? `${estado.posicao}º`
+    : "—";
+
   return (
-    <main className="tutor">
-      <h1>Fila Virtual</h1>
-      <p className="codigo">{estado.codigo}</p>
-      <p className="posicao">
-        {estado.posicao ? `${estado.posicao}º na fila` : "Aguardando"}
-      </p>
-      <p className="faixa">{estado.estimativa.texto}</p>
-      <p>{estado.criterio_texto}</p>
+    <section className="tutor">
+      <p className="tutor__marca">Sua vez na fila</p>
+      <p className="tutor__codigo">{estado.codigo}</p>
+      <p className="tutor__posicao">{posicaoTexto}</p>
+      <p className="tutor__faixa">{estado.estimativa.texto}</p>
+      <p className="tutor__criterio">{estado.criterio_texto}</p>
       {atualizando ? <p className="aviso">Atualizando fila…</p> : null}
 
       {estado.consentimento_pedido && !estado.ja_recusou ? (
-        <div className="card">
+        <div className="tutor__consentimento">
           <p>{estado.finalidade}</p>
-          <button type="button" disabled={busy} onClick={() => void permitir()}>
-            Permitir localização
-          </button>
-          <button type="button" disabled={busy} onClick={() => void recusar()}>
-            Recusar
-          </button>
+          <div className="tutor__consentimento-acoes">
+            <button
+              type="button"
+              className="primary"
+              disabled={busy}
+              onClick={() => void permitir()}
+            >
+              Permitir localização
+            </button>
+            <button
+              type="button"
+              className="ghost"
+              disabled={busy}
+              onClick={() => void recusar()}
+            >
+              Recusar
+            </button>
+          </div>
         </div>
       ) : null}
 
       {estado.acionado && !estado.confirmado ? (
-        <button
-          type="button"
-          className="primary"
-          disabled={busy}
-          onClick={() => void aCaminho()}
-        >
-          Estou a caminho
-        </button>
+        <div className="tutor__acao">
+          <button
+            type="button"
+            className="primary"
+            disabled={busy}
+            onClick={() => void aCaminho()}
+          >
+            Estou a caminho
+          </button>
+        </div>
       ) : null}
 
-      {estado.confirmado ? <p>Confirmação registrada. Até já.</p> : null}
-    </main>
+      {estado.confirmado ? (
+        <p className="tutor__confirmado">Confirmação registrada. Até já.</p>
+      ) : null}
+    </section>
   );
 }

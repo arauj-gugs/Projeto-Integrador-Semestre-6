@@ -1,5 +1,6 @@
 import { useState, type FormEvent } from "react";
 import { api } from "./api";
+import { rotuloEspecie, rotuloPorte } from "./rotulos";
 
 type Animal = {
   id: string;
@@ -45,13 +46,14 @@ export function MeuAnimalPage() {
   }
 
   return (
-    <section className="page">
+    <section className="tutor">
+      <p className="tutor__marca">Fila Virtual</p>
       <header className="page__header">
         <h2>Meu animal</h2>
-        <p className="muted">Acesso do tutor com telefone e PIN</p>
       </header>
+      <p className="muted">Acesso com telefone e PIN</p>
 
-      <form className="card" onSubmit={(e) => void onAcesso(e)}>
+      <form className="painel" onSubmit={(e) => void onAcesso(e)}>
         <label>
           Telefone
           <input
@@ -59,6 +61,7 @@ export function MeuAnimalPage() {
             onChange={(e) => setTelefone(e.target.value)}
             required
             minLength={8}
+            autoComplete="tel"
           />
         </label>
         <label>
@@ -68,25 +71,28 @@ export function MeuAnimalPage() {
             onChange={(e) => setPin(e.target.value)}
             required
             minLength={4}
+            autoComplete="one-time-code"
           />
         </label>
         <button type="submit">Entrar</button>
       </form>
 
-      {erro ? <p className="erro">{erro}</p> : null}
+      {erro ? <p className="flash flash--erro">{erro}</p> : null}
 
       {dados ? (
-        <div className="card">
+        <div>
           <h3>{dados.nome}</h3>
           <p className="muted">{dados.telefone}</p>
           {dados.animais.length === 0 ? (
             <p className="muted">Nenhum animal cadastrado</p>
           ) : (
-            <ul>
+            <ul className="meu-animal__lista">
               {dados.animais.map((a) => (
-                <li key={a.id}>
-                  {a.nome} · {a.especieFila}
-                  {a.especieDetalhe ? `/${a.especieDetalhe}` : ""} · {a.porte}
+                <li key={a.id} className="meu-animal__item">
+                  <strong>{a.nome}</strong>
+                  {rotuloEspecie(a.especieFila)}
+                  {a.especieDetalhe ? ` / ${a.especieDetalhe}` : ""} ·{" "}
+                  {rotuloPorte(a.porte)}
                   {a.raca ? ` · ${a.raca}` : ""}
                   {a.sexo ? ` · ${a.sexo}` : ""}
                 </li>

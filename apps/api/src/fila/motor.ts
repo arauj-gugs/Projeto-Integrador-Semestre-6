@@ -194,6 +194,22 @@ export function retirarCasoDaCabeca(chave: ChaveFila): CasoNaFila | undefined {
   return lista.shift();
 }
 
+/** Remove o caso de qualquer posição (desistência / cancelamento). */
+export function retirarCasoDaFila(id: string): CasoNaFila | null {
+  const local = localizarCaso(id);
+  if (!local) {
+    return null;
+  }
+  const lista = filas.get(local.chave) ?? [];
+  const [removido] = lista.splice(local.indice, 1);
+  if (lista.length === 0) {
+    filas.delete(local.chave);
+  } else {
+    filas.set(local.chave, lista);
+  }
+  return removido ?? null;
+}
+
 /**
  * Recoloca um caso já persistido na fila (boot / hidratação).
  * Não gera nova sequência de chegada; usa os valores gravados.

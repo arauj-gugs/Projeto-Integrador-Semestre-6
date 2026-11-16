@@ -93,34 +93,37 @@ export async function hidratarFilaDoBanco(): Promise<void> {
     });
   }
 
-  const emCurso = abertos.find((a) => a.estado === "em_atendimento");
-  if (!emCurso) {
-    return;
-  }
+  const emCurso = abertos.filter((a) => a.estado === "em_atendimento");
+  for (const ativo of emCurso) {
+    const caso = paraCaso(ativo);
+    try {
+      ocuparParaAtendimento(caso);
+    } catch {
+      // Capacidade menor que o que estava no banco — ignora o excedente.
+      continue;
+    }
 
-  const caso = paraCaso(emCurso);
-  ocuparParaAtendimento(caso);
-
-  if (!obterRegistro(emCurso.id)) {
-    registrarIngresso(
-      emCurso.id,
-      emCurso.codigo,
-      {
-        especie: caso.especie,
-        porte: emCurso.porte,
-        tipo_atendimento: emCurso.tipo,
-        marcadores: caso.marcadores,
-      },
-      {
-        p50: emCurso.previsto_ingresso_p50 ?? 0,
-        p90: emCurso.previsto_ingresso_p90 ?? 0,
-      },
-    );
-  }
-  const reg = obterRegistro(emCurso.id);
-  if (reg) {
-    reg.estado = "em_atendimento";
-    reg.horario_inicio_atendimento =
-      emCurso.inicio_real?.toISOString() ?? new Date().toISOString();
+    if (!obterRegistro(ativo.id)) {
+      registrarIngresso(
+        ativo.id,
+        ativo.codigo,
+        {
+          especie: caso.especie,
+          porte: ativo.porte,
+          tipo_atendimento: ativo.tipo,
+          marcadores: caso.marcadores,
+        },
+        {
+          p50: ativo.previsto_ingresso_p50 ?? 0,
+          p90: ativo.previsto_ingresso_p90 ?? 0,
+        },
+      );
+    }
+    const reg = obterRegistro(ativo.id);
+    if (reg) {
+      reg.estado = "em_atendimento";
+      reg.horario_inicio_atendimento =
+        ativo.inicio_real?.toISOString() ?? new Date().toISOString();
+    }
   }
 }

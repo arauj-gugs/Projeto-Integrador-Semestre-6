@@ -12,14 +12,18 @@ import {
 } from "./erros-dominio.js";
 import { publicarMudancaFila } from "./fila-eventos.js";
 import { notificarEstimativaDuracaoReal } from "./estimativa-stub.js";
-import { obterAtendimentoAtual } from "./recursos.js";
+import {
+  obterAtendimentoAtualPorId,
+  type LaneAtendimento,
+} from "./recursos.js";
 import { obterAtendimento, salvarAtendimento } from "../store/memoria.js";
 import { registrarEventoFila } from "../store/fila-log.js";
 
 export type EstadoAtendimentoRegistro =
   | "na_fila"
   | "em_atendimento"
-  | "encerrado";
+  | "encerrado"
+  | "cancelado";
 
 export type RegistroAtendimento = {
   id: string;
@@ -69,11 +73,13 @@ export function obterRegistro(id: string): RegistroAtendimento | undefined {
   return registros.get(id);
 }
 
-export async function chamarProximoAtendimento(): Promise<{
+export async function chamarProximoAtendimento(
+  lane?: LaneAtendimento,
+): Promise<{
   id: string;
   codigo: string;
 }> {
-  const resultado = chamarProximo();
+  const resultado = chamarProximo(lane);
   if (!resultado) {
     throw new NenhumCasoElegivel();
   }
@@ -128,9 +134,8 @@ export async function encerrarAtendimento(
     throw new HorarioFimInvalido();
   }
 
-  const atual = obterAtendimentoAtual();
-  if (atual?.casoId === id) {
-    encerrarAtendimentoAtual();
+  if (obterAtendimentoAtualPorId(id)) {
+    encerrarAtendimentoAtual(id);
   }
 
   registro.horario_fim = horario_fim;

@@ -1,17 +1,19 @@
 import { useCallback, useEffect, useMemo, useState, type FormEvent } from "react";
 import { api } from "./api";
-import { useFilaStream } from "./useFilaStream";
-
-const TIPOS = [
-  "consulta",
-  "vacina",
-  "ultrassom",
-  "raio-x",
-  "coleta",
-  "castracao",
-  "cirurgia",
-  "emergencia",
-] as const;
+import {
+  OPCOES_ESPECIE,
+  OPCOES_PORTE,
+  TIPOS_ATENDIMENTO,
+  rotuloEspecie,
+  rotuloPorte,
+  rotuloRisco,
+  rotuloTipo,
+} from "./rotulos";
+import {
+  useFilaStream,
+  type EmAtendimentoItem,
+  type ItemFilaSnapshot,
+} from "./useFilaStream";
 
 type IngressoResp = {
   id: string;
@@ -42,8 +44,43 @@ type Agendamento = {
   estado: string;
 };
 
+type Lane = "caes" | "outros";
+type VarianteColuna = "cao" | "gato" | "silvestre" | "isolamento";
+
+function horaCurta(iso: string | null): string {
+  if (!iso) return "—";
+  return new Date(iso).toLocaleTimeString("pt-BR", {
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+}
+
+function faixaEspera(p50: number | null, p90: number | null): string {
+  if (p50 === null || p90 === null) return "Estimativa indisponível";
+  return `Entre ${p50} e ${p90} min`;
+}
+
+function tituloCaso(item: {
+  codigo: string;
+  animal_nome: string | null;
+  tutor_nome: string | null;
+}): string {
+  if (item.animal_nome && item.tutor_nome) {
+    return `${item.animal_nome} · ${item.tutor_nome}`;
+  }
+  if (item.animal_nome) return item.animal_nome;
+  return item.codigo;
+}
+
+function especieDaColuna(variante: VarianteColuna): string {
+  if (variante === "cao") return "cao";
+  if (variante === "gato") return "gato";
+  if (variante === "silvestre") return "silvestre";
+  return "cao";
+}
+
 export function RecepcaoPage() {
-  const { snapshot, atualizando } = useFilaStream();
+  const { snapshot, atualizando, recarregar } = useFilaStream();
   const [especie, setEspecie] = useState("cao");
   const [porte, setPorte] = useState("pequeno");
   const [tipo, setTipo] = useState<string>("consulta");
@@ -51,6 +88,11 @@ export function RecepcaoPage() {
   const [erros, setErros] = useState<Record<string, string>>({});
   const [ultimo, setUltimo] = useState<IngressoResp | null>(null);
   const [msg, setMsg] = useState("");
+  const [erroCarga, setErroCarga] = useState("");
+  const [ingressoAberto, setIngressoAberto] = useState(false);
+  const [busyId, setBusyId] = useState<string | null>(null);
+  const [linkCopiado, setLinkCopiado] = useState(false);
+  const [colunaAdd, setColunaAdd] = useState<VarianteColuna | null>(null);
 
   const [animais, setAnimais] = useState<Animal[]>([]);
   const [tutores, setTutores] = useState<Tutor[]>([]);
@@ -73,7 +115,7 @@ export function RecepcaoPage() {
 
   useEffect(() => {
     void carregarCadastro().catch(() =>
-      setMsg("Não foi possível carregar animais/agenda"),
+      setErroCarga("Não foi possível carregar animais/agenda"),
     );
   }, [carregarCadastro]);
 
@@ -83,15 +125,13 @@ export function RecepcaoPage() {
   );
 
   useEffect(() => {
-    if (
-      animalId &&
-      !animaisWalkIn.some((a) => a.id === animalId)
-    ) {
+    if (animalId && !animaisWalkIn.some((a) => a.id === animalId)) {
       setAnimalId(animaisWalkIn[0]?.id ?? "");
       return;
     }
     if (!animalId && animaisWalkIn[0]) setAnimalId(animaisWalkIn[0].id);
   }, [animaisWalkIn, animalId]);
+
   const colunas = useMemo(() => {
     const filas = snapshot?.filas ?? {};
     return {
@@ -110,6 +150,10 @@ export function RecepcaoPage() {
     () => agendamentos.filter((g) => g.estado === "marcado"),
     [agendamentos],
   );
+
+  const capacidades = snapshot?.capacidades ?? { caes: 1, outros: 1 };
+  const emCaes = snapshot?.em_atendimento?.caes ?? [];
+  const emOutros = snapshot?.em_atendimento?.outros ?? [];
 
   function nomeTutor(id: string): string {
     return tutores.find((t) => t.id === id)?.nome ?? "—";
@@ -160,7 +204,9 @@ export function RecepcaoPage() {
         }),
       });
       setUltimo(body);
+      setLinkCopiado(false);
       setMsg(`Ingresso ${body.codigo} na posição ${body.fila.posicao}`);
+      await recarregar();
     } catch (err) {
       aplicarErros(err, "Falha ao registrar ingresso");
     }
@@ -180,9 +226,11 @@ export function RecepcaoPage() {
         }),
       });
       setUltimo(body);
+      setLinkCopiado(false);
       setMsg(
         `Ingresso ${body.codigo} (${nomeAnimal(animalId)}) na posição ${body.fila.posicao}`,
       );
+      await recarregar();
     } catch (err) {
       aplicarErros(err, "Falha ao ingressar animal");
     }
@@ -199,8 +247,10 @@ export function RecepcaoPage() {
         perfil: "recepcao",
       });
       setUltimo(res.atendimento);
+      setLinkCopiado(false);
       setMsg(`Check-in ${res.atendimento.codigo} (agenda)`);
       await carregarCadastro();
+      await recarregar();
     } catch {
       setMsg("Falha no check-in da agenda");
     }
@@ -214,204 +264,788 @@ export function RecepcaoPage() {
     setMsg("Marcado sem link");
   }
 
+  async function marcarEmergencia(id: string) {
+    setBusyId(id);
+    setMsg("");
+    try {
+      const res = await api<{
+        fila: { estado: string };
+      }>(`/atendimentos/${id}/emergencia`, {
+        method: "POST",
+        perfil: "recepcao",
+        body: JSON.stringify({ emergencia: true }),
+      });
+      await recarregar();
+      setMsg(
+        res.fila.estado === "em_atendimento"
+          ? "Emergência — animal em atendimento"
+          : "Emergência marcada — priorizado na fila (sem vaga agora)",
+      );
+    } catch (err) {
+      setMsg((err as Error).message);
+    } finally {
+      setBusyId(null);
+    }
+  }
+
+  async function tirarDaFila(id: string) {
+    setBusyId(id);
+    setMsg("");
+    try {
+      await api(`/atendimentos/${id}/cancelar`, {
+        method: "POST",
+        perfil: "recepcao",
+      });
+      await recarregar();
+      setMsg("Animal retirado da fila");
+    } catch (err) {
+      setMsg((err as Error).message);
+    } finally {
+      setBusyId(null);
+    }
+  }
+
+  async function chamarProximo(lane: Lane) {
+    setBusyId(`chamar-${lane}`);
+    setMsg("");
+    try {
+      const body = await api<{ id: string; codigo: string }>(
+        "/atendimentos/chamar-proximo",
+        {
+          method: "POST",
+          perfil: "recepcao",
+          body: JSON.stringify({ lane }),
+        },
+      );
+      await recarregar();
+      setMsg(`Chamado ${body.codigo}`);
+    } catch (err) {
+      setMsg((err as Error).message);
+    } finally {
+      setBusyId(null);
+    }
+  }
+
+  async function alterarCapacidade(lane: Lane, valor: number) {
+    setMsg("");
+    try {
+      await api("/fila/capacidades", {
+        method: "PATCH",
+        perfil: "recepcao",
+        body: JSON.stringify({ [lane]: Math.max(1, valor) }),
+      });
+      await recarregar();
+    } catch (err) {
+      setMsg((err as Error).message);
+    }
+  }
+
+  async function adicionarNaColuna(opts: {
+    variante: VarianteColuna;
+    modo: "animal" | "walkin";
+    animalIdSel: string;
+    tipoSel: string;
+    porteSel: string;
+    marcadoresSel: string[];
+    emergencia: boolean;
+  }) {
+    setErros({});
+    setMsg("");
+    const especieCol = especieDaColuna(opts.variante);
+    const marcadoresFinais =
+      opts.variante === "isolamento"
+        ? Array.from(new Set([...opts.marcadoresSel, "isolamento"]))
+        : opts.marcadoresSel;
+
+    try {
+      let body: IngressoResp;
+      if (opts.modo === "animal") {
+        body = await api<IngressoResp>(
+          `/animais/${opts.animalIdSel}/atendimentos`,
+          {
+            method: "POST",
+            perfil: "recepcao",
+            body: JSON.stringify({
+              tipo_atendimento: opts.tipoSel,
+              marcadores: marcadoresFinais,
+            }),
+          },
+        );
+      } else {
+        body = await api<IngressoResp>("/atendimentos", {
+          method: "POST",
+          perfil: "recepcao",
+          body: JSON.stringify({
+            especie: especieCol,
+            porte: opts.porteSel,
+            tipo_atendimento: opts.tipoSel,
+            marcadores: marcadoresFinais,
+          }),
+        });
+      }
+
+      if (opts.emergencia) {
+        const emerg = await api<{ fila: { estado: string } }>(
+          `/atendimentos/${body.id}/emergencia`,
+          {
+            method: "POST",
+            perfil: "recepcao",
+            body: JSON.stringify({ emergencia: true }),
+          },
+        );
+        setMsg(
+          emerg.fila.estado === "em_atendimento"
+            ? `Emergência ${body.codigo} em atendimento`
+            : `Emergência ${body.codigo} priorizada na fila`,
+        );
+      } else {
+        setMsg(`Ingresso ${body.codigo} na posição ${body.fila.posicao}`);
+      }
+
+      setUltimo(body);
+      setLinkCopiado(false);
+      setColunaAdd(null);
+      await recarregar();
+    } catch (err) {
+      aplicarErros(err, "Falha ao colocar na fila");
+    }
+  }
+
   const linkAbsoluto = ultimo
-    ? `${window.location.origin}/${ultimo.link_tutor.replace(/^\//, "")}`
+    ? `${window.location.origin}${ultimo.link_tutor.startsWith("/") ? "" : "/"}${ultimo.link_tutor}`
     : null;
   const qrUrl = linkAbsoluto
     ? `https://api.qrserver.com/v1/create-qr-code/?size=160x160&data=${encodeURIComponent(linkAbsoluto)}`
     : null;
 
+  async function copiarLinkTutor() {
+    if (!linkAbsoluto) return;
+    try {
+      await navigator.clipboard.writeText(linkAbsoluto);
+      setLinkCopiado(true);
+      window.setTimeout(() => setLinkCopiado(false), 2000);
+    } catch {
+      setMsg("Não foi possível copiar o link");
+    }
+  }
+
+  const salaLivre = snapshot?.recursos.salaIsolamento === "livre";
+
   return (
-    <section className="page">
+    <section className="page painel-fila">
       <header className="page__header">
-        <h2>Recepção</h2>
-        {atualizando ? <p className="aviso">Atualizando fila…</p> : null}
-        <p>
-          Sala isolamento:{" "}
-          {snapshot?.recursos.salaIsolamento === "livre" ? "livre" : "ocupada"}
-        </p>
+        <h2>Fila</h2>
+        <div className="page__meta">
+          {atualizando ? <span className="aviso">Atualizando…</span> : null}
+          <span>
+            Isolamento:{" "}
+            <span
+              className={salaLivre ? "badge badge--livre" : "badge badge--ocupada"}
+            >
+              {salaLivre ? "livre" : "ocupada"}
+            </span>
+          </span>
+        </div>
       </header>
 
       {(snapshot?.alertas ?? []).length > 0 ? (
-        <div className="alertas">
+        <div className="painel painel--alerta" role="status">
+          <h3>Alertas</h3>
           {snapshot!.alertas.map((a) => (
             <p key={a.codigo + a.mensagem}>{a.mensagem}</p>
           ))}
         </div>
       ) : null}
 
-      <form className="card" onSubmit={(e) => void onIngressoAnimal(e)}>
-        <h3>Ingresso com animal cadastrado</h3>
-        <p className="muted">Grandes só entram por check-in de agenda</p>
-        <label>
-          Animal
-          <select
-            value={animalId}
-            onChange={(e) => setAnimalId(e.target.value)}
-            required
-          >
-            {animaisWalkIn.map((a) => (
-              <option key={a.id} value={a.id}>
-                {a.nome} · {a.especieFila} · {a.porte} · tutor{" "}
-                {nomeTutor(a.tutorId)}
-              </option>
-            ))}
-          </select>
-        </label>
-        <label>
-          Tipo
-          <select
-            value={tipoAnimal}
-            onChange={(e) => setTipoAnimal(e.target.value)}
-          >
-            {TIPOS.map((t) => (
-              <option key={t} value={t}>
-                {t}
-              </option>
-            ))}
-          </select>
-        </label>
-        <fieldset>
-          <legend>Marcadores</legend>
-          {["reativo", "cio", "isolamento"].map((m) => (
-            <label key={m} className="check">
-              <input
-                type="checkbox"
-                checked={marcadoresAnimal.includes(m)}
-                onChange={() => toggleMarcadorAnimal(m)}
-              />
-              {m}
-            </label>
-          ))}
-        </fieldset>
-        <button type="submit" disabled={!animalId || animaisWalkIn.length === 0}>
-          Colocar na fila
-        </button>
-        {erros.porte ? <span className="erro">{erros.porte}</span> : null}
-      </form>
+      {erroCarga ? <p className="flash flash--erro">{erroCarga}</p> : null}
+      {msg ? <p className="flash flash--ok">{msg}</p> : null}
 
-      <div className="card">
-        <h3>Check-in de agenda</h3>
-        {agendaPendentes.length === 0 ? (
-          <p className="muted">Nenhum agendamento marcado</p>
-        ) : (
-          <ul>
-            {agendaPendentes.map((g) => (
-              <li key={g.id}>
-                {nomeAnimal(g.animalId)} · {g.tipo} ·{" "}
-                {new Date(g.inicioEm).toLocaleString()} · {g.duracaoMinutos} min{" "}
-                <button type="button" onClick={() => void onCheckIn(g.id)}>
-                  Check-in
-                </button>
-              </li>
-            ))}
-          </ul>
-        )}
+      <div className="em-curso-grid" aria-label="Em atendimento">
+        <PainelEmAtendimento
+          titulo="Em atendimento · Cães"
+          itens={emCaes}
+          ocupados={emCaes.length}
+          capacidade={capacidades.caes}
+          busy={busyId === "chamar-caes"}
+          onChamar={() => void chamarProximo("caes")}
+          onCapacidade={(n) => void alterarCapacidade("caes", n)}
+        />
+        <PainelEmAtendimento
+          titulo="Em atendimento · Outros"
+          itens={emOutros}
+          ocupados={emOutros.length}
+          capacidade={capacidades.outros}
+          busy={busyId === "chamar-outros"}
+          onChamar={() => void chamarProximo("outros")}
+          onCapacidade={(n) => void alterarCapacidade("outros", n)}
+        />
       </div>
 
-      <form className="card" onSubmit={(e) => void onSubmit(e)}>
-        <h3>Novo ingresso (sem cadastro)</h3>
-        <label>
-          Espécie
-          <select value={especie} onChange={(e) => setEspecie(e.target.value)}>
-            <option value="cao">Cão</option>
-            <option value="gato">Gato</option>
-            <option value="silvestre">Silvestre</option>
-          </select>
-          {erros.especie ? <span className="erro">{erros.especie}</span> : null}
-        </label>
-        <label>
-          Porte
-          <input value={porte} onChange={(e) => setPorte(e.target.value)} />
-          {erros.porte ? <span className="erro">{erros.porte}</span> : null}
-        </label>
-        <label>
-          Tipo
-          <select value={tipo} onChange={(e) => setTipo(e.target.value)}>
-            {TIPOS.map((t) => (
-              <option key={t} value={t}>
-                {t}
-              </option>
-            ))}
-          </select>
-          {erros.tipo_atendimento ? (
-            <span className="erro">{erros.tipo_atendimento}</span>
-          ) : null}
-        </label>
-        <fieldset>
-          <legend>Marcadores</legend>
-          {["reativo", "cio", "isolamento"].map((m) => (
-            <label key={m} className="check">
-              <input
-                type="checkbox"
-                checked={marcadores.includes(m)}
-                onChange={() => toggleMarcador(m)}
-              />
-              {m}
-            </label>
-          ))}
-        </fieldset>
-        <button type="submit">Registrar</button>
-      </form>
+      <div className="filas filas--hospital" aria-label="Filas segregadas">
+        <FilaColuna
+          titulo="Cães"
+          variante="cao"
+          entradas={colunas.caes}
+          busyId={busyId}
+          addAberto={colunaAdd === "cao"}
+          onToggleAdd={() =>
+            setColunaAdd((v) => (v === "cao" ? null : "cao"))
+          }
+          animais={animaisWalkIn.filter((a) => a.especieFila === "cao")}
+          nomeTutor={nomeTutor}
+          onAdicionar={(o) => void adicionarNaColuna({ ...o, variante: "cao" })}
+          onEmergencia={marcarEmergencia}
+          onCancelar={tirarDaFila}
+        />
+        <FilaColuna
+          titulo="Gatos"
+          variante="gato"
+          entradas={colunas.gatos}
+          busyId={busyId}
+          addAberto={colunaAdd === "gato"}
+          onToggleAdd={() =>
+            setColunaAdd((v) => (v === "gato" ? null : "gato"))
+          }
+          animais={animaisWalkIn.filter((a) => a.especieFila === "gato")}
+          nomeTutor={nomeTutor}
+          onAdicionar={(o) =>
+            void adicionarNaColuna({ ...o, variante: "gato" })
+          }
+          onEmergencia={marcarEmergencia}
+          onCancelar={tirarDaFila}
+        />
+        <FilaColuna
+          titulo="Silvestres"
+          variante="silvestre"
+          entradas={colunas.silvestres}
+          busyId={busyId}
+          addAberto={colunaAdd === "silvestre"}
+          onToggleAdd={() =>
+            setColunaAdd((v) => (v === "silvestre" ? null : "silvestre"))
+          }
+          animais={animaisWalkIn.filter((a) => a.especieFila === "silvestre")}
+          nomeTutor={nomeTutor}
+          onAdicionar={(o) =>
+            void adicionarNaColuna({ ...o, variante: "silvestre" })
+          }
+          onEmergencia={marcarEmergencia}
+          onCancelar={tirarDaFila}
+        />
+        <FilaColuna
+          titulo="Isolamento"
+          variante="isolamento"
+          entradas={colunas.isolamento}
+          busyId={busyId}
+          addAberto={colunaAdd === "isolamento"}
+          onToggleAdd={() =>
+            setColunaAdd((v) => (v === "isolamento" ? null : "isolamento"))
+          }
+          animais={animaisWalkIn}
+          nomeTutor={nomeTutor}
+          onAdicionar={(o) =>
+            void adicionarNaColuna({ ...o, variante: "isolamento" })
+          }
+          onEmergencia={marcarEmergencia}
+          onCancelar={tirarDaFila}
+        />
+      </div>
 
       {ultimo ? (
-        <div className="card">
-          <h3>{ultimo.codigo}</h3>
-          <p>
-            Posição {ultimo.fila.posicao} · {ultimo.fila.especie}/
-            {ultimo.fila.risco}
-            {ultimo.fila.estado ? ` · ${ultimo.fila.estado}` : ""}
-          </p>
-          <p>
-            Faixa p50–p90: {ultimo.estimativa.p50}–{ultimo.estimativa.p90} min
-          </p>
-          <p>
-            Link: <a href={ultimo.link_tutor}>{ultimo.link_tutor}</a>
-          </p>
+        <div className="ticket">
+          <div className="ticket__corpo">
+            <p className="ticket__rotulo">Último ingresso</p>
+            <p className="ticket__codigo">{ultimo.codigo}</p>
+            <p className="ticket__linha">
+              Posição {ultimo.fila.posicao} ·{" "}
+              {rotuloEspecie(ultimo.fila.especie)} /{" "}
+              {rotuloRisco(ultimo.fila.risco)}
+            </p>
+            <p className="ticket__linha">
+              Espera: entre {ultimo.estimativa.p50} e {ultimo.estimativa.p90}{" "}
+              min
+            </p>
+            <p className="ticket__dica muted">
+              Mostre o QR ao tutor ou copie o link do celular
+            </p>
+            <div className="ticket__acoes">
+              <button
+                type="button"
+                className="primary"
+                onClick={() => void copiarLinkTutor()}
+              >
+                {linkCopiado ? "Link copiado" : "Copiar link"}
+              </button>
+              <a className="ticket__abrir" href={ultimo.link_tutor}>
+                Abrir tela do tutor
+              </a>
+              <button
+                type="button"
+                className="ghost"
+                onClick={() => void marcarSemLink(ultimo.id)}
+              >
+                Sem link
+              </button>
+            </div>
+          </div>
           {qrUrl ? (
-            <img src={qrUrl} alt="QR do link do tutor" width={160} height={160} />
+            <img
+              className="ticket__qr"
+              src={qrUrl}
+              alt="QR do link do tutor"
+              width={160}
+              height={160}
+            />
           ) : null}
-          <button type="button" onClick={() => void marcarSemLink(ultimo.id)}>
-            Sem link
-          </button>
         </div>
       ) : null}
 
-      {msg ? <p>{msg}</p> : null}
+      <div className="ingresso-bloco">
+        <button
+          type="button"
+          className="ghost"
+          onClick={() => setIngressoAberto((v) => !v)}
+        >
+          {ingressoAberto ? "Ocultar ingresso" : "Novo ingresso / agenda"}
+        </button>
 
-      <div className="filas">
-        <FilaColuna titulo="Cães" entradas={colunas.caes} />
-        <FilaColuna titulo="Gatos" entradas={colunas.gatos} />
-        <FilaColuna titulo="Silvestres" entradas={colunas.silvestres} />
-        <FilaColuna titulo="Isolamento" entradas={colunas.isolamento} />
+        {ingressoAberto ? (
+          <div className="recepcao-acoes">
+            <form className="painel" onSubmit={(e) => void onIngressoAnimal(e)}>
+              <h3>Colocar animal na fila</h3>
+              <p className="muted">Grandes só entram por check-in de agenda</p>
+              <label>
+                Animal
+                <select
+                  value={animalId}
+                  onChange={(e) => setAnimalId(e.target.value)}
+                  required
+                >
+                  {animaisWalkIn.map((a) => (
+                    <option key={a.id} value={a.id}>
+                      {a.nome} · {rotuloEspecie(a.especieFila)} ·{" "}
+                      {rotuloPorte(a.porte)} · {nomeTutor(a.tutorId)}
+                    </option>
+                  ))}
+                </select>
+              </label>
+              <label>
+                Tipo
+                <select
+                  value={tipoAnimal}
+                  onChange={(e) => setTipoAnimal(e.target.value)}
+                >
+                  {TIPOS_ATENDIMENTO.map((t) => (
+                    <option key={t} value={t}>
+                      {rotuloTipo(t)}
+                    </option>
+                  ))}
+                </select>
+              </label>
+              <fieldset>
+                <legend>Marcadores</legend>
+                {["reativo", "cio", "isolamento"].map((m) => (
+                  <label key={m} className="check">
+                    <input
+                      type="checkbox"
+                      checked={marcadoresAnimal.includes(m)}
+                      onChange={() => toggleMarcadorAnimal(m)}
+                    />
+                    {rotuloRisco(m)}
+                  </label>
+                ))}
+              </fieldset>
+              <button
+                type="submit"
+                disabled={!animalId || animaisWalkIn.length === 0}
+              >
+                Colocar na fila
+              </button>
+              {erros.porte ? <span className="erro">{erros.porte}</span> : null}
+            </form>
+
+            <div className="painel">
+              <h3>Check-in de agenda</h3>
+              {agendaPendentes.length === 0 ? (
+                <p className="muted">Nenhum agendamento marcado</p>
+              ) : (
+                <ul className="agenda-lista">
+                  {agendaPendentes.map((g) => (
+                    <li key={g.id}>
+                      <span>
+                        {nomeAnimal(g.animalId)} · {rotuloTipo(g.tipo)} ·{" "}
+                        {new Date(g.inicioEm).toLocaleString()} ·{" "}
+                        {g.duracaoMinutos} min
+                      </span>
+                      <button type="button" onClick={() => void onCheckIn(g.id)}>
+                        Check-in
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
+
+            <form
+              className="painel painel--quiet"
+              onSubmit={(e) => void onSubmit(e)}
+            >
+              <h3>Ingresso sem cadastro</h3>
+              <label>
+                Espécie
+                <select
+                  value={especie}
+                  onChange={(e) => setEspecie(e.target.value)}
+                >
+                  {OPCOES_ESPECIE.map((e) => (
+                    <option key={e} value={e}>
+                      {rotuloEspecie(e)}
+                    </option>
+                  ))}
+                </select>
+              </label>
+              <label>
+                Porte
+                <select value={porte} onChange={(e) => setPorte(e.target.value)}>
+                  {OPCOES_PORTE.map((p) => (
+                    <option key={p} value={p}>
+                      {rotuloPorte(p)}
+                    </option>
+                  ))}
+                </select>
+              </label>
+              <label>
+                Tipo
+                <select value={tipo} onChange={(e) => setTipo(e.target.value)}>
+                  {TIPOS_ATENDIMENTO.map((t) => (
+                    <option key={t} value={t}>
+                      {rotuloTipo(t)}
+                    </option>
+                  ))}
+                </select>
+              </label>
+              <fieldset>
+                <legend>Marcadores</legend>
+                {["reativo", "cio", "isolamento"].map((m) => (
+                  <label key={m} className="check">
+                    <input
+                      type="checkbox"
+                      checked={marcadores.includes(m)}
+                      onChange={() => toggleMarcador(m)}
+                    />
+                    {rotuloRisco(m)}
+                  </label>
+                ))}
+              </fieldset>
+              <button type="submit">Registrar</button>
+            </form>
+          </div>
+        ) : null}
       </div>
     </section>
   );
 }
 
-function FilaColuna({
+function PainelEmAtendimento({
   titulo,
-  entradas,
+  itens,
+  ocupados,
+  capacidade,
+  busy,
+  onChamar,
+  onCapacidade,
 }: {
   titulo: string;
-  entradas: [string, Array<{ codigo: string; posicao: number; risco: string }>][];
+  itens: EmAtendimentoItem[];
+  ocupados: number;
+  capacidade: number;
+  busy: boolean;
+  onChamar: () => void;
+  onCapacidade: (n: number) => void;
 }) {
   return (
-    <div className="card fila-col">
-      <h3>{titulo}</h3>
-      {entradas.length === 0 ? <p className="muted">Vazia</p> : null}
-      {entradas.map(([chave, itens]) => (
-        <div key={chave}>
-          <p className="muted">{chave}</p>
-          <ul>
-            {itens.map((i) => (
-              <li key={i.codigo}>
-                {i.posicao}. {i.codigo} ({i.risco})
-              </li>
-            ))}
-          </ul>
-        </div>
-      ))}
+    <div className="em-curso">
+      <div className="em-curso__topo">
+        <p className="em-curso__rotulo">{titulo}</p>
+        <span className="em-curso__slots">
+          {ocupados}/{capacidade}
+        </span>
+      </div>
+      <div className="em-curso__cap">
+        <label>
+          Vagas
+          <input
+            type="number"
+            min={1}
+            value={capacidade}
+            onChange={(e) => onCapacidade(Number(e.target.value) || 1)}
+          />
+        </label>
+        <button
+          type="button"
+          className="primary"
+          disabled={busy || ocupados >= capacidade}
+          onClick={onChamar}
+        >
+          Chamar próximo
+        </button>
+      </div>
+      {itens.length === 0 ? (
+        <p className="muted">Nenhum atendimento em curso</p>
+      ) : (
+        <ul className="em-curso__lista">
+          {itens.map((emCurso) => (
+            <li key={emCurso.id}>
+              <p className="em-curso__nome">{tituloCaso(emCurso)}</p>
+              <p className="em-curso__meta">
+                {emCurso.codigo}
+                {emCurso.tipo ? ` · ${rotuloTipo(emCurso.tipo)}` : ""}
+                {" · começou "}
+                {horaCurta(emCurso.inicio_real)}
+                {" · "}
+                {faixaEspera(
+                  emCurso.espera_atual_p50,
+                  emCurso.espera_atual_p90,
+                )}
+              </p>
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
+  );
+}
+
+function FilaColuna({
+  titulo,
+  variante,
+  entradas,
+  busyId,
+  addAberto,
+  onToggleAdd,
+  animais,
+  nomeTutor,
+  onAdicionar,
+  onEmergencia,
+  onCancelar,
+}: {
+  titulo: string;
+  variante: VarianteColuna;
+  entradas: [string, ItemFilaSnapshot[]][];
+  busyId: string | null;
+  addAberto: boolean;
+  onToggleAdd: () => void;
+  animais: Animal[];
+  nomeTutor: (id: string) => string;
+  onAdicionar: (opts: {
+    modo: "animal" | "walkin";
+    animalIdSel: string;
+    tipoSel: string;
+    porteSel: string;
+    marcadoresSel: string[];
+    emergencia: boolean;
+  }) => void;
+  onEmergencia: (id: string) => void;
+  onCancelar: (id: string) => void;
+}) {
+  const itens = entradas.flatMap(([, lista]) => lista);
+  const [modo, setModo] = useState<"animal" | "walkin">("animal");
+  const [animalIdSel, setAnimalIdSel] = useState("");
+  const [tipoSel, setTipoSel] = useState("consulta");
+  const [porteSel, setPorteSel] = useState("pequeno");
+  const [marcadoresSel, setMarcadoresSel] = useState<string[]>(
+    variante === "isolamento" ? ["isolamento"] : [],
+  );
+  const [emergencia, setEmergencia] = useState(false);
+
+  useEffect(() => {
+    if (!addAberto) return;
+    setAnimalIdSel(animais[0]?.id ?? "");
+    setMarcadoresSel(variante === "isolamento" ? ["isolamento"] : []);
+    setEmergencia(false);
+  }, [addAberto, animais, variante]);
+
+  return (
+    <div className={`fila-col fila-col--${variante}`}>
+      <div className="fila-col__cabeca">
+        <span>
+          {titulo}
+          <span className="fila-col__count">{itens.length}</span>
+        </span>
+        <button
+          type="button"
+          className="fila-col__add"
+          aria-label={`Adicionar em ${titulo}`}
+          onClick={onToggleAdd}
+        >
+          {addAberto ? "×" : "+"}
+        </button>
+      </div>
+      <div className="fila-col__corpo">
+        {addAberto ? (
+          <form
+            className="fila-col__form"
+            onSubmit={(e) => {
+              e.preventDefault();
+              onAdicionar({
+                modo,
+                animalIdSel,
+                tipoSel,
+                porteSel,
+                marcadoresSel,
+                emergencia,
+              });
+            }}
+          >
+            <div className="fila-col__form-modo">
+              <button
+                type="button"
+                className={modo === "animal" ? "primary" : "ghost"}
+                onClick={() => setModo("animal")}
+              >
+                Cadastrado
+              </button>
+              <button
+                type="button"
+                className={modo === "walkin" ? "primary" : "ghost"}
+                onClick={() => setModo("walkin")}
+              >
+                Sem cadastro
+              </button>
+            </div>
+            {modo === "animal" ? (
+              <label>
+                Animal
+                <select
+                  value={animalIdSel}
+                  onChange={(e) => setAnimalIdSel(e.target.value)}
+                  required
+                >
+                  {animais.map((a) => (
+                    <option key={a.id} value={a.id}>
+                      {a.nome} · {rotuloPorte(a.porte)} · {nomeTutor(a.tutorId)}
+                    </option>
+                  ))}
+                </select>
+              </label>
+            ) : (
+              <label>
+                Porte
+                <select
+                  value={porteSel}
+                  onChange={(e) => setPorteSel(e.target.value)}
+                >
+                  {OPCOES_PORTE.filter((p) => p !== "grande").map((p) => (
+                    <option key={p} value={p}>
+                      {rotuloPorte(p)}
+                    </option>
+                  ))}
+                </select>
+              </label>
+            )}
+            <label>
+              Tipo
+              <select
+                value={tipoSel}
+                onChange={(e) => setTipoSel(e.target.value)}
+              >
+                {TIPOS_ATENDIMENTO.map((t) => (
+                  <option key={t} value={t}>
+                    {rotuloTipo(t)}
+                  </option>
+                ))}
+              </select>
+            </label>
+            {variante !== "isolamento" ? (
+              <fieldset>
+                <legend>Marcadores</legend>
+                {["reativo", "cio", "isolamento"].map((m) => (
+                  <label key={m} className="check">
+                    <input
+                      type="checkbox"
+                      checked={marcadoresSel.includes(m)}
+                      onChange={() =>
+                        setMarcadoresSel((prev) =>
+                          prev.includes(m)
+                            ? prev.filter((x) => x !== m)
+                            : [...prev, m],
+                        )
+                      }
+                    />
+                    {rotuloRisco(m)}
+                  </label>
+                ))}
+              </fieldset>
+            ) : (
+              <p className="muted">Marcador isolamento aplicado</p>
+            )}
+            <label className="check">
+              <input
+                type="checkbox"
+                checked={emergencia}
+                onChange={(e) => setEmergencia(e.target.checked)}
+              />
+              Emergência (vai direto se houver vaga)
+            </label>
+            <button
+              type="submit"
+              className="primary"
+              disabled={modo === "animal" && !animalIdSel}
+            >
+              Colocar na fila
+            </button>
+          </form>
+        ) : null}
+        {itens.length === 0 && !addAberto ? (
+          <p className="muted">Vazia</p>
+        ) : null}
+        <ul className="fila-linhas">
+          {itens.map((i) => (
+            <li
+              key={i.id}
+              className={
+                i.emergencia ? "fila-linha fila-linha--emergencia" : "fila-linha"
+              }
+            >
+              <div className="fila-linha__topo">
+                <span className="fila-linha__pos">{i.posicao}</span>
+                <strong className="fila-linha__nome">{tituloCaso(i)}</strong>
+                {i.emergencia ? (
+                  <span className="badge badge--emergencia">Emergência</span>
+                ) : null}
+              </div>
+              <p className="fila-linha__detalhe">
+                {i.codigo}
+                {i.tipo ? ` · ${rotuloTipo(i.tipo)}` : ""}
+                {` · ${rotuloRisco(i.risco)}`}
+              </p>
+              <p className="fila-linha__tempo">
+                Entrou {horaCurta(i.criado_em)} ·{" "}
+                {faixaEspera(i.espera_atual_p50, i.espera_atual_p90)}
+              </p>
+              <div className="fila-linha__acoes">
+                {!i.emergencia ? (
+                  <button
+                    type="button"
+                    className="danger"
+                    disabled={busyId === i.id}
+                    onClick={() => void onEmergencia(i.id)}
+                  >
+                    Emergência
+                  </button>
+                ) : null}
+                <button
+                  type="button"
+                  className="ghost"
+                  disabled={busyId === i.id}
+                  onClick={() => void onCancelar(i.id)}
+                >
+                  Tirar da fila
+                </button>
+              </div>
+            </li>
+          ))}
+        </ul>
+      </div>
     </div>
   );
 }

@@ -24,3 +24,4 @@ export * from "./encerramento.js";
 export * from "./localizacao.js";
 export * from "./atendimento.js";
 export * from "./borda.js";
+export * from "./capacidades.js";

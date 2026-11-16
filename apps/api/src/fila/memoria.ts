@@ -16,6 +16,7 @@ import {
   localizarCaso,
   proximaChegada,
   resetMotor,
+  retirarCasoDaFila,
 } from "./motor.js";
 import {
   chamarProximoAtendimento as chamarProximoRegistro,
@@ -24,8 +25,12 @@ import {
   registrarIngresso,
   resetRegistros,
 } from "./registro.js";
+import { AtendimentoNaoCancelavel } from "./erros-dominio.js";
 import { estimarNoIngresso } from "./estimativa-stub.js";
-import { espelharIngressoNoHistorico } from "./estimativa-bridge.js";
+import {
+  espelharIngressoNoHistorico,
+  recalcularFilaAposMudanca,
+} from "./estimativa-bridge.js";
 import {
   registrarTokenTutor,
   resetAcionamento,
@@ -39,7 +44,11 @@ import {
   obterAtendimento,
 } from "../store/memoria.js";
 import { registrarEventoFila } from "../store/fila-log.js";
-import { ocuparParaAtendimento } from "./recursos.js";
+import {
+  ocuparParaAtendimento,
+  temVagaParaCaso,
+  type LaneAtendimento,
+} from "./recursos.js";
 
 export async function criarAtendimento(
   dados: IngressoRequest,
@@ -148,6 +157,30 @@ export async function classificarEmergenciaDoAtendimento(
     emergencia ? "marcada" : "retirada",
   );
 
+  let estadoFila: "na_fila" | "em_atendimento" = "na_fila";
+  let posicaoFinal = posicao;
+
+  if (emergencia && temVagaParaCaso(caso)) {
+    const retirado = retirarCasoDaFila(id);
+    if (retirado) {
+      ocuparParaAtendimento(retirado);
+      const reg = obterRegistro(id);
+      if (reg) {
+        reg.estado = "em_atendimento";
+        reg.horario_inicio_atendimento = new Date().toISOString();
+      }
+      if (atendimento) {
+        atendimento.estado = "em_atendimento";
+        atendimento.inicio_real = new Date();
+        await salvarAtendimento(atendimento);
+      }
+      await registrarEventoFila(id, "chamado", "emergencia_direta");
+      estadoFila = "em_atendimento";
+      posicaoFinal = 1;
+    }
+  }
+
+  await recalcularFilaAposMudanca();
   await publicarMudancaFila();
 
   return {
@@ -156,17 +189,58 @@ export async function classificarEmergenciaDoAtendimento(
     fila: {
       especie: caso.especie,
       risco: caso.risco,
-      posicao,
-      estado: "na_fila",
+      posicao: posicaoFinal,
+      estado: estadoFila,
     },
   };
 }
 
-export async function chamarProximoAtendimento(): Promise<{
+export async function cancelarAtendimentoNaFila(id: string): Promise<{
+  id: string;
+  codigo: string;
+  estado: "cancelado";
+}> {
+  const registro = obterRegistro(id);
+  if (registro?.estado === "em_atendimento") {
+    throw new AtendimentoNaoCancelavel();
+  }
+  const atendimento = await obterAtendimento(id);
+  if (
+    atendimento &&
+    (atendimento.estado === "em_atendimento" ||
+      atendimento.estado === "encerrado" ||
+      atendimento.estado === "cancelado")
+  ) {
+    throw new AtendimentoNaoCancelavel();
+  }
+
+  const caso = retirarCasoDaFila(id);
+  if (!caso) {
+    throw new AtendimentoNaoEncontrado();
+  }
+
+  if (registro) {
+    registro.estado = "cancelado";
+  }
+  if (atendimento) {
+    atendimento.estado = "cancelado";
+    await salvarAtendimento(atendimento);
+  }
+
+  await registrarEventoFila(id, "cancelado", "desistencia");
+  await recalcularFilaAposMudanca();
+  await publicarMudancaFila();
+
+  return { id: caso.id, codigo: caso.codigo, estado: "cancelado" };
+}
+
+export async function chamarProximoAtendimento(
+  lane?: LaneAtendimento,
+): Promise<{
   id: string;
   codigo: string;
 }> {
-  return chamarProximoRegistro();
+  return chamarProximoRegistro(lane);
 }
 
 export async function encerrarAtendimento(

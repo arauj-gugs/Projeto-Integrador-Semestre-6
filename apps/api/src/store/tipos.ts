@@ -5,7 +5,8 @@ export type EstadoAtendimento =
   | "aguardando"
   | "aguardando_sala"
   | "em_atendimento"
-  | "encerrado";
+  | "encerrado"
+  | "cancelado";
 
 export type OrigemAtendimento = "chegada" | "agendado";
 

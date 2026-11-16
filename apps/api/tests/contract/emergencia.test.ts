@@ -42,11 +42,12 @@ describe("POST /atendimentos/:id/emergencia (contrato UC-03, RF-05)", () => {
     expect(body.id).toBe(id);
     expect(body.emergencia).toBe(true);
     expect(body.fila.posicao).toBe(1);
+    expect(body.fila.estado).toBe("em_atendimento");
 
     await app.close();
   });
 
-  it("recepcao recebe 403 com mensagem do contrato", async () => {
+  it("recepcao classifica emergencia (exceção RF-05 na demo PI)", async () => {
     const app = await buildApp();
 
     const criado = await app.inject({
@@ -63,10 +64,36 @@ describe("POST /atendimentos/:id/emergencia (contrato UC-03, RF-05)", () => {
       payload: { emergencia: true },
     });
 
+    expect(response.statusCode).toBe(200);
+    const body = emergenciaResponseSchema.parse(response.json());
+    expect(body.emergencia).toBe(true);
+    expect(body.fila.posicao).toBe(1);
+    expect(body.fila.estado).toBe("em_atendimento");
+
+    await app.close();
+  });
+
+  it("tutor recebe 403 com mensagem do contrato", async () => {
+    const app = await buildApp();
+
+    const criado = await app.inject({
+      method: "POST",
+      url: "/atendimentos",
+      payload: ingressoValido,
+    });
+    const { id } = criado.json<{ id: string }>();
+
+    const response = await app.inject({
+      method: "POST",
+      url: `/atendimentos/${id}/emergencia`,
+      headers: { "x-perfil": "tutor" },
+      payload: { emergencia: true },
+    });
+
     expect(response.statusCode).toBe(403);
     expect(erro403Schema.parse(response.json())).toEqual({
       codigo: 403,
-      perfil: "recepcao",
+      perfil: "tutor",
       mensagem: MENSAGEM_403_EMERGENCIA,
     });
 
@@ -102,31 +129,37 @@ describe("POST /atendimentos/:id/emergencia (contrato UC-03, RF-05)", () => {
     const app = await buildApp();
 
     const payload = { ...ingressoValido };
-    const c1 = await app.inject({
+    await app.inject({ method: "POST", url: "/atendimentos", payload });
+    await app.inject({ method: "POST", url: "/atendimentos", payload });
+    const c3 = await app.inject({
       method: "POST",
       url: "/atendimentos",
       payload,
     });
-    const c2 = await app.inject({
+    const id3 = c3.json<{ id: string }>().id;
+
+    // Ocupa a vaga de Cães para a emergência só priorizar na fila (sem ir direto).
+    const chamado = await app.inject({
       method: "POST",
-      url: "/atendimentos",
-      payload,
+      url: "/atendimentos/chamar-proximo",
+      headers: { "x-perfil": "veterinario" },
+      payload: { lane: "caes" },
     });
-    const id2 = c2.json<{ id: string }>().id;
+    expect(chamado.statusCode).toBe(200);
 
     const classificar = await app.inject({
       method: "POST",
-      url: `/atendimentos/${id2}/emergencia`,
+      url: `/atendimentos/${id3}/emergencia`,
       headers: { "x-perfil": "veterinario" },
       payload: { emergencia: true },
     });
-    expect(emergenciaResponseSchema.parse(classificar.json()).fila.posicao).toBe(
-      1,
-    );
+    const classificado = emergenciaResponseSchema.parse(classificar.json());
+    expect(classificado.fila.estado).toBe("na_fila");
+    expect(classificado.fila.posicao).toBe(1);
 
     const remover = await app.inject({
       method: "POST",
-      url: `/atendimentos/${id2}/emergencia`,
+      url: `/atendimentos/${id3}/emergencia`,
       headers: { "x-perfil": "veterinario" },
       payload: { emergencia: false },
     });
@@ -135,6 +168,5 @@ describe("POST /atendimentos/:id/emergencia (contrato UC-03, RF-05)", () => {
     expect(emergenciaResponseSchema.parse(remover.json()).fila.posicao).toBe(2);
 
     await app.close();
-    void c1;
   });
 });

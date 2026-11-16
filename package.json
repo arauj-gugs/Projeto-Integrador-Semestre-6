@@ -9,7 +9,11 @@
     "node": ">=24.22.0"
   },
   "scripts": {
-    "dev": "npm run dev -w apps/api & npm run dev -w apps/web",
+    "check-node": "node scripts/check-node.mjs",
+    "predev": "npm run check-node",
+    "dev": "concurrently -k -n api,web -c blue,green \"npm run dev:api\" \"npm run dev:web\"",
+    "preup": "npm run check-node",
+    "up": "npm run db:up && npm run dev",
     "dev:api": "npm run dev -w apps/api",
     "dev:web": "npm run dev -w apps/web",
     "test": "npm test -w packages/contratos && npm test -w apps/api",
@@ -18,6 +22,9 @@
     "db:migrate": "npm run db:migrate -w apps/api",
     "db:seed": "npm run db:seed -w apps/api",
     "demo:local": "npm run demo:local -w apps/api"
+  },
+  "devDependencies": {
+    "concurrently": "9.2.1"
   },
   "overrides": {
     "cookie": "1.0.2"

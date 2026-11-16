@@ -13,7 +13,7 @@ export const erros422Schema = z.array(erro422Schema).min(1);
 export type Erros422 = z.infer<typeof erros422Schema>;
 
 export const MENSAGEM_403_EMERGENCIA =
-  "Somente o médico-veterinário classifica emergência";
+  "O tutor não classifica emergência; use a recepção ou o veterinário";
 
 /** 403 por perfil na classificação de emergência (UC-03 E1, RF-05, RNF-07). */
 export const erro403Schema = z.object({

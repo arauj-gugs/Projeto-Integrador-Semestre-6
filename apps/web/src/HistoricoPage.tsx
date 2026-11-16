@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
+import { TIPOS_ATENDIMENTO, rotuloTipo } from "./rotulos";
 
 type HistoricoItem = {
   id: string;
@@ -30,18 +31,6 @@ type HistoricoDia = {
   };
   indicadores?: Indicador[];
 };
-
-const TIPOS = [
-  "",
-  "consulta",
-  "vacina",
-  "ultrassom",
-  "raio-x",
-  "coleta",
-  "castracao",
-  "cirurgia",
-  "emergencia",
-];
 
 export function HistoricoPage() {
   const hoje = new Date().toISOString().slice(0, 10);
@@ -85,6 +74,10 @@ export function HistoricoPage() {
 
   return (
     <section className="historico">
+      <header className="page__header">
+        <h2>Histórico do dia</h2>
+      </header>
+
       <div className="filtros">
         <label>
           Dia
@@ -97,9 +90,10 @@ export function HistoricoPage() {
         <label>
           Tipo
           <select value={tipo} onChange={(e) => setTipo(e.target.value)}>
-            {TIPOS.map((t) => (
-              <option key={t || "todos"} value={t}>
-                {t || "todos"}
+            <option value="">Todos</option>
+            {TIPOS_ATENDIMENTO.map((t) => (
+              <option key={t} value={t}>
+                {rotuloTipo(t)}
               </option>
             ))}
           </select>
@@ -109,60 +103,64 @@ export function HistoricoPage() {
         </button>
       </div>
 
-      {carregando && <p>Carregando…</p>}
-      {erro && <p className="erro">Erro: {erro}</p>}
+      {carregando ? <p className="muted">Carregando…</p> : null}
+      {erro ? <p className="flash flash--erro">Erro: {erro}</p> : null}
 
-      {dados && (
+      {dados ? (
         <>
-          <p className="mae">
-            Erro médio absoluto da espera (início real − início previsto):{" "}
-            <strong>
+          <div className="mae">
+            <p className="mae__rotulo">
+              Erro médio absoluto da espera (início real − início previsto)
+            </p>
+            <p className="mae__valor">
               {dados.erro_medio_absoluto.geral === null
                 ? "—"
                 : `${dados.erro_medio_absoluto.geral} min`}
-            </strong>
-          </p>
+            </p>
+          </div>
 
-          <h2>Atendimentos encerrados</h2>
+          <h3>Atendimentos encerrados</h3>
           {dados.atendimentos.length === 0 ? (
-            <p>Nenhum atendimento encerrado neste filtro.</p>
+            <p className="muted">Nenhum atendimento encerrado neste filtro.</p>
           ) : (
-            <table>
-              <thead>
-                <tr>
-                  <th>Código</th>
-                  <th>Tipo</th>
-                  <th>Espera prevista p50</th>
-                  <th>Espera prevista p90</th>
-                  <th>Espera realizada</th>
-                  <th>Erro</th>
-                  <th>|Erro|</th>
-                  <th>Duração</th>
-                </tr>
-              </thead>
-              <tbody>
-                {dados.atendimentos.map((a) => (
-                  <tr key={a.id}>
-                    <td>{a.codigo}</td>
-                    <td>{a.tipo}</td>
-                    <td>{a.espera_prevista_p50} min</td>
-                    <td>{a.espera_prevista_p90} min</td>
-                    <td>{a.espera_realizada_minutos} min</td>
-                    <td>{a.erro_minutos} min</td>
-                    <td>{a.erro_absoluto_minutos} min</td>
-                    <td>{a.duracao_minutos} min</td>
+            <div className="tabela-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Código</th>
+                    <th>Tipo</th>
+                    <th>Espera prevista p50</th>
+                    <th>Espera prevista p90</th>
+                    <th>Espera realizada</th>
+                    <th>Erro</th>
+                    <th>|Erro|</th>
+                    <th>Duração</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody>
+                  {dados.atendimentos.map((a) => (
+                    <tr key={a.id}>
+                      <td>{a.codigo}</td>
+                      <td>{rotuloTipo(a.tipo)}</td>
+                      <td>{a.espera_prevista_p50} min</td>
+                      <td>{a.espera_prevista_p90} min</td>
+                      <td>{a.espera_realizada_minutos} min</td>
+                      <td>{a.erro_minutos} min</td>
+                      <td>{a.erro_absoluto_minutos} min</td>
+                      <td>{a.duracao_minutos} min</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           )}
 
-          <h2>Espera prevista versus espera realizada por tipo</h2>
+          <h3>Espera prevista versus espera realizada por tipo</h3>
           <div className="barras" role="img" aria-label="Gráfico de barras">
             {(dados.indicadores ?? []).map((ind) => (
               <div key={ind.tipo} className="barra-grupo">
                 <div className="barra-grupo__label">
-                  {ind.tipo} (n={ind.n})
+                  {rotuloTipo(ind.tipo)} (n={ind.n})
                 </div>
                 <div className="barra-linha">
                   <span>prevista</span>
@@ -188,12 +186,12 @@ export function HistoricoPage() {
                 </div>
               </div>
             ))}
-            {(dados.indicadores ?? []).length === 0 && (
-              <p>Sem indicadores para o filtro.</p>
-            )}
+            {(dados.indicadores ?? []).length === 0 ? (
+              <p className="muted">Sem indicadores para o filtro.</p>
+            ) : null}
           </div>
         </>
-      )}
+      ) : null}
     </section>
   );
 }

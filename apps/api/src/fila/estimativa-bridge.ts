@@ -61,6 +61,12 @@ export async function espelharIngressoNoHistorico(
   await salvarAtendimento(atendimento);
 }
 
+/** Recalcula espera_atual após emergência ou cancelamento. */
+export async function recalcularFilaAposMudanca(): Promise<void> {
+  const { recalcularFila } = await import("../services/estimativa-servico.js");
+  await recalcularFila();
+}
+
 export async function estimarNoIngresso(tipo: TipoAtendimento): Promise<{
   p50: number;
   p90: number;

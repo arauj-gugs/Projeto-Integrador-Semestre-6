@@ -1,22 +1,27 @@
 import type { FastifyInstance } from "fastify";
 import type { Erros422 } from "@fila-virtual/contratos";
 import {
+  chamarProximoRequestSchema,
   encerramentoRequestSchema,
   emergenciaRequestSchema,
   erros422DeZod,
   ingressoRequestSchema,
 } from "@fila-virtual/contratos";
 import {
+  autorizarChamarProximo,
   autorizarClassificacaoEmergencia,
+  exigirEquipe,
   exigirVeterinario,
 } from "../auth/perfil.js";
 import {
+  AtendimentoNaoCancelavel,
   AtendimentoNaoEmAndamento,
   AtendimentoNaoEncontrado,
   HorarioFimInvalido,
   NenhumCasoElegivel,
 } from "../fila/erros-dominio.js";
 import {
+  cancelarAtendimentoNaFila,
   chamarProximoAtendimento,
   classificarEmergenciaDoAtendimento,
   criarAtendimento,
@@ -58,13 +63,19 @@ export async function registerAtendimentos(app: FastifyInstance): Promise<void> 
   });
 
   app.post("/atendimentos/chamar-proximo", async (request, reply) => {
-    const auth = exigirVeterinario(request);
+    const auth = autorizarChamarProximo(request);
     if (!auth.ok) {
       return reply.status(auth.status).send(auth.body);
     }
 
+    const parsed = chamarProximoRequestSchema.safeParse(request.body ?? {});
+    if (!parsed.success) {
+      const erros = erros422DeZod(parsed.error);
+      return reply.status(422).send(erros);
+    }
+
     try {
-      const body = await chamarProximoAtendimento();
+      const body = await chamarProximoAtendimento(parsed.data.lane);
       return reply.status(200).send(body);
     } catch (erro) {
       if (erro instanceof NenhumCasoElegivel) {
@@ -103,6 +114,38 @@ export async function registerAtendimentos(app: FastifyInstance): Promise<void> 
             codigo: 404,
             mensagem: "atendimento nao encontrado",
           });
+        }
+        throw erro;
+      }
+    },
+  );
+
+  app.post<{ Params: { id: string } }>(
+    "/atendimentos/:id/cancelar",
+    async (request, reply) => {
+      const auth = exigirEquipe(request);
+      if (!auth.ok) {
+        return reply.status(auth.status).send(auth.body);
+      }
+
+      try {
+        const body = await cancelarAtendimentoNaFila(request.params.id);
+        return reply.status(200).send(body);
+      } catch (erro) {
+        if (erro instanceof AtendimentoNaoEncontrado) {
+          return reply.status(404).send({
+            codigo: 404,
+            mensagem: "atendimento nao encontrado",
+          });
+        }
+        if (erro instanceof AtendimentoNaoCancelavel) {
+          return reply.status(422).send([
+            {
+              codigo: 422,
+              campo: "id",
+              mensagem: "Atendimento em curso ou já encerrado não pode sair da fila",
+            },
+          ]);
         }
         throw erro;
       }

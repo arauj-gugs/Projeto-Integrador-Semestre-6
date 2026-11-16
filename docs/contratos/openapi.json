@@ -18,6 +18,15 @@
         }
       }
     },
+    "/tutor/acesso": {
+      "post": {
+        "responses": {
+          "200": {
+            "description": "Default Response"
+          }
+        }
+      }
+    },
     "/tutores": {
       "post": {
         "responses": {
@@ -224,6 +233,25 @@
         }
       }
     },
+    "/atendimentos/{id}/cancelar": {
+      "post": {
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "path",
+            "name": "id",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Default Response"
+          }
+        }
+      }
+    },
     "/atendimentos/{id}/encerrar": {
       "post": {
         "parameters": [
@@ -245,6 +273,22 @@
     },
     "/fila/stream": {
       "get": {
+        "responses": {
+          "200": {
+            "description": "Default Response"
+          }
+        }
+      }
+    },
+    "/fila/capacidades": {
+      "get": {
+        "responses": {
+          "200": {
+            "description": "Default Response"
+          }
+        }
+      },
+      "patch": {
         "responses": {
           "200": {
             "description": "Default Response"

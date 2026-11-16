@@ -8,6 +8,7 @@ export type TipoEventoFila =
   | "aguardando_sala"
   | "emergencia"
   | "encerrado"
+  | "cancelado"
   | "check_in_agendado";
 
 export async function registrarEventoFila(

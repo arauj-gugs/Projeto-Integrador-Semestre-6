@@ -56,7 +56,7 @@ describe("encerramento UC-05 (#30)", () => {
     await expect(
       encerrarAtendimento(id, "2026-11-16T10:00:30.000Z"),
     ).rejects.toBeInstanceOf(HorarioFimInvalido);
-    expect(obterEstadoRecursos().veterinario).toBe("ocupado");
+    expect(obterRegistro(id)?.estado).toBe("em_atendimento");
     expect(obterRegistro(id)?.horario_fim).toBeUndefined();
   });
 

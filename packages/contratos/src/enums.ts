@@ -40,8 +40,11 @@ export const estadoFilaSchema = z.enum([
 ]);
 export type EstadoFila = z.infer<typeof estadoFilaSchema>;
 
-/** Perfis que recebem 403 ao classificar emergência (UC-03 E1). */
-export const perfilSemPermissaoEmergenciaSchema = z.enum(["recepcao", "tutor"]);
+/**
+ * Perfis que recebem 403 ao classificar emergência.
+ * Demo PI: recepção também classifica (exceção a RF-05 / UC-03 E1); só o tutor fica bloqueado.
+ */
+export const perfilSemPermissaoEmergenciaSchema = z.enum(["tutor"]);
 export type PerfilSemPermissaoEmergencia = z.infer<
   typeof perfilSemPermissaoEmergenciaSchema
 >;

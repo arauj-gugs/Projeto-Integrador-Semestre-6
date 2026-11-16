@@ -76,7 +76,8 @@ describe("alocador RF-04 (#28)", () => {
 
     const r1 = chamarProximo();
     expect(r1?.caso.risco).toBe("isolamento");
-    expect(obterEstadoRecursos().veterinario).toBe("ocupado");
+    // Com lanes Cães/Outros, ainda pode haver vaga na outra lane —
+    // o bloqueio do segundo isolamento é a sala, não o “veterinario” global.
     expect(obterEstadoRecursos().salaIsolamento).toBe("ocupado");
 
     const r2 = chamarProximo();

@@ -219,10 +219,13 @@ export async function recalcularFila(agora = new Date()) {
   for (let i = 0; i < abertos.length; i++) {
     const atual = abertos[i];
     if (!atual) continue;
+    const tipoEfetivo = (a: (typeof abertos)[number]) =>
+      a.emergencia ? ("emergencia" as const) : a.tipo;
+
     const frente = abertos.slice(0, i).map((a) => {
       if (a.estado === "em_atendimento" && a.inicio_real) {
         return {
-          tipo: a.tipo,
+          tipo: tipoEfetivo(a),
           estado: "em_atendimento" as const,
           minutos_decorridos: Math.max(
             0,
@@ -230,10 +233,10 @@ export async function recalcularFila(agora = new Date()) {
           ),
         };
       }
-      return { tipo: a.tipo, estado: "aguardando" as const };
+      return { tipo: tipoEfetivo(a), estado: "aguardando" as const };
     });
 
-    const faixa = estimarParaIngresso(atual.tipo, frente, serie);
+    const faixa = estimarParaIngresso(tipoEfetivo(atual), frente, serie);
     const espera_atual_p50 = faixa.disponivel ? faixa.p50 : null;
     const espera_atual_p90 = faixa.disponivel ? faixa.p90 : null;
     const atualizado: AtendimentoMemoria = {

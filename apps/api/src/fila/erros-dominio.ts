@@ -25,3 +25,10 @@ export class HorarioFimInvalido extends Error {
     this.name = "HorarioFimInvalido";
   }
 }
+
+export class AtendimentoNaoCancelavel extends Error {
+  constructor() {
+    super("atendimento nao pode ser cancelado");
+    this.name = "AtendimentoNaoCancelavel";
+  }
+}

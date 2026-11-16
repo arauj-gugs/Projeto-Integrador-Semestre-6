@@ -25,8 +25,9 @@ export function obterVersaoAtual(): number {
 
 export function inscreverCliente(res: ServerResponse): void {
   clientes.add(res);
-  const snapshot = montarSnapshotFila(versaoAtual);
-  escreverEvento(res, snapshot);
+  void montarSnapshotFila(versaoAtual).then((snapshot) => {
+    escreverEvento(res, snapshot);
+  });
 }
 
 export function desinscreverCliente(res: ServerResponse): void {
@@ -50,7 +51,7 @@ export async function publicarMudancaFila(): Promise<SnapshotFila> {
 
   await avaliarAcionamentos((id) => esperaCache.get(id) ?? null);
 
-  const snapshot = montarSnapshotFila(versaoAtual);
+  const snapshot = await montarSnapshotFila(versaoAtual);
   for (const cliente of clientes) {
     escreverEvento(cliente, snapshot);
   }
