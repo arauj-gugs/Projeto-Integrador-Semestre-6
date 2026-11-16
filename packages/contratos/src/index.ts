@@ -18,4 +18,5 @@ export * from "./posicao.js";
 export * from "./ingresso.js";
 export * from "./emergencia.js";
 export * from "./encerramento.js";
+export * from "./localizacao.js";
 export * from "./atendimento.js";

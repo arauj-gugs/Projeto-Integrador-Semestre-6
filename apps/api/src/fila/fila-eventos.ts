@@ -1,5 +1,8 @@
 import type { ServerResponse } from "node:http";
+import { avaliarAcionamentos } from "../acionamento/motor.js";
+import { obterAtendimento } from "../store/memoria.js";
 import { montarSnapshotFila, type SnapshotFila } from "./snapshot-fila.js";
+import { obterRegistro } from "./registro.js";
 
 let versaoAtual = 0;
 const clientes = new Set<ServerResponse>();
@@ -31,6 +34,11 @@ export function desinscreverCliente(res: ServerResponse): void {
 
 export function publicarMudancaFila(): SnapshotFila {
   versaoAtual += 1;
+  avaliarAcionamentos((id) => {
+    const espelho = obterAtendimento(id);
+    if (espelho?.espera_atual_p50 != null) return espelho.espera_atual_p50;
+    return obterRegistro(id)?.estimativa_prevista.p50 ?? null;
+  });
   const snapshot = montarSnapshotFila(versaoAtual);
   for (const cliente of clientes) {
     escreverEvento(cliente, snapshot);

@@ -57,7 +57,8 @@ export function estimarNoIngresso(tipo: TipoAtendimento): {
 } {
   const faixa = estimarParaIngresso(tipo, [], serieAtual());
   if (!faixa.disponivel) {
-    return { p50: 20, p90: 35, estimativa_degradada: true };
+    // Acima do tempo fixo (20) para não acionar no ingresso sem série (RF-09).
+    return { p50: 45, p90: 70, estimativa_degradada: true };
   }
   return {
     p50: faixa.p50,

@@ -174,7 +174,7 @@ Cada ADR é registrado em arquivo próprio em [`docs/adr/`](../adr/), commitado 
 
 ### ADR-001: Posição do tutor em momentos-chave
 
-**Status:** Proposto — **Data:** 2026-10-20 — [arquivo](../adr/001-posicao-do-tutor.md)
+**Status:** Aceito — **Data:** 2026-11-16 — [arquivo](../adr/001-posicao-do-tutor.md)
 
 **Contexto.** A F2 usa a distância para decidir o acionamento, não para rastrear; o tutor usa navegador e pode recusar a permissão.
 
@@ -224,7 +224,7 @@ Cada ADR é registrado em arquivo próprio em [`docs/adr/`](../adr/), commitado 
 
 ## 7. Telas (Wireframes)
 
-Imagens dos wireframes vão para [`assets/wireframes/`](assets/). Até lá, cada tela é descrita pelo conteúdo.
+Wireframes em [`assets/wireframes/`](assets/wireframes/): [recepção](assets/wireframes/recepcao.svg), [veterinário](assets/wireframes/veterinario.svg), [tutor](assets/wireframes/tutor.svg), [histórico](assets/wireframes/historico.svg).
 
 ### 7.1 Tela 1 — Recepção (atende UC-01, UC-02)
 

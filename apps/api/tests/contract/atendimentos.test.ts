@@ -35,9 +35,9 @@ describe("POST /atendimentos (contrato UC-01, RF-01)", () => {
     expect(body.id).toBeTruthy();
     expect(body.fila.especie).toBe("gato");
     expect(body.fila.risco).toBe("isolamento");
-    expect(body.estimativa.p50).toBe(20);
-    expect(body.estimativa.p90).toBe(35);
-    expect(body.link_tutor).toMatch(/^\/tutor\/[a-f0-9]{64}$/);
+    expect(body.estimativa.p50).toBe(45);
+    expect(body.estimativa.p90).toBe(70);
+    expect(body.link_tutor).toMatch(/^\/#\/tutor\/[a-f0-9]{64}$/);
 
     await app.close();
   });

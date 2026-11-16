@@ -119,3 +119,110 @@ th {
 .barra--realizado {
   background: #16a34a;
 }
+
+.nav {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.nav a {
+  color: #1a5fb4;
+}
+
+.page__header {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  align-items: baseline;
+}
+
+.card {
+  background: #fff;
+  border: 1px solid #dde3ea;
+  border-radius: 8px;
+  padding: 1rem;
+  margin-bottom: 1rem;
+}
+
+.card label,
+.card fieldset {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  margin-bottom: 0.75rem;
+}
+
+.card .check {
+  flex-direction: row;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.filas {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 0.75rem;
+}
+
+.fila-col ul {
+  padding-left: 1.1rem;
+  margin: 0.25rem 0;
+}
+
+.alertas {
+  background: #fff3cd;
+  border: 1px solid #e0c36a;
+  border-radius: 8px;
+  padding: 0.75rem 1rem;
+  margin-bottom: 1rem;
+}
+
+.aviso {
+  color: #8a6d00;
+  font-size: 0.9rem;
+}
+
+.muted {
+  color: #666;
+}
+
+button {
+  font: inherit;
+  padding: 0.45rem 0.8rem;
+  margin-right: 0.5rem;
+  margin-top: 0.25rem;
+  border-radius: 6px;
+  border: 1px solid #c5ced8;
+  background: #eef2f6;
+  cursor: pointer;
+}
+
+button.primary,
+button[type="submit"] {
+  background: #1a5fb4;
+  border-color: #1a5fb4;
+  color: #fff;
+}
+
+button.danger {
+  background: #c01c28;
+  border-color: #c01c28;
+  color: #fff;
+}
+
+.tutor {
+  max-width: 420px;
+  margin: 0 auto;
+  padding: 1.25rem;
+}
+
+.tutor .posicao {
+  font-size: 2rem;
+  color: #1a5fb4;
+  margin: 0.25rem 0;
+}
+
+.tutor .faixa {
+  font-size: 1.1rem;
+}

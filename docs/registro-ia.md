@@ -43,6 +43,7 @@ flowchart LR
 | 2026-11-16 | Philipe Gonçalves | Cursor (agente) | Encerramento com validação de duração (issue #30) | `registro.ts`, `POST /chamar-proximo` e `POST /atendimentos/:id/encerrar`, UC-05 E2, stub RF-07 | Recálculo de estimativa fica no Squad 2; histórico RF-10 fora do escopo |
 | 2026-11-16 | Philipe Gonçalves | Cursor (agente) | Estado da fila por SSE (issue #31) | `GET /fila/stream`, hub `fila-eventos`, snapshot após ingresso/chamar/emergência/encerrar; teste 50× p95 | Stream sem auth na v0.1; consumo React e schema Zod do snapshot ficam no Squad 3 |
 | 2026-11-16 | Gustavo Vieira | Cursor (agente) | Integrar fila (`feat/issue-31`) com estimativa no branch `feat/tutor` e ligar o stub ao motor p50/p90 | App único com rotas F3 + F1; tipos RF-01 no motor; `estimarNoIngresso` no lugar do stub fixo | Contrato Domínio→Canais da fila prevalece; aliases retorno/exame mapeados para consulta/ultrassom na importação |
+| 2026-11-16 | Gustavo Vieira | Cursor (agente) | Fechar issues #42–#54 do Squad 3 (wireframes, ADR-001, localização, telas, acionamento, SSE, 24 h) | Schemas `localizacao`, motor F2, telas recepção/vet/tutor, SSE+polling, segundo canal na recepção | Segundo canal = alerta na recepção (sem SMS); link do tutor em hash `#/tutor/` para não colidir com proxy da API |
 
 ## Erro da ferramenta identificado pela equipe
 

@@ -9,9 +9,8 @@ export const estimativaSchema = z.object({
 });
 export type Estimativa = z.infer<typeof estimativaSchema>;
 
-/** Alias usado pelo motor F1 e pela tela de histórico. */
+/** Alias PascalCase usado pelo motor F1 e pela tela de histórico. */
 export const TipoAtendimentoSchema = tipoAtendimentoSchema;
-export type TipoAtendimento = z.infer<typeof TipoAtendimentoSchema>;
 
 export const EstadoNaFilaSchema = z.enum(["aguardando", "em_atendimento"]);
 

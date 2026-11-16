@@ -10,6 +10,10 @@ export default defineConfig({
       "/historico": "http://localhost:3000",
       "/serie": "http://localhost:3000",
       "/health": "http://localhost:3000",
+      "/fila": "http://localhost:3000",
+      "/tutor": "http://localhost:3000",
+      "/recepcao": "http://localhost:3000",
+      "/dev": "http://localhost:3000",
     },
   },
 });

@@ -187,3 +187,39 @@ describe("POST /atendimentos/{id}/encerrar", () => {
     ).toEqual({ horario_fim: "2026-11-16T14:30:00.000Z" });
   });
 });
+
+describe("POST /atendimentos/{id}/localizacao (contrato #43)", () => {
+  it("aceita consentimento com coordenada e recusa explícita", async () => {
+    const { localizacaoRequestSchema, localizacaoResponseSchema } = await import("../src/localizacao.js");
+    const ok = localizacaoRequestSchema.parse({
+      momento: "entrada",
+      consentimento: { concedido: true },
+      latitude: -23.1,
+      longitude: -46.8,
+    });
+    expect(ok.recusou).toBe(false);
+
+    const recusa = localizacaoRequestSchema.parse({
+      momento: "entrada",
+      consentimento: { concedido: false },
+      recusou: true,
+    });
+    expect(recusa.recusou).toBe(true);
+
+    expect(() =>
+      localizacaoRequestSchema.parse({
+        momento: "entrada",
+        consentimento: { concedido: true },
+      }),
+    ).toThrow();
+
+    const resp = localizacaoResponseSchema.parse({
+      id: "x",
+      criterio: "tempo_fixo",
+      faixa: null,
+      deslocamento_minutos: null,
+      momentos_usados: 1,
+    });
+    expect(resp.criterio).toBe("tempo_fixo");
+  });
+});

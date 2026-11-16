@@ -24,6 +24,10 @@ import {
   estimarNoIngresso,
 } from "./estimativa-stub.js";
 import { espelharIngressoNoHistorico } from "./estimativa-bridge.js";
+import {
+  registrarTokenTutor,
+  resetAcionamento,
+} from "../acionamento/estado.js";
 
 let sequenciaCodigo = 0;
 
@@ -50,6 +54,7 @@ export function criarAtendimento(dados: IngressoRequest): IngressoResponse {
     estimativa,
     new Date(),
   );
+  registrarTokenTutor(id, codigo, token);
 
   publicarMudancaFila();
 
@@ -63,7 +68,7 @@ export function criarAtendimento(dados: IngressoRequest): IngressoResponse {
       estado: "na_fila",
     },
     estimativa: { ...estimativa },
-    link_tutor: `/tutor/${token}`,
+    link_tutor: `/#/tutor/${token}`,
   };
 }
 
@@ -109,4 +114,5 @@ export function resetMemoriaFila(): void {
   resetRegistros();
   resetAlocador();
   resetMotor();
+  resetAcionamento();
 }

@@ -14,6 +14,8 @@ import { resetStore } from "./store/memoria.js";
 import { resetMemoriaFila } from "./fila/memoria.js";
 import { registerAtendimentos } from "./routes/atendimentos.js";
 import { registerFilaStream } from "./routes/fila-stream.js";
+import { registerTutorAcionamento } from "./routes/tutor-acionamento.js";
+import { resetAcionamento } from "./acionamento/estado.js";
 
 function hostLocal(hostHeader: string | undefined): boolean {
   const host = (hostHeader ?? "").split(":")[0]?.toLowerCase() ?? "";
@@ -49,11 +51,13 @@ export async function buildApp() {
     }
     resetStore();
     resetMemoriaFila();
+    resetAcionamento();
     return { ok: true };
   });
 
   await registerAtendimentos(app);
   await registerFilaStream(app);
+  await registerTutorAcionamento(app);
 
   app.post(
     "/serie/importar",
