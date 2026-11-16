@@ -1,0 +1,20 @@
+{
+  "name": "fila-virtual",
+  "private": true,
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "engines": {
+    "node": ">=24"
+  },
+  "scripts": {
+    "dev": "npm run dev -w apps/api & npm run dev -w apps/web",
+    "dev:api": "npm run dev -w apps/api",
+    "dev:web": "npm run dev -w apps/web",
+    "test": "npm run test -w apps/api",
+    "typecheck": "npm run typecheck -w packages/contratos && npm run typecheck -w apps/api && npm run typecheck -w apps/web",
+    "db:migrate": "npm run db:migrate -w apps/api",
+    "demo:local": "npm run demo:local -w apps/api"
+  }
+}
