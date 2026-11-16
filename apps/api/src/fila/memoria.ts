@@ -1,6 +1,17 @@
 import { randomBytes, randomUUID } from "node:crypto";
-import type { IngressoRequest, IngressoResponse } from "@fila-virtual/contratos";
-import { ingressar, resetMotor } from "./motor.js";
+import type {
+  EmergenciaResponse,
+  IngressoRequest,
+  IngressoResponse,
+} from "@fila-virtual/contratos";
+import { resetAlocador } from "./alocador.js";
+import { AtendimentoNaoEncontrado } from "./erros-dominio.js";
+import {
+  definirEmergencia,
+  ingressar,
+  localizarCaso,
+  resetMotor,
+} from "./motor.js";
 
 const ESTIMATIVA_STUB = {
   p50: 20,
@@ -35,8 +46,31 @@ export function criarAtendimento(dados: IngressoRequest): IngressoResponse {
   };
 }
 
+export function classificarEmergenciaDoAtendimento(
+  id: string,
+  emergencia: boolean,
+): EmergenciaResponse {
+  if (!localizarCaso(id)) {
+    throw new AtendimentoNaoEncontrado();
+  }
+
+  const { caso, posicao } = definirEmergencia(id, emergencia);
+
+  return {
+    id: caso.id,
+    emergencia: caso.emergencia,
+    fila: {
+      especie: caso.especie,
+      risco: caso.risco,
+      posicao,
+      estado: "na_fila",
+    },
+  };
+}
+
 /** Usado nos testes para isolar estado entre casos. */
 export function resetMemoriaFila(): void {
   sequenciaCodigo = 0;
+  resetAlocador();
   resetMotor();
 }
