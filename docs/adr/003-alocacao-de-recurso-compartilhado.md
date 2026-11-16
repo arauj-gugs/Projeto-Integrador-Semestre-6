@@ -6,7 +6,14 @@ Decidem: `<arquiteto>`, Squad 1 — Fila
 
 ## Contexto
 
-A F3 exige ao menos dois eixos de segregação e tratamento de recurso compartilhado: um mesmo veterinário atende cães e gatos, mas a sala de isolamento é única. O caderno avisa que isso não se resolve como N filas independentes. Os eixos e pesos finais vêm da entrevista com o veterinário da clínica parceira (S3).
+A F3 exige ao menos dois eixos de segregação e tratamento de recurso compartilhado: um mesmo veterinário atende cães e gatos, mas a sala de isolamento é única. O caderno avisa que isso não se resolve como N filas independentes.
+
+A [entrevista de outubro/2026](../campo/entrevista-2026-10.md) confirmou os eixos na clínica parceira:
+
+- **Espécie:** cão, gato e silvestre/exótico (há casos reais de silvestres).
+- **Risco/comportamento:** comum; cio; reativo/agressivo (tirar do ambiente); isolamento/estresse (inclui não misturar gato e passarinho).
+
+Pequenos animais andam por ordem de chegada; grandes e cirurgia ficam no agendamento do ERP da clínica (fora da fila walk-in desta versão). A quantidade exata de salas de isolamento ainda será conferida nas janelas de observação; até lá o modelo assume sala de isolamento única (RF-04).
 
 ## Opções consideradas
 
@@ -22,7 +29,7 @@ A F3 exige ao menos dois eixos de segregação e tratamento de recurso compartil
 
 ## Decisão
 
-Opção 3. A espera fica em filas separadas por espécie e risco. Ao "Chamar próximo", o alocador escolhe, entre as cabeças de fila cujo recurso exigido está livre, a de maior precedência: emergência primeiro (RF-05), depois a regra de desempate (RF-03). Caso de isolamento só é elegível com a sala de isolamento livre (RF-04).
+Opção 3. A espera fica em filas separadas por espécie e risco/comportamento. Ao "Chamar próximo", o alocador escolhe, entre as cabeças de fila cujo recurso exigido está livre, a de maior precedência: emergência classificada pelo veterinário primeiro (RF-05), depois a ordem de chegada (RF-03). Caso de isolamento só é elegível com a sala de isolamento livre (RF-04).
 
 ## Consequências aceitas
 

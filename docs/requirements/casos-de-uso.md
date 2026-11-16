@@ -31,7 +31,7 @@ Mensagens entre aspas são os textos exatos exibidos ao usuário.
 
 **Fluxo principal**
 
-1. A recepção abre "Novo ingresso" e informa espécie, porte, tipo de atendimento e marcadores (reativo, suspeita infectocontagiosa).
+1. A recepção abre "Novo ingresso" e informa espécie, porte, tipo de atendimento e marcadores (reativo/agressivo, cio, suspeita infectocontagiosa / isolamento).
 2. O sistema valida os campos e atribui o código sequencial do animal.
 3. O sistema posiciona o atendimento na fila correspondente (UC-02 trata os casos com risco).
 4. O motor de estimativa calcula p50 e p90 do tempo restante para o tipo e a posição.
@@ -41,7 +41,7 @@ Mensagens entre aspas são os textos exatos exibidos ao usuário.
 **Fluxos alternativos**
 
 - **A1 — Tutor sem celular:** no passo 5, a recepção marca "sem link". O atendimento entra na fila normalmente e o tutor será chamado pelo painel ou em voz.
-- **A2 — Agendamento prévio:** no passo 1, a recepção informa o horário agendado; a regra de desempate (RF-03) considera esse horário se a chegada for até 10 min depois.
+- **A2 — Cirurgia ou grande animal:** fora da fila walk-in nesta versão; a recepção orienta pelo agendamento do ERP da clínica (W-04). O Fila Virtual cobre a espera de pequenos por ordem de chegada (RF-03).
 
 **Fluxos de exceção**
 
@@ -63,7 +63,7 @@ Mensagens entre aspas são os textos exatos exibidos ao usuário.
 
 **Pré-condições**
 
-- Eixos de segregação e regra de desempate configurados a partir da entrevista com o veterinário.
+- Eixos de segregação e regra de desempate configurados a partir da [entrevista](../campo/entrevista-2026-10.md).
 - Estado das salas conhecido (isolamento livre ou ocupada).
 
 **Fluxo principal**
@@ -75,7 +75,7 @@ Mensagens entre aspas são os textos exatos exibidos ao usuário.
 
 **Fluxos alternativos**
 
-- **A1 — Animal reativo:** marcado como reativo, o caso fica na fila da sua espécie, mas a tela do tutor recomenda aguardar no veículo ou fora da recepção e o acionamento usa margem de deslocamento mínima.
+- **A1 — Animal reativo ou no cio:** marcado no eixo risco/comportamento; fica fora da fila comum da espécie; a tela do tutor recomenda aguardar no veículo ou fora da recepção quando reativo.
 - **A2 — Silvestre ou exótico:** fila própria por espécie, independentemente do motivo.
 
 **Fluxos de exceção**
