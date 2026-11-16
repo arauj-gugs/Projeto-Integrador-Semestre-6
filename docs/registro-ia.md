@@ -36,6 +36,7 @@ flowchart LR
 | 2026-11-16 | Philipe Gonçalves | Cursor (agente) | Primeira rota `POST /atendimentos` e teste de contrato (issue #26), commit sem PR | `apps/api` com store em memória, `fastify.inject`, log em `docs/test-strategy/evidencias/contract-2026-11-16.log` | Estimativa fixa stub até o Squad 2; override `cookie@1.0.2` na raiz para `inject` em Node 20 local |
 | 2026-11-16 | Philipe Gonçalves | Cursor (agente) | Motor de fila segregado (issue #27), commit sem PR | `motor.ts`, `derive-risco.ts`, testes unit RF-02/03/RF-12; `memoria.ts` usa `ingressar` | Alocador e emergência na fila ficam na #28; `REGRA_DESEMPATE = fifo_chegada` |
 | 2026-11-16 | Philipe Gonçalves | Cursor (agente) | Corrigir body 422 do POST /atendimentos para lista completa (`erros422Schema`) | Rota envia array de `erros422DeZod`; teste de contrato com múltiplos campos ausentes | Antes só `erros[0]`; alinhado ao contrato #25 |
+| 2026-11-16 | Philipe Gonçalves | Cursor (agente) | Alocador RF-04 com sala única (issue #28) | `recursos.ts`, `alocador.ts`, testes ADR/UC-02; sala pode ficar ocupada com veterinário livre (E1) | RF-05/emergência e rotas HTTP ficam na #29+; `liberarVeterinarioMantendoSalaIsolamento` usado nos testes para o exemplo do ADR-003 |
 
 ## Erro da ferramenta identificado pela equipe
 
