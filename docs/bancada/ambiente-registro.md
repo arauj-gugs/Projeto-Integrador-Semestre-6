@@ -30,7 +30,7 @@ A empresa concorrente testa a partir de **16/11** ([stakeholders](../requirement
 
 | Serviço | URL | Health |
 |---|---|---|
-| API (Render) | _(pendente)_ | `GET /health` |
+| API (Render) | `https://fila-virtual-api.onrender.com` _(confirmar)_ | `GET /health` |
 | Telas (Vercel) — recepção | _(pendente)_ | — |
 | Telas (Vercel) — veterinário | _(pendente)_ | — |
 | Telas (Vercel) — tutor | _(pendente)_ | — |

@@ -4,7 +4,7 @@ Checklist para quem ainda não tem serviço no Render. Detalhes em [deploy.md](d
 
 ## Antes
 
-- [ ] PR deploy na `main` (com [`render.yaml`](../../render.yaml) na raiz).
+- [ ] [`render.yaml`](../../render.yaml) na branch que o Render vai usar (`main` após merge do PR #92, ou `deploy/vercel-render` até lá).
 
 ## 1. Neon (~5 min)
 

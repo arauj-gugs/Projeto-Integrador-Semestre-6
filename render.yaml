@@ -12,6 +12,8 @@ services:
     envVars:
       - key: NODE_ENV
         value: production
+      - key: NODE_VERSION
+        value: "24"
       - key: DATABASE_URL
         sync: false
       # Neon: colar connection string no painel Render (deploy.md).

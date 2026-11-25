@@ -10,7 +10,7 @@ Registro técnico: [bancada/ambiente-registro.md](bancada/ambiente-registro.md).
 
 | Serviço | URL (atualizar após deploy) |
 |---|---|
-| API (Render) | `https://<pendente>.onrender.com` |
+| API (Render) | `https://fila-virtual-api.onrender.com` _(nome do blueprint; confirmar após deploy)_ |
 | Health check | `GET …/health` → `{"status":"ok"}` |
 | SSE fila | `GET …/fila/stream` |
 | Telas — recepção | `https://<pendente>.vercel.app/#/recepcao` |

@@ -8,6 +8,8 @@ Ordem recomendada: **Neon → Render (API) → Vercel (web) → CORS → seed**.
 
 ---
 
+Guia enxuto só para Render: [render-quickstart.md](render-quickstart.md).
+
 ## 1. Banco Neon
 
 1. Criar projeto **PostgreSQL 17** no [Neon](https://neon.tech).
