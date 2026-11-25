@@ -17,6 +17,6 @@ services:
       - key: DATABASE_URL
         sync: false
       # Neon: colar connection string no painel Render (deploy.md).
-      # - key: CORS_ORIGIN
-      #   sync: false
-      # URL(s) Vercel após o primeiro deploy do front.
+      - key: CORS_ORIGIN
+        sync: false
+      # URL Vercel (production) após primeiro deploy do front.
