@@ -23,7 +23,8 @@
     "db:up": "docker compose up -d",
     "db:migrate": "npm run db:migrate -w apps/api",
     "db:seed": "npm run db:seed -w apps/api",
-    "demo:local": "npm run demo:local -w apps/api"
+    "demo:local": "npm run demo:local -w apps/api",
+    "build:web": "npm run build -w @fila-virtual/web"
   },
   "devDependencies": {
     "concurrently": "9.2.1"
