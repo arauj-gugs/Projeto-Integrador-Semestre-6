@@ -46,4 +46,14 @@ Resposta esperada: `{"status":"ok"}` (cold start no free tier pode levar ~60 s).
 BANCADA_API_URL=https://fila-virtual-api.onrender.com node scripts/seed-bancada.mjs
 ```
 
-Depois: Vercel com `VITE_API_URL` e Render com `CORS_ORIGIN`.
+## 5. CORS (após Vercel)
+
+No Render → **Environment** → `CORS_ORIGIN` = `https://<seu-projeto>.vercel.app` → redeploy.
+
+## 6. Seed
+
+```bash
+BANCADA_API_URL=https://fila-virtual-api.onrender.com node scripts/seed-bancada.mjs
+```
+
+Depois: Vercel com `VITE_API_URL=https://fila-virtual-api.onrender.com` (sem barra final).
