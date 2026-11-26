@@ -47,6 +47,8 @@ Local: `docker compose up -d` + `apps/api/.env` (ver `.env.example`).
 
 ## 3. Telas no Vercel
 
+> **Autorização Cursor MCP:** se o agente for publicar, aprovar o link SSO do time UNASP em `authorize_team_access` (válido ~10 min). `vercel login` no terminal não basta para o MCP.
+
 O monorepo inclui [`vercel.json`](../../vercel.json) na raiz:
 
 - **Install:** `npm ci`
@@ -60,7 +62,7 @@ O monorepo inclui [`vercel.json`](../../vercel.json) na raiz:
 
    | Variável | Valor |
    |---|---|
-   | `VITE_API_URL` | `https://<servico>.onrender.com` (sem barra final) |
+   | `VITE_API_URL` | `https://fila-virtual-api.onrender.com` (sem barra final) |
 
 4. Deploy. Rotas usam hash: `https://<projeto>.vercel.app/#/recepcao`, `#/veterinario`, `#/tutor/<token>`.
 
@@ -88,12 +90,13 @@ Validar fila em `https://<projeto>.vercel.app/#/recepcao` (SSE ou polling ≤ 5 
 
 ## 6. Checklist PR (#67)
 
-- [ ] Health 200 na URL pública Render
-- [ ] Migrations aplicadas no build Render
-- [ ] Vercel com `VITE_API_URL` correto
-- [ ] `CORS_ORIGIN` no Render
-- [ ] Seed concluído (log anexado)
-- [ ] Manual com URLs reais ([manual-bancada.md](../manual-bancada.md))
+- [x] Health 200 na URL pública Render (`https://fila-virtual-api.onrender.com/health`)
+- [x] Migrations aplicadas no build Render (blueprint `npm ci --include=dev` + migrate)
+- [ ] API funcional: `GET /fila/estado` e `POST /atendimentos` (não só health)
+- [ ] Vercel com `VITE_API_URL=https://fila-virtual-api.onrender.com`
+- [ ] `CORS_ORIGIN` = URL Vercel + redeploy Render
+- [ ] Seed concluído (`node scripts/seed-bancada.mjs`)
+- [x] Manual com URL Render ([manual-bancada.md](../manual-bancada.md)); Vercel após primeiro deploy
 - [ ] Monitor RNF-10 configurado ([monitor-rnf10.md](monitor-rnf10.md))
 
 ---

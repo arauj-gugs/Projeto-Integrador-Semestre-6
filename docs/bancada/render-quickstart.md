@@ -40,7 +40,14 @@ Environment → add **`NODE_VERSION`** = `24`.
 GET https://fila-virtual-api.onrender.com/health
 ```
 
-Resposta esperada: `{"status":"ok"}` (cold start no free tier pode levar ~60 s).
+Resposta esperada do Fastify: `{"status":"ok"}` (cold start no free tier pode levar ~60 s).
+
+Confirme que a API responde de verdade (não só o health check do painel):
+
+- `GET …/fila/estado` → 200 com JSON da fila
+- `POST …/atendimentos` (corpo mínimo de ingresso) → 201
+
+Se só `/health` responder e o resto for **404**, abra **Logs** no Render e confira se o processo `npm run start -w apps/api` subiu.
 
 ## 4. Próximo
 

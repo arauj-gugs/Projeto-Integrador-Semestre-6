@@ -21,7 +21,7 @@
 | Campo | Valor |
 |---|---|
 | Ferramenta | _(ex. UptimeRobot)_ |
-| URL monitorada | _(pendente)_ |
+| URL monitorada | `https://fila-virtual-api.onrender.com/health` |
 | Data de ativação | _(pendente)_ |
 | Responsável | Gustavo Vieira (gerente) |
 

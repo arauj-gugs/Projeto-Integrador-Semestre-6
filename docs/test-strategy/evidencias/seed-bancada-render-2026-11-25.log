@@ -1,0 +1,5 @@
+2026-11-25T23:xx UTC-3
+BANCADA_API_URL=https://fila-virtual-api.onrender.com
+GET /health → 200
+POST /atendimentos (cao_comum_1) → 404 Cannot POST /atendimentos
+Seed não concluído: aguardar deploy da API com rotas Fastify ativas (ver render-quickstart §3).
