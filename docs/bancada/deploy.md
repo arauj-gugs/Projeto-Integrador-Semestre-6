@@ -93,8 +93,8 @@ Validar fila em `https://<projeto>.vercel.app/#/recepcao` (SSE ou polling ≤ 5 
 - [x] Health 200 na URL pública Render (`https://fila-virtual-api.onrender.com/health`)
 - [x] Migrations aplicadas no build Render (blueprint `npm ci --include=dev` + migrate)
 - [ ] API funcional: `GET /fila/estado` e `POST /atendimentos` (não só health)
-- [ ] Vercel com `VITE_API_URL=https://fila-virtual-api.onrender.com`
-- [ ] `CORS_ORIGIN` = URL Vercel + redeploy Render
+- [x] Vercel com `VITE_API_URL=https://fila-virtual-api.onrender.com` (`fila-virtual-lemon.vercel.app`)
+- [ ] `CORS_ORIGIN=https://fila-virtual-lemon.vercel.app` + redeploy Render
 - [ ] Seed concluído (`node scripts/seed-bancada.mjs`)
 - [x] Manual com URL Render ([manual-bancada.md](../manual-bancada.md)); Vercel após primeiro deploy
 - [ ] Monitor RNF-10 configurado ([monitor-rnf10.md](monitor-rnf10.md))
