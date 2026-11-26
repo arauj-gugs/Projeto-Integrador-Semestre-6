@@ -1,3 +1,5 @@
+import { urlApi } from "./apiBase";
+
 const JSON_HEADERS = { "content-type": "application/json" };
 
 export async function api<T>(
@@ -11,7 +13,7 @@ export async function api<T>(
   if (init?.perfil) {
     headers.set("x-perfil", init.perfil);
   }
-  const res = await fetch(path, { ...init, headers });
+  const res = await fetch(urlApi(path), { ...init, headers });
   const text = await res.text();
   const data = text ? JSON.parse(text) : null;
   if (!res.ok) {

@@ -10,12 +10,12 @@ Registro técnico: [bancada/ambiente-registro.md](bancada/ambiente-registro.md).
 
 | Serviço | URL (atualizar após deploy) |
 |---|---|
-| API (Render) | `https://<pendente>.onrender.com` |
-| Health check | `GET …/health` → `{"ok":true}` |
+| API (Render) | `https://fila-virtual-api.onrender.com` _(nome do blueprint; confirmar após deploy)_ |
+| Health check | `GET …/health` → `{"status":"ok"}` |
 | SSE fila | `GET …/fila/stream` |
-| Telas — recepção | `https://<pendente>.vercel.app/recepcao` _(Squad 3)_ |
-| Telas — veterinário | `https://<pendente>.vercel.app/veterinario` |
-| Telas — tutor | `https://<pendente>.vercel.app/tutor` |
+| Telas — recepção | `https://<pendente>.vercel.app/#/recepcao` |
+| Telas — veterinário | `https://<pendente>.vercel.app/#/veterinario` |
+| Telas — tutor | `https://<pendente>.vercel.app/#/tutor/<token>` |
 
 Enquanto as telas não estiverem no ar, use a API com `curl` ou Postman conforme [exemplos-headers.md](bancada/exemplos-headers.md).
 
