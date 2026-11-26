@@ -28,7 +28,7 @@ Local: `docker compose up -d` + `apps/api/.env` (ver `.env.example`).
    | Campo | Valor |
    |---|---|
    | Root directory | repositório (monorepo) |
-   | Build | `npm ci && npm run db:migrate -w apps/api` |
+   | Build | `npm ci --include=dev && npm run db:migrate -w apps/api` |
    | Start | `npm run start -w apps/api` |
    | Health check | `GET /health` |
 

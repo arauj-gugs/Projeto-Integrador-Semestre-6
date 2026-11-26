@@ -6,7 +6,7 @@ services:
     runtime: node
     plan: free
     region: oregon
-    buildCommand: npm ci && npm run db:migrate -w apps/api
+    buildCommand: npm ci --include=dev && npm run db:migrate -w apps/api
     startCommand: npm run start -w apps/api
     healthCheckPath: /health
     envVars:

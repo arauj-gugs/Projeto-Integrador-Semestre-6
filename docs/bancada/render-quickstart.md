@@ -18,7 +18,9 @@ Checklist para quem ainda não tem serviço no Render. Detalhes em [deploy.md](d
 2. Repo: `arauj-gugs/Projeto-Integrador-Semestre-6` (branch `main`).
 3. Serviço `fila-virtual-api` aparece no preview.
 4. Preencher **`DATABASE_URL`** com a string do Neon.
-5. **Apply** / aguardar build (`npm ci` + `db:migrate` + start).
+5. **Apply** / aguardar build (`npm ci --include=dev` + `db:migrate` + start).
+
+`NODE_ENV=production` no blueprint faz o `npm ci` pular devDependencies; sem `--include=dev`, `drizzle-kit` e `tsx` somem (exit **127**).
 
 ### Se o build falhar por Node
 
@@ -28,7 +30,7 @@ Environment → add **`NODE_VERSION`** = `24`.
 
 | Campo | Valor |
 |---|---|
-| Build | `npm ci && npm run db:migrate -w apps/api` |
+| Build | `npm ci --include=dev && npm run db:migrate -w apps/api` |
 | Start | `npm run start -w apps/api` |
 | Health | `/health` |
 
