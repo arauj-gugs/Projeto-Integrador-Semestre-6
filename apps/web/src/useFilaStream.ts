@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from "react";
+import { urlApi } from "./apiBase";
 
 export type ItemFilaSnapshot = {
   id: string;
@@ -71,7 +72,7 @@ export function useFilaStream() {
   const recarregar = useCallback(async () => {
     setAtualizando(true);
     try {
-      const res = await fetch("/fila/estado");
+      const res = await fetch(urlApi("/fila/estado"));
       if (!res.ok) return;
       const data = (await res.json()) as SnapshotFila;
       if (!cancelledRef.current) setSnapshot(data);
@@ -89,7 +90,7 @@ export function useFilaStream() {
     pollTimer = setInterval(() => void recarregar(), POLLING_MS);
 
     function conectar() {
-      const es = new EventSource("/fila/stream");
+      const es = new EventSource(urlApi("/fila/stream"));
       esRef.current = es;
       es.addEventListener("fila-atualizada", (ev) => {
         try {

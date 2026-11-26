@@ -1,6 +1,7 @@
 import { readFileSync, existsSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
+import cors from "@fastify/cors";
 import swagger from "@fastify/swagger";
 import swaggerUi from "@fastify/swagger-ui";
 import Fastify from "fastify";
@@ -18,6 +19,7 @@ import { registerAtendimentos } from "./routes/atendimentos.js";
 import { registerCadastro } from "./routes/cadastro.js";
 import { registerFilaStream } from "./routes/fila-stream.js";
 import { registerTutorAcionamento } from "./routes/tutor-acionamento.js";
+import { configurarCorsOrigin } from "./cors-origins.js";
 import { hostLocal } from "./http/host-local.js";
 
 /** Carrega apps/api/.env se existir (dev local). */
@@ -44,6 +46,12 @@ export async function buildApp() {
   const app = Fastify({ logger: false }).withTypeProvider<ZodTypeProvider>();
   app.setValidatorCompiler(validatorCompiler);
   app.setSerializerCompiler(serializerCompiler);
+
+  await app.register(cors, {
+    origin: configurarCorsOrigin(),
+    methods: ["GET", "POST", "PATCH", "PUT", "DELETE", "OPTIONS"],
+    allowedHeaders: ["content-type", "x-perfil"],
+  });
 
   await app.register(swagger, {
     openapi: {

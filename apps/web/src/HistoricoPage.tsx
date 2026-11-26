@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
+import { urlApi } from "./apiBase";
 import { TIPOS_ATENDIMENTO, rotuloTipo } from "./rotulos";
 
 type HistoricoItem = {
@@ -46,7 +47,7 @@ export function HistoricoPage() {
     try {
       const params = new URLSearchParams({ dia });
       if (tipo) params.set("tipo", tipo);
-      const res = await fetch(`/historico?${params.toString()}`);
+      const res = await fetch(urlApi(`/historico?${params.toString()}`));
       if (!res.ok) {
         throw new Error(`HTTP ${res.status}`);
       }

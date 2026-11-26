@@ -30,7 +30,7 @@ A empresa concorrente testa a partir de **16/11** ([stakeholders](../requirement
 
 | Serviço | URL | Health |
 |---|---|---|
-| API (Render) | _(pendente)_ | `GET /health` |
+| API (Render) | `https://fila-virtual-api.onrender.com` _(confirmar)_ | `GET /health` |
 | Telas (Vercel) — recepção | _(pendente)_ | — |
 | Telas (Vercel) — veterinário | _(pendente)_ | — |
 | Telas (Vercel) — tutor | _(pendente)_ | — |
@@ -43,8 +43,8 @@ A empresa concorrente testa a partir de **16/11** ([stakeholders](../requirement
 | Dependência | Dono | Estado |
 |---|---|---|
 | `apps/api` com `npm run start` + `/health` | Squad 1 | Entregue no repo |
-| Deploy Render + Neon (quando persistir) | Gerente / Squad 1 | Pendente |
-| `apps/web` publicado | Squad 3 | Pendente |
+| Deploy Render + Neon | Gerente / Squad 1 | `render.yaml` + migrate no build |
+| `apps/web` + `vercel.json` | Squad 3 | Config no repo; URL após deploy |
 | Monitor 5 min (RNF-10) | Gerente | [monitor-rnf10.md](monitor-rnf10.md) — configurar após URL |
 | Seed pós-deploy | Qualquer integrante | `node scripts/seed-bancada.mjs` |
 

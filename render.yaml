@@ -6,12 +6,17 @@ services:
     runtime: node
     plan: free
     region: oregon
-    buildCommand: npm ci
+    buildCommand: npm ci && npm run db:migrate -w apps/api
     startCommand: npm run start -w apps/api
     healthCheckPath: /health
     envVars:
       - key: NODE_ENV
         value: production
-      # - key: DATABASE_URL
-      #   sync: false
-      # Conectar manualmente ao Neon quando persistência existir (deploy.md).
+      - key: NODE_VERSION
+        value: "24"
+      - key: DATABASE_URL
+        sync: false
+      # Neon: colar connection string no painel Render (deploy.md).
+      - key: CORS_ORIGIN
+        sync: false
+      # URL Vercel (production) após primeiro deploy do front.
