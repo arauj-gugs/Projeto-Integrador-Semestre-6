@@ -68,7 +68,11 @@ export async function buildApp() {
     routePrefix: "/docs",
   });
 
-  app.get("/health", async () => ({ status: "ok" }));
+  app.get("/health", async () => ({
+    status: "ok",
+    servico: "fila-virtual-fastify",
+    versao: "0.1.0",
+  }));
 
   /** Limpa banco e zera códigos. Só em localhost (demo local). */
   app.post("/dev/reset", async (request, reply) => {
@@ -124,7 +128,14 @@ export async function buildApp() {
     async (request) => historicoDoDia(request.query),
   );
 
-  await reiniciarEstadoDaFila();
+  try {
+    await reiniciarEstadoDaFila();
+  } catch (err) {
+    console.error(
+      "[fila] Falha ao hidratar estado do Postgres (API sobe mesmo assim):",
+      err,
+    );
+  }
 
   return app;
 }

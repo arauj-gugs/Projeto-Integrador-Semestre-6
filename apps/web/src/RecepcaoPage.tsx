@@ -110,20 +110,48 @@ export function RecepcaoPage() {
 
   const carregarCadastro = useCallback(async () => {
     const perfil = { perfil: "recepcao" as const };
-    const [a, t, g] = await Promise.all([
-      api<Animal[]>("/animais", perfil),
-      api<Tutor[]>("/tutores", perfil),
-      api<Agendamento[]>("/agendamentos", perfil),
-    ]);
-    setAnimais(a);
-    setTutores(t);
-    setAgendamentos(g);
+    const rotas = [
+      { path: "/animais", rotulo: "animais" },
+      { path: "/tutores", rotulo: "tutores" },
+      { path: "/agendamentos", rotulo: "agenda" },
+    ] as const;
+    const results = await Promise.allSettled(
+      rotas.map((r) =>
+        r.path === "/animais"
+          ? api<Animal[]>(r.path, perfil)
+          : r.path === "/tutores"
+            ? api<Tutor[]>(r.path, perfil)
+            : api<Agendamento[]>(r.path, perfil),
+      ),
+    );
+    const falhas = results
+      .map((r, i) => ({ r, path: rotas[i].path, rotulo: rotas[i].rotulo }))
+      .filter(
+        (x): x is { r: PromiseRejectedResult; path: string; rotulo: string } =>
+          x.r.status === "rejected",
+      );
+    if (falhas.length > 0) {
+      const detalhe = falhas
+        .map(({ path, r }) => {
+          const status = (r.reason as { status?: number }).status;
+          return status ? `${path} (HTTP ${status})` : path;
+        })
+        .join(", ");
+      throw new Error(detalhe);
+    }
+    setAnimais((results[0] as PromiseFulfilledResult<Animal[]>).value);
+    setTutores((results[1] as PromiseFulfilledResult<Tutor[]>).value);
+    setAgendamentos(
+      (results[2] as PromiseFulfilledResult<Agendamento[]>).value,
+    );
   }, []);
 
   useEffect(() => {
-    void carregarCadastro().catch(() =>
-      setErroCarga("Não foi possível carregar animais/agenda"),
-    );
+    void carregarCadastro().catch((err) => {
+      const detalhe =
+        err instanceof Error && err.message ? `: ${err.message}` : "";
+      setErroCarga(`Não foi possível carregar animais/agenda${detalhe}`);
+    });
   }, [carregarCadastro]);
 
   const animaisWalkIn = useMemo(

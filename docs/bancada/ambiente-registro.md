@@ -19,7 +19,7 @@ A empresa concorrente testa a partir de **16/11** ([stakeholders](../requirement
 
 | Critério | Estado | Evidência |
 |---|---|---|
-| Ambiente publicado | Parcial | Render: `https://fila-virtual-api.onrender.com` · Vercel: `https://fila-virtual-lemon.vercel.app` |
+| Ambiente publicado | Parcial | Render: `https://fila-virtual-api-hfio.onrender.com` · Vercel: `https://fila-virtual-lemon.vercel.app` |
 | Dados de teste | Parcial | [`scripts/seed-bancada.mjs`](../../scripts/seed-bancada.mjs) + [dados-teste.md](dados-teste.md) |
 | Usuários recepção e veterinário | Parcial | Header `x-perfil` documentado no [manual](../manual-bancada.md) |
 | Instruções no manual | Parcial | [manual-bancada.md](../manual-bancada.md) (URLs finais após deploy) |
@@ -30,7 +30,7 @@ A empresa concorrente testa a partir de **16/11** ([stakeholders](../requirement
 
 | Serviço | URL | Health |
 |---|---|---|
-| API (Render) | `https://fila-virtual-api.onrender.com` | `GET /health`; validar `GET /fila/estado` |
+| API (Render) | `https://fila-virtual-api-hfio.onrender.com` | `GET /health`; validar `GET /fila/estado` |
 | Telas (Vercel) — recepção | `https://fila-virtual-lemon.vercel.app/#/recepcao` | — |
 | Telas (Vercel) — veterinário | `https://fila-virtual-lemon.vercel.app/#/veterinario` | — |
 | Telas (Vercel) — tutor | `https://fila-virtual-lemon.vercel.app/#/tutor/<token>` | — |

@@ -1,0 +1,34 @@
+# Dispara redeploy da API no Render quando a secret RENDER_API_KEY existir no repo.
+name: Render API deploy
+run-name: Deploy API (Render CLI)
+on:
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Install Render CLI
+        run: |
+          curl -fsSL -o render.zip https://github.com/render-oss/cli/releases/download/v1.1.0/cli_1.1.0_linux_amd64.zip
+          unzip render.zip
+          sudo mv cli_v1.1.0 /usr/local/bin/render
+      - name: Trigger deploy
+        env:
+          RENDER_API_KEY: ${{ secrets.RENDER_API_KEY }}
+          CI: "true"
+        run: |
+          render deploys create "${{ secrets.RENDER_SERVICE_ID }}" --output json --confirm --wait
+
+  verify:
+    needs: deploy
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+      - name: Verify Fastify + rotas
+        env:
+          BANCADA_API_URL: https://fila-virtual-api-hfio.onrender.com
+        run: node scripts/verify-bancada-api.mjs

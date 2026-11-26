@@ -10,7 +10,7 @@ Registro técnico: [bancada/ambiente-registro.md](bancada/ambiente-registro.md).
 
 | Serviço | URL (atualizar após deploy) |
 |---|---|
-| API (Render) | `https://fila-virtual-api.onrender.com` |
+| API (Render) | `https://fila-virtual-api-hfio.onrender.com` |
 | Health check | `GET …/health` → `{"status":"ok"}` |
 | SSE fila | `GET …/fila/stream` |
 | Telas — recepção | `https://fila-virtual-lemon.vercel.app/#/recepcao` |

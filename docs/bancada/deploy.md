@@ -41,7 +41,7 @@ Local: `docker compose up -d` + `apps/api/.env` (ver `.env.example`).
    | `CORS_ORIGIN` | URL principal Vercel (ver §4); previews `*.vercel.app` são aceitos pela API |
    | `PORT` | Injetado pelo Render |
 
-4. Após deploy: `curl https://<servico>.onrender.com/health` → `{"status":"ok"}`.
+4. Após deploy: `npm run verify:bancada-api` (ou `GET /health` → `servico: fila-virtual-fastify`).
 
 ---
 
@@ -62,7 +62,7 @@ O monorepo inclui [`vercel.json`](../../vercel.json) na raiz:
 
    | Variável | Valor |
    |---|---|
-   | `VITE_API_URL` | `https://fila-virtual-api.onrender.com` (sem barra final) |
+   | `VITE_API_URL` | `https://fila-virtual-api-hfio.onrender.com` (slug Render do blueprint; **não** usar `fila-virtual-api.onrender.com`, stub legado) |
 
 4. Deploy. Rotas usam hash: `https://<projeto>.vercel.app/#/recepcao`, `#/veterinario`, `#/tutor/<token>`.
 
@@ -90,12 +90,12 @@ Validar fila em `https://<projeto>.vercel.app/#/recepcao` (SSE ou polling ≤ 5 
 
 ## 6. Checklist PR (#67)
 
-- [x] Health 200 na URL pública Render (`https://fila-virtual-api.onrender.com/health`)
+- [x] Health 200 na URL pública Render (`https://fila-virtual-api-hfio.onrender.com/health`)
 - [x] Migrations aplicadas no build Render (blueprint `npm ci --include=dev` + migrate)
-- [ ] API funcional: `GET /fila/estado` e `POST /atendimentos` (não só health)
-- [x] Vercel com `VITE_API_URL=https://fila-virtual-api.onrender.com` (`fila-virtual-lemon.vercel.app`)
-- [ ] `CORS_ORIGIN=https://fila-virtual-lemon.vercel.app` + redeploy Render
-- [ ] Seed concluído (`node scripts/seed-bancada.mjs`)
+- [x] API funcional: `npm run verify:bancada-api` (Fastify, não stub Express legado)
+- [x] Vercel com `VITE_API_URL=https://fila-virtual-api-hfio.onrender.com` (`fila-virtual-lemon.vercel.app`)
+- [x] `CORS_ORIGIN=https://fila-virtual-lemon.vercel.app` (serviço `fila-virtual-api-hfio`)
+- [x] Seed concluído (`npm run seed:bancada` contra hfio)
 - [x] Manual com URL Render ([manual-bancada.md](../manual-bancada.md)); Vercel após primeiro deploy
 - [ ] Monitor RNF-10 configurado ([monitor-rnf10.md](monitor-rnf10.md))
 

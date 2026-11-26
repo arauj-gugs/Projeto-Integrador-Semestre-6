@@ -37,7 +37,7 @@ Environment → add **`NODE_VERSION`** = `24`.
 ## 3. Validar
 
 ```text
-GET https://fila-virtual-api.onrender.com/health
+GET https://fila-virtual-api-hfio.onrender.com/health
 ```
 
 Resposta esperada do Fastify: `{"status":"ok"}` (cold start no free tier pode levar ~60 s).
@@ -49,10 +49,18 @@ Confirme que a API responde de verdade (não só o health check do painel):
 
 Se só `/health` responder e o resto for **404**, abra **Logs** no Render e confira se o processo `npm run start -w apps/api` subiu.
 
+**Stub Express (legado):** se `GET /health` retornar `info`/`details` ou `GET /animais` responder `Cannot GET /animais`, o serviço **não** está rodando este Fastify. Confira repositório/branch, build e start no painel; depois **Clear build cache & deploy**. Validação automatizada:
+
+```bash
+npm run verify:bancada-api
+```
+
+Resposta esperada de `GET /health`: `{"status":"ok","servico":"fila-virtual-fastify","versao":"0.1.0"}`.
+
 ## 4. Próximo
 
 ```bash
-BANCADA_API_URL=https://fila-virtual-api.onrender.com node scripts/seed-bancada.mjs
+BANCADA_API_URL=https://fila-virtual-api-hfio.onrender.com node scripts/seed-bancada.mjs
 ```
 
 ## 5. CORS (após Vercel)
@@ -62,7 +70,7 @@ No Render → **Environment** → `CORS_ORIGIN` = `https://<seu-projeto>.vercel.
 ## 6. Seed
 
 ```bash
-BANCADA_API_URL=https://fila-virtual-api.onrender.com node scripts/seed-bancada.mjs
+BANCADA_API_URL=https://fila-virtual-api-hfio.onrender.com node scripts/seed-bancada.mjs
 ```
 
-Depois: Vercel com `VITE_API_URL=https://fila-virtual-api.onrender.com` (sem barra final).
+Depois: Vercel com `VITE_API_URL=https://fila-virtual-api-hfio.onrender.com` (sem barra final).
