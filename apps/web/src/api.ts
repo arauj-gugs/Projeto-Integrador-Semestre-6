@@ -15,7 +15,17 @@ export async function api<T>(
   }
   const res = await fetch(urlApi(path), { ...init, headers });
   const text = await res.text();
-  const data = text ? JSON.parse(text) : null;
+  let data: unknown = null;
+  if (text) {
+    try {
+      data = JSON.parse(text);
+    } catch {
+      throw Object.assign(new Error(`Resposta invalida em ${path}`), {
+        status: res.status,
+        body: text.slice(0, 200),
+      });
+    }
+  }
   if (!res.ok) {
     throw Object.assign(new Error(`HTTP ${res.status}`), {
       status: res.status,

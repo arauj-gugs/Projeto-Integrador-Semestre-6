@@ -15,6 +15,7 @@ test-results/
 
 # Hospedagem
 .vercel/
+.tools/
 
 # Logs e sistema
 *.log

@@ -1,0 +1,5 @@
+2026-11-26T02:13 UTC-3
+BANCADA_API_URL=https://fila-virtual-api-hfio.onrender.com
+npm run verify:bancada-api → OK (Fastify + /animais, /tutores, /agendamentos, /fila/estado)
+Nota: fila-virtual-api.onrender.com (sem sufixo) ainda e stub Express legado — nao usar.
+Vercel: VITE_API_URL atualizado para hfio + redeploy production.
